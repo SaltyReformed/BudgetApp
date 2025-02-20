@@ -1,0 +1,76 @@
+<!-- # templates/admin/user_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white shadow-sm rounded-lg max-w-2xl mx-auto">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">{{ title }}</h3>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+        <form method="POST" class="space-y-6">
+            {{ form.hidden_tag() }}
+
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                <div class="mt-1">
+                    {{ form.username(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm
+                    border-gray-300 rounded-md") }}
+                </div>
+                {% for error in form.username.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <div class="mt-1">
+                    {{ form.email(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm
+                    border-gray-300 rounded-md") }}
+                </div>
+                {% for error in form.email.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                <div class="mt-1">
+                    {{ form.role(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm
+                    border-gray-300 rounded-md") }}
+                </div>
+                {% for error in form.role.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <div class="mt-1">
+                    {{ form.password(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm
+                    border-gray-300 rounded-md") }}
+                </div>
+                {% for error in form.password.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+                {% if title == 'Edit User' %}
+                <p class="mt-2 text-sm text-gray-500">Leave blank to keep current password</p>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center">
+                {{ form.is_active(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded") }}
+                <label for="is_active" class="ml-2 block text-sm text-gray-900">Active</label>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{{ url_for('admin.user_list') }}"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Cancel
+                </a>
+                {{ form.submit(class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium
+                rounded-md text-white bg-blue-600 hover:bg-blue-700") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

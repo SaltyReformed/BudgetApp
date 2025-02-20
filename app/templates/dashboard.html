@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- Top Action Bar -->
+    <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Financial Dashboard</h1>
+        <div class="space-x-4">
+            <a href="{{ url_for('main.add_paycheck') }}"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                Add Paycheck
+            </a>
+            <a href="{{ url_for('main.add_expense') }}"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                Add Expense
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Charts Section -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Income Chart -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Income Overview</h2>
+                <div class="h-72" id="income-chart"></div>
+            </div>
+
+            <!-- Expenses Chart -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h2>
+                <div class="h-72" id="expense-chart"></div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="space-y-6">
+            <!-- Recent Paychecks -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Recent Paychecks</h2>
+                </div>
+                <div class="p-4">
+                    <div class="space-y-4">
+                        {% for paycheck in paychecks %}
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ paycheck.date.strftime('%Y-%m-%d') }}
+                                </p>
+                                <p class="text-sm text-gray-500">{{ paycheck.pay_type }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">${{ "%.2f"|format(paycheck.net_amount) }}
+                                </p>
+                                <p class="text-xs text-gray-500">Gross: ${{ "%.2f"|format(paycheck.gross_amount) }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Expenses -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Recent Expenses</h2>
+                </div>
+                <div class="p-4">
+                    <div class="space-y-4">
+                        {% for expense in expenses %}
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ expense.date.strftime('%Y-%m-%d') }}</p>
+                                <p class="text-sm text-gray-500">{{ expense.category }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">${{ "%.2f"|format(expense.amount) }}</p>
+                                <p class="text-xs text-gray-500">{{ expense.description }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="bg-white rounded-lg shadow p-4">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Financial Summary</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Total Income</span>
+                        <span class="text-sm font-medium text-gray-900">${{ "%.2f"|format(total_income) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Total Expenses</span>
+                        <span class="text-sm font-medium text-gray-900">${{ "%.2f"|format(total_expenses) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t">
+                        <span class="text-sm font-medium text-gray-900">Net Balance</span>
+                        <span
+                            class="text-sm font-medium {% if (total_income - total_expenses) >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            ${{ "%.2f"|format(total_income - total_expenses) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Prepare data for charts
+    const paycheckData = {{ paycheck_data| tojson | safe }};
+    const expenseData = {{ expense_data| tojson | safe }};
+
+    // Create Income Chart using Recharts
+    const IncomeChart = () => {
+        const data = paycheckData.map(p => ({
+            date: new Date(p.date).toLocaleDateString(),
+            gross: p.gross_amount,
+            net: p.net_amount
+        }));
+
+        return React.createElement(Recharts.ResponsiveContainer, { width: '100%', height: '100%' },
+            React.createElement(Recharts.LineChart, { data: data },
+                React.createElement(Recharts.CartesianGrid, { strokeDasharray: '3 3' }),
+                React.createElement(Recharts.XAxis, { dataKey: 'date' }),
+                React.createElement(Recharts.YAxis),
+                React.createElement(Recharts.Tooltip),
+                React.createElement(Recharts.Legend),
+                React.createElement(Recharts.Line, {
+                    type: 'monotone',
+                    dataKey: 'gross',
+                    stroke: '#8884d8',
+                    name: 'Gross Income'
+                }),
+                React.createElement(Recharts.Line, {
+                    type: 'monotone',
+                    dataKey: 'net',
+                    stroke: '#82ca9d',
+                    name: 'Net Income'
+                })
+            )
+        );
+    };
+
+    // Create Expense Chart using Recharts
+    const ExpenseChart = () => {
+        const data = expenseData.map(e => ({
+            date: new Date(e.date).toLocaleDateString(),
+            amount: e.amount,
+            category: e.category
+        }));
+
+        return React.createElement(Recharts.ResponsiveContainer, { width: '100%', height: '100%' },
+            React.createElement(Recharts.BarChart, { data: data },
+                React.createElement(Recharts.CartesianGrid, { strokeDasharray: '3 3' }),
+                React.createElement(Recharts.XAxis, { dataKey: 'date' }),
+                React.createElement(Recharts.YAxis),
+                React.createElement(Recharts.Tooltip),
+                React.createElement(Recharts.Legend),
+                React.createElement(Recharts.Bar, {
+                    dataKey: 'amount',
+                    fill: '#82ca9d',
+                    name: 'Expense Amount'
+                })
+            )
+        );
+    };
+
+    // Mount the charts when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        const incomeRoot = ReactDOM.createRoot(document.getElementById('income-chart'));
+        incomeRoot.render(React.createElement(IncomeChart));
+
+        const expenseRoot = ReactDOM.createRoot(document.getElementById('expense-chart'));
+        expenseRoot.render(React.createElement(ExpenseChart));
+    });
+</script>
+{% endblock %}

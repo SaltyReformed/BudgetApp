@@ -1,0 +1,66 @@
+{# templates/finance/budget.html #}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+        <h1 class="text-2xl font-bold mb-4">Budget Tracker</h1>
+        <!-- Mount point for React component -->
+        <div id="budget-tracker-root">
+            <!-- Fallback content in case React fails to load -->
+            <p class="text-gray-600">Loading budget tracker...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Debug data -->
+<script>
+    console.log('Budget data:', {
+        periods: {{ periods_json | safe }},
+        summary: {{ summary_json | safe }}
+    });
+</script>
+
+<!-- Make data available to React -->
+<script>
+    // Ensure data is properly defined with default values
+    window.budgetData = {
+        periods: {{ periods_json | safe }} || [],
+            summary: { { summary_json | safe } } || {
+                totalIncome: 0,
+                totalExpenses: 0,
+                net: 0,
+                projectedBalance: 0
+            }
+    };
+</script>
+
+<!-- Mount React component -->
+<script type="module">
+    console.log('Starting to mount React component...');
+    try {
+        // Load the React component
+        const module = await import('{{ url_for("static", filename="js/components/budget-tracker.js") }}');
+        console.log('Module loaded:', module);
+
+        const BudgetTracker = module.default;
+        console.log('BudgetTracker component:', BudgetTracker);
+
+        // Create root and render
+        const rootElement = document.getElementById('budget-tracker-root');
+        const root = ReactDOM.createRoot(rootElement);
+
+        // Render with props
+        root.render(React.createElement(BudgetTracker, window.budgetData));
+        console.log('Component rendered successfully');
+    } catch (error) {
+        console.error('Error loading budget tracker:', error);
+        document.getElementById('budget-tracker-root').innerHTML =
+            '<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">' +
+            '<p>Error loading budget tracker: ' + error.message + '</p>' +
+            '</div>';
+    }
+</script>
+{% endblock %}

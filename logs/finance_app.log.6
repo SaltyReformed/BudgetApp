@@ -1,0 +1,114 @@
+2025-02-17 21:11:19,662 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:43]
+2025-02-17 21:12:11,529 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:43]
+2025-02-17 21:15:44,660 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:43]
+2025-02-17 21:15:53,000 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:43]
+2025-02-17 21:16:40,015 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:43]
+2025-02-17 21:16:57,933 ERROR: Exception on / [GET] [in /home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py:825]
+Traceback (most recent call last):
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/app/routes.py", line 14, in index
+    return render_template("index.html", title="Home")
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: index.html
+2025-02-17 21:16:57,936 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in /home/josh/BudgetApp/app/errors.py:19]
+2025-02-17 21:17:04,958 ERROR: Exception on / [GET] [in /home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py:825]
+Traceback (most recent call last):
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/app/routes.py", line 14, in index
+    return render_template("index.html", title="Home")
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: index.html
+2025-02-17 21:17:04,960 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in /home/josh/BudgetApp/app/errors.py:19]
+2025-02-17 21:17:10,210 ERROR: Exception on / [GET] [in /home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py:825]
+Traceback (most recent call last):
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/app/routes.py", line 14, in index
+    return render_template("index.html", title="Home")
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: index.html
+2025-02-17 21:17:10,213 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in /home/josh/BudgetApp/app/errors.py:19]
+2025-02-17 21:17:29,615 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:43]

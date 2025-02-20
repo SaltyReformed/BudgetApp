@@ -1,0 +1,72 @@
+2025-02-17 22:18:12,138 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:18:39,092 ERROR: Exception on /dashboard [GET] [in /home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py:825]
+Traceback (most recent call last):
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/app/routes.py", line 60, in dashboard
+    paychecks_json=json.dumps(paychecks_data),
+                   ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+2025-02-17 22:18:39,094 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in /home/josh/BudgetApp/app/errors.py:19]
+2025-02-17 22:19:14,242 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-17 22:19:20,056 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:19:23,442 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:24:47,607 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-17 22:24:50,763 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:24:53,883 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:35:01,045 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-17 22:35:06,995 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:35:11,133 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:37:56,646 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-17 22:37:57,156 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-17 22:38:02,077 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:38:06,519 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:40:05,387 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-17 22:40:11,182 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:40:16,241 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:41:02,094 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-17 22:41:24,948 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-18 20:09:08,883 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-18 20:09:09,397 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-18 21:17:11,389 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-18 21:17:11,909 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-19 23:11:39,624 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-19 23:11:40,159 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-19 23:11:53,435 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 07:14:00,511 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 07:14:01,025 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 07:14:12,984 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 07:14:32,698 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 07:14:39,602 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 07:45:48,640 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 07:45:49,193 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 07:45:56,679 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 07:48:05,638 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 07:48:06,185 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 07:48:10,865 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 07:48:18,246 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 10:53:33,911 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:53:34,434 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:57:48,347 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:57:48,880 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:57:55,181 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 10:58:00,432 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 10:58:24,762 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:58:26,449 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:58:30,293 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:59:00,070 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:59:03,125 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 10:59:22,858 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 10:59:25,991 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 10:59:29,792 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 10:59:41,690 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
