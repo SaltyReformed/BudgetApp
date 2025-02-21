@@ -1,7 +1,12 @@
 // app/static/js/components/add-income-modal.js
 
-const AddIncomeModal = ({ isOpen, onClose, onSave, periods }) => {
+const AddIncomeModal = ({ isOpen, onClose, onSave, periods, activePeriod }) => {
+  console.log('Rendering AddIncomeModal - isOpen:', isOpen, 'activePeriod:', activePeriod);
+  
   if (!isOpen) return null;
+
+  // Set default date to today
+  const today = new Date().toISOString().split('T')[0];
 
   // Create a form with date selection, income type, and amount
   return React.createElement('div', {
@@ -24,21 +29,23 @@ const AddIncomeModal = ({ isOpen, onClose, onSave, periods }) => {
         id: 'income-form',
         onSubmit: (e) => {
           e.preventDefault();
+          console.log('Form submitted');
           const formData = new FormData(e.target);
           
-          const data = {
+          const incomeData = {
             date: formData.get('date'),
-            period_id: formData.get('period'),
             income_type: formData.get('income_type'),
-            amount: parseFloat(formData.get('amount'))
+            amount: parseFloat(formData.get('amount')),
+            description: formData.get('description') || ''
           };
           
-          onSave(data);
+          console.log('Income data to save:', incomeData);
+          onSave(incomeData);
         },
         className: 'space-y-4'
       },
-        // Period Selection
-        React.createElement('div', null,
+        // Period Selection (only if activePeriod is not set)
+        !activePeriod && React.createElement('div', null,
           React.createElement('label', { 
             htmlFor: 'period',
             className: 'block text-sm font-medium text-gray-700 mb-1'
@@ -46,14 +53,14 @@ const AddIncomeModal = ({ isOpen, onClose, onSave, periods }) => {
           React.createElement('select', {
             name: 'period',
             id: 'period',
-            required: true,
             className: 'mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md'
           },
-            React.createElement('option', { value: '' }, 'Select a period'),
+            React.createElement('option', { value: '' }, 'Select a period (optional)'),
             periods.map(period => 
               React.createElement('option', { 
                 key: period.id, 
-                value: period.id 
+                value: period.id,
+                selected: activePeriod === period.id
               }, period.date)
             )
           )
@@ -80,6 +87,21 @@ const AddIncomeModal = ({ isOpen, onClose, onSave, periods }) => {
           )
         ),
         
+        // Description Input
+        React.createElement('div', null,
+          React.createElement('label', { 
+            htmlFor: 'description',
+            className: 'block text-sm font-medium text-gray-700 mb-1'
+          }, 'Description (optional)'),
+          React.createElement('input', {
+            type: 'text',
+            name: 'description',
+            id: 'description',
+            placeholder: 'E.g., Bonus, Reimbursement, etc.',
+            className: 'mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md'
+          })
+        ),
+        
         // Date Input
         React.createElement('div', null,
           React.createElement('label', { 
@@ -91,6 +113,7 @@ const AddIncomeModal = ({ isOpen, onClose, onSave, periods }) => {
             name: 'date',
             id: 'date',
             required: true,
+            defaultValue: today,
             className: 'mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md'
           })
         ),
@@ -101,16 +124,21 @@ const AddIncomeModal = ({ isOpen, onClose, onSave, periods }) => {
             htmlFor: 'amount',
             className: 'block text-sm font-medium text-gray-700 mb-1'
           }, 'Amount'),
-          React.createElement('input', {
-            type: 'number',
-            name: 'amount',
-            id: 'amount',
-            step: '0.01',
-            required: true,
-            min: '0',
-            placeholder: '0.00',
-            className: 'mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md'
-          })
+          React.createElement('div', { className: 'mt-1 relative rounded-md shadow-sm' },
+            React.createElement('div', { className: 'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none' },
+              React.createElement('span', { className: 'text-gray-500 sm:text-sm' }, '$')
+            ),
+            React.createElement('input', {
+              type: 'number',
+              name: 'amount',
+              id: 'amount',
+              step: '0.01',
+              required: true,
+              min: '0',
+              placeholder: '0.00',
+              className: 'focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md'
+            })
+          )
         ),
         
         // Form Buttons

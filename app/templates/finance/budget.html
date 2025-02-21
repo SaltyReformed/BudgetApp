@@ -1,66 +1,378 @@
-{# templates/finance/budget.html #}
 {% extends "base.html" %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
-        <h1 class="text-2xl font-bold mb-4">Budget Tracker</h1>
-        <!-- Mount point for React component -->
-        <div id="budget-tracker-root">
-            <!-- Fallback content in case React fails to load -->
-            <p class="text-gray-600">Loading budget tracker...</p>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Budget Tracker</h1>
+
+            <!-- Date Range Form -->
+            <form method="GET" action="{{ url_for('main.budget') }}" class="flex items-center space-x-2">
+                <div>
+                    <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ start_date }}"
+                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ end_date }}"
+                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label for="starting_balance" class="block text-sm font-medium text-gray-700">Starting
+                        Balance</label>
+                    <div class="relative mt-1 rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" name="starting_balance" id="starting_balance" step="0.01"
+                            value="{{ starting_balance }}"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                </div>
+                <div class="self-end pb-0.5">
+                    <button type="submit"
+                        class="px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Budget Summary with Period Columns -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Budget Summary ({{ start_date }} to {{ end_date }})</h2>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b">
+                            <th class="text-left py-2 px-4">Category</th>
+                            {% for period in periods %}
+                            <th class="text-right py-2 px-4">{{ period.date }}</th>
+                            {% endfor %}
+                            <th class="text-right py-2 px-4 bg-gray-100">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Starting Balance Row -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4 font-medium">Starting Balance</td>
+                            <td class="text-right py-2 px-4 {% if summary.startingBalance >= 0 %}text-green-600{% else %}text-red-600{% endif %}"
+                                colspan="{{ periods|length }}">
+                                ${{ "%.2f"|format(summary.startingBalance) }}
+                            </td>
+                            <td
+                                class="text-right py-2 px-4 {% if summary.startingBalance >= 0 %}text-green-600{% else %}text-red-600{% endif %} bg-gray-100">
+                                ${{ "%.2f"|format(summary.startingBalance) }}
+                            </td>
+                        </tr>
+
+                        <!-- Income Row -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4 font-medium">Income</td>
+                            {% for period in periods %}
+                            <td class="text-right py-2 px-4 text-green-600">
+                                ${{ "%.2f"|format(period_data[period.id].income.total) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 font-bold text-green-600 bg-gray-100">
+                                ${{ "%.2f"|format(summary.totalIncome) }}
+                            </td>
+                        </tr>
+
+                        <!-- Expenses Row -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4 font-medium">Expenses</td>
+                            {% for period in periods %}
+                            {% set total_expenses = period_data[period.id].expenses.values()|sum %}
+                            <td class="text-right py-2 px-4 text-red-600">
+                                ${{ "%.2f"|format(total_expenses) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 font-bold text-red-600 bg-gray-100">
+                                ${{ "%.2f"|format(summary.totalExpenses) }}
+                            </td>
+                        </tr>
+
+                        <!-- Net Row -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4 font-medium">Net</td>
+                            {% for period in periods %}
+                            {% set period_income = period_data[period.id].income.total %}
+                            {% set period_expenses = period_data[period.id].expenses.values()|sum %}
+                            {% set period_net = period_income - period_expenses %}
+                            <td
+                                class="text-right py-2 px-4 {% if period_net >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                ${{ "%.2f"|format(period_net) }}
+                            </td>
+                            {% endfor %}
+                            <td
+                                class="text-right py-2 px-4 {% if summary.net >= 0 %}text-green-600{% else %}text-red-600{% endif %} bg-gray-100">
+                                ${{ "%.2f"|format(summary.net) }}
+                            </td>
+                        </tr>
+
+                        <!-- Projected End Balance Row - Running total accumulated across periods -->
+                        <tr class="bg-gray-50 font-bold">
+                            <td class="py-2 px-4">Projected End Balance</td>
+                            {% set running_balance = summary.startingBalance %}
+                            {% for period in periods %}
+                            {% set period_income = period_data[period.id].income.total %}
+                            {% set period_expenses = period_data[period.id].expenses.values()|sum %}
+                            {% set period_net = period_income - period_expenses %}
+                            {% set running_balance = running_balance + period_net %}
+                            <td
+                                class="text-right py-2 px-4 {% if running_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                ${{ "%.2f"|format(running_balance) }}
+                            </td>
+                            {% endfor %}
+                            <td
+                                class="text-right py-2 px-4 {% if summary.projectedBalance >= 0 %}text-green-600{% else %}text-red-600{% endif %} bg-gray-100">
+                                ${{ "%.2f"|format(summary.projectedBalance) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Income Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Income</h2>
+                <div class="flex space-x-2">
+                    <a href="{{ url_for('api.add_one_time_income') }}"
+                        class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Add One-Time Income
+                    </a>
+                    <a href="{{ url_for('main.add_paycheck') }}"
+                        class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                        Add Paycheck
+                    </a>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b">
+                            <th class="text-left py-2 px-4">Source</th>
+                            {% for period in periods %}
+                            <th class="text-right py-2 px-4">{{ period.date }}</th>
+                            {% endfor %}
+                            <th class="text-right py-2 px-4 bg-gray-100">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Calculate income totals -->
+                        {% set salary_total = 0 %}
+                        {% set phone_stipend_total = 0 %}
+                        {% set other_income_total = 0 %}
+                        {% set tax_return_total = 0 %}
+                        {% set transfer_total = 0 %}
+
+                        {% for period in periods %}
+                        {% set salary_total = salary_total + period_data[period.id].income.salary %}
+                        {% set phone_stipend_total = phone_stipend_total + period_data[period.id].income.phoneStipend %}
+                        {% set other_income_total = other_income_total + period_data[period.id].income.otherIncome %}
+                        {% set tax_return_total = tax_return_total + period_data[period.id].income.taxReturn %}
+                        {% set transfer_total = transfer_total + period_data[period.id].income.transfer %}
+                        {% endfor %}
+
+                        <!-- Salary -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4">Salary</td>
+                            {% for period in periods %}
+                            <td class="text-right py-2 px-4">
+                                ${{ "%.2f"|format(period_data[period.id].income.salary) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 bg-gray-100">
+                                ${{ "%.2f"|format(salary_total) }}
+                            </td>
+                        </tr>
+
+                        <!-- Phone Stipend -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4">Phone Stipend</td>
+                            {% for period in periods %}
+                            <td class="text-right py-2 px-4">
+                                ${{ "%.2f"|format(period_data[period.id].income.phoneStipend) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 bg-gray-100">
+                                ${{ "%.2f"|format(phone_stipend_total) }}
+                            </td>
+                        </tr>
+
+                        <!-- Other Income -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4">Other Income</td>
+                            {% for period in periods %}
+                            <td class="text-right py-2 px-4">
+                                ${{ "%.2f"|format(period_data[period.id].income.otherIncome) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 bg-gray-100">
+                                ${{ "%.2f"|format(other_income_total) }}
+                            </td>
+                        </tr>
+
+                        <!-- Tax Return -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4">Tax Return</td>
+                            {% for period in periods %}
+                            <td class="text-right py-2 px-4">
+                                ${{ "%.2f"|format(period_data[period.id].income.taxReturn) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 bg-gray-100">
+                                ${{ "%.2f"|format(tax_return_total) }}
+                            </td>
+                        </tr>
+
+                        <!-- Transfer -->
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4">Transfer from Savings</td>
+                            {% for period in periods %}
+                            <td class="text-right py-2 px-4">
+                                ${{ "%.2f"|format(period_data[period.id].income.transfer) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 bg-gray-100">
+                                ${{ "%.2f"|format(transfer_total) }}
+                            </td>
+                        </tr>
+
+                        <!-- Total Row -->
+                        <tr class="bg-gray-50 font-bold">
+                            <td class="py-2 px-4">Total</td>
+                            {% for period in periods %}
+                            <td class="text-right py-2 px-4 text-green-600">
+                                ${{ "%.2f"|format(period_data[period.id].income.total) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 text-green-600 bg-gray-100">
+                                ${{ "%.2f"|format(summary.totalIncome) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Expenses</h2>
+                <a href="{{ url_for('main.add_expense') }}"
+                    class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
+                    Add Expense
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                {% if period_data and periods %}
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b">
+                            <th class="text-left py-2 px-4">Category</th>
+                            {% for period in periods %}
+                            <th class="text-right py-2 px-4">{{ period.date }}</th>
+                            {% endfor %}
+                            <th class="text-right py-2 px-4 bg-gray-100">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set categories = [] %}
+                        {% set category_totals = {} %}
+
+                        {# Collect all unique expense categories #}
+                        {% for period_id, period_info in period_data.items() %}
+                        {% for category, amount in period_info.expenses.items() %}
+                        {% if category not in categories %}
+                        {% set _ = categories.append(category) %}
+                        {% set _ = category_totals.update({category: 0}) %}
+                        {% endif %}
+                        {% set _ = category_totals.update({category: category_totals[category] + amount}) %}
+                        {% endfor %}
+                        {% endfor %}
+
+                        {# Display each category row #}
+                        {% for category in categories %}
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4 capitalize">{{ category }}</td>
+                            {% for period in periods %}
+                            {% set amount = period_data[period.id].expenses.get(category, 0) %}
+                            <td class="text-right py-2 px-4">
+                                ${{ "%.2f"|format(amount) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 bg-gray-100">
+                                ${{ "%.2f"|format(category_totals[category]) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        <!-- Total Row -->
+                        <tr class="bg-gray-50 font-bold">
+                            <td class="py-2 px-4">Total Expenses</td>
+                            {% for period in periods %}
+                            {% set total_expenses = period_data[period.id].expenses.values()|sum %}
+                            <td class="text-right py-2 px-4 text-red-600">
+                                ${{ "%.2f"|format(total_expenses) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 text-red-600 bg-gray-100">
+                                ${{ "%.2f"|format(summary.totalExpenses) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-center text-gray-500 py-4">No expenses found for this period.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Paychecks -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Recent Paychecks</h2>
+                <a href="{{ url_for('main.manage_paychecks') }}" class="text-blue-600 hover:text-blue-800">
+                    View All
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                {% if paychecks %}
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b">
+                            <th class="text-left py-2 px-4">Date</th>
+                            <th class="text-left py-2 px-4">Type</th>
+                            <th class="text-right py-2 px-4">Gross</th>
+                            <th class="text-right py-2 px-4">Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paycheck in paychecks[:5] %}
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4">{{ paycheck.date.strftime('%m/%d/%Y') }}</td>
+                            <td class="py-2 px-4">{{ paycheck.pay_type }}</td>
+                            <td class="py-2 px-4 text-right">${{ "%.2f"|format(paycheck.gross_amount) }}</td>
+                            <td class="py-2 px-4 text-right text-green-600">${{ "%.2f"|format(paycheck.net_amount) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">No paychecks found in this date range.</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<!-- Debug data -->
-<script>
-    console.log('Budget data:', {
-        periods: {{ periods_json | safe }},
-        summary: {{ summary_json | safe }}
-    });
-</script>
-
-<!-- Make data available to React -->
-<script>
-    // Ensure data is properly defined with default values
-    window.budgetData = {
-        periods: {{ periods_json | safe }} || [],
-            summary: { { summary_json | safe } } || {
-                totalIncome: 0,
-                totalExpenses: 0,
-                net: 0,
-                projectedBalance: 0
-            }
-    };
-</script>
-
-<!-- Mount React component -->
-<script type="module">
-    console.log('Starting to mount React component...');
-    try {
-        // Load the React component
-        const module = await import('{{ url_for("static", filename="js/components/budget-tracker.js") }}');
-        console.log('Module loaded:', module);
-
-        const BudgetTracker = module.default;
-        console.log('BudgetTracker component:', BudgetTracker);
-
-        // Create root and render
-        const rootElement = document.getElementById('budget-tracker-root');
-        const root = ReactDOM.createRoot(rootElement);
-
-        // Render with props
-        root.render(React.createElement(BudgetTracker, window.budgetData));
-        console.log('Component rendered successfully');
-    } catch (error) {
-        console.error('Error loading budget tracker:', error);
-        document.getElementById('budget-tracker-root').innerHTML =
-            '<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">' +
-            '<p>Error loading budget tracker: ' + error.message + '</p>' +
-            '</div>';
-    }
-</script>
 {% endblock %}

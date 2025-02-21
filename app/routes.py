@@ -162,28 +162,139 @@ def dashboard():
     )
 
 
-@main.route("/budget")
+@main.route("/budget", methods=["GET", "POST"])
 @login_required
 def budget():
-    # Get the user's pay periods (bi-weekly)
-    today = datetime.today()
-    # Get last 3 months of bi-weekly periods
+    # Set default date range (last 3 months to today)
+    today = datetime.today().date()
+    default_start_date = today - timedelta(weeks=2)
+    default_end_date = today + timedelta(weeks=52)
+
+    # Get date range from query parameters or form submission
+    start_date = (
+        request.args.get("start_date")
+        or request.form.get("start_date")
+        or default_start_date.strftime("%Y-%m-%d")
+    )
+    end_date = (
+        request.args.get("end_date")
+        or request.form.get("end_date")
+        or default_end_date.strftime("%Y-%m-%d")
+    )
+
+    # Get starting balance (optional)
+    starting_balance = (
+        request.args.get("starting_balance")
+        or request.form.get("starting_balance")
+        or "0"
+    )
+    try:
+        starting_balance = float(starting_balance)
+    except ValueError:
+        starting_balance = 0
+
+    # Convert string dates to datetime objects
+    try:
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+    except ValueError:
+        # If there's an issue with the dates, use defaults
+        start_date_obj = default_start_date
+        end_date_obj = default_end_date
+        start_date = default_start_date.strftime("%Y-%m-%d")
+        end_date = default_end_date.strftime("%Y-%m-%d")
+
+    # Ensure end_date is not before start_date
+    if end_date_obj < start_date_obj:
+        end_date_obj = start_date_obj
+        end_date = start_date
+
+    # Get all paychecks for the user within the selected date range
+    paychecks_in_range = (
+        Paycheck.query.filter_by(user_id=current_user.id)
+        .filter(Paycheck.date >= start_date_obj, Paycheck.date <= end_date_obj)
+        .order_by(Paycheck.date)
+        .all()
+    )
+
+    # Get the expenses within the date range
+    expenses = (
+        Expense.query.filter_by(user_id=current_user.id)
+        .filter(Expense.date >= start_date_obj, Expense.date <= end_date_obj)
+        .order_by(Expense.date)
+        .all()
+    )
+
+    # Determine the pay periods based on actual paycheck dates
+    # We'll group paychecks that fall on the same day
+    paycheck_dates = {}
+    for paycheck in paychecks_in_range:
+        date_str = paycheck.date.strftime("%Y-%m-%d")
+        if date_str not in paycheck_dates:
+            paycheck_dates[date_str] = []
+        paycheck_dates[date_str].append(paycheck)
+
+    # If no paychecks in the range, use biweekly periods as fallback
+    if not paycheck_dates:
+        # Start from start_date and generate biweekly periods
+        current_date = start_date_obj
+        while current_date <= end_date_obj:
+            date_str = current_date.strftime("%Y-%m-%d")
+            paycheck_dates[date_str] = (
+                []
+            )  # Empty list means no actual paychecks on this date
+            current_date += timedelta(days=14)  # Biweekly
+
+    # Sort the dates chronologically
+    sorted_dates = sorted(paycheck_dates.keys())
+
+    # Create the periods list
     periods = []
-    current_date = today
-    for i in range(6):  # 6 bi-weekly periods
-        periods.append({"id": i + 1, "date": current_date.strftime("%m/%d/%Y")})
-        current_date -= timedelta(days=14)  # Go back 2 weeks
+    for i, date_str in enumerate(sorted_dates):
+        period_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        periods.append(
+            {
+                "id": i + 1,
+                "date": period_date.strftime("%m/%d/%Y"),
+                "date_obj": period_date,
+                "paychecks": paycheck_dates[date_str],
+            }
+        )
 
-    periods.reverse()  # Show oldest to newest
+    # Calculate start and end date for each period
+    for i, period in enumerate(periods):
+        # For the first period, start from the selected start date
+        if i == 0:
+            period_start = start_date_obj
+        else:
+            # Start from the day after the previous period's date
+            period_start = periods[i - 1]["date_obj"] + timedelta(days=1)
 
-    # Get the user's financial data
-    paychecks = Paycheck.query.filter_by(user_id=current_user.id).all()
-    expenses = Expense.query.filter_by(user_id=current_user.id).all()
+        # End date is either the day before the next period or the end_date_obj
+        if i < len(periods) - 1:
+            period_end = periods[i + 1]["date_obj"] - timedelta(days=1)
+        else:
+            period_end = end_date_obj
+
+        period["start_date"] = period_start
+        period["end_date"] = period_end
 
     # Calculate summary
-    total_income = sum(p.net_amount for p in paychecks) if paychecks else 0
+    total_income = (
+        sum(p.net_amount for p in paychecks_in_range) if paychecks_in_range else 0
+    )
     total_expenses = sum(e.amount for e in expenses) if expenses else 0
     net = total_income - total_expenses
+    projected_balance = starting_balance + net
+
+    # Define summary dict for template
+    summary = {
+        "totalIncome": float(total_income),
+        "totalExpenses": float(total_expenses),
+        "net": float(net),
+        "startingBalance": float(starting_balance),
+        "projectedBalance": float(projected_balance),
+    }
 
     # Process data for each period
     period_data = {}
@@ -202,22 +313,8 @@ def budget():
             "net": 0,
         }
 
-    # Map paychecks to periods - this is simplified and would need custom logic
-    # for your specific date mapping requirements
-    for paycheck in paychecks:
-        # Find the closest period
-        paycheck_date = paycheck.date
-        closest_period = None
-        min_diff = float("inf")
-
-        for period in periods:
-            period_date = datetime.strptime(period["date"], "%m/%d/%Y").date()
-            diff = abs((paycheck_date - period_date).days)
-            if diff < min_diff:
-                min_diff = diff
-                closest_period = period["id"]
-
-        if closest_period:
+        # Add the paycheck amounts directly
+        for paycheck in period["paychecks"]:
             # Determine income type
             income_type = "salary"
             if paycheck.pay_type == "Phone Stipend":
@@ -230,32 +327,73 @@ def budget():
                 income_type = "transfer"
 
             # Add to period data
-            if closest_period in period_data:
-                period_data[closest_period]["income"][income_type] += float(
-                    paycheck.net_amount
-                )
-                period_data[closest_period]["income"]["total"] += float(
-                    paycheck.net_amount
-                )
+            period_data[period_id]["income"][income_type] += float(paycheck.net_amount)
+            period_data[period_id]["income"]["total"] += float(paycheck.net_amount)
 
-    summary = {
-        "totalIncome": float(total_income),
-        "totalExpenses": float(total_expenses),
-        "net": float(net),
-        "projectedBalance": float(net),  # You can adjust this calculation as needed
-    }
+    # Map expenses to periods based on date ranges
+    for expense in expenses:
+        expense_date = expense.date
 
-    # Convert to JSON for React
-    periods_json = json.dumps(periods)
+        # Find the period that contains this date
+        for period in periods:
+            if period["start_date"] <= expense_date <= period["end_date"]:
+                period_id = period["id"]
+
+                # Get or create category
+                category = expense.category.lower()
+                if category not in period_data[period_id]["expenses"]:
+                    period_data[period_id]["expenses"][category] = 0
+
+                # Add expense amount
+                period_data[period_id]["expenses"][category] += float(expense.amount)
+
+                # Update net for the period
+                period_data[period_id]["net"] = period_data[period_id]["income"][
+                    "total"
+                ] - sum(period_data[period_id]["expenses"].values())
+                break
+
+    # For JSON serialization (for future use if needed)
+    periods_json = json.dumps(
+        [
+            {
+                "id": period["id"],
+                "date": period["date"],
+            }
+            for period in periods
+        ]
+    )
+
     summary_json = json.dumps(summary)
     period_data_json = json.dumps(period_data)
+    paycheck_data_json = json.dumps(
+        [
+            {
+                "id": paycheck.id,
+                "date": paycheck.date.strftime("%Y-%m-%d"),
+                "pay_type": paycheck.pay_type,
+                "gross_amount": float(paycheck.gross_amount),
+                "net_amount": float(paycheck.net_amount),
+            }
+            for paycheck in paychecks_in_range
+        ]
+    )
 
     return render_template(
         "finance/budget.html",
         title="Budget Tracker",
+        periods=periods,
+        summary=summary,
+        period_data=period_data,
+        paychecks=paychecks_in_range,
+        start_date=start_date,
+        end_date=end_date,
+        starting_balance=starting_balance,
+        # Include these for backward compatibility or future use
         periods_json=periods_json,
         summary_json=summary_json,
         period_data_json=period_data_json,
+        paycheck_data_json=paycheck_data_json,
     )
 
 

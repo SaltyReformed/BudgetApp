@@ -23,18 +23,34 @@ def add_income():
 
         # Determine pay type based on income_type
         income_type = data.get("income_type")
+        description = data.get("description", "")
 
         if income_type == "salary":
             pay_type = "Regular"
         elif income_type == "phoneStipend":
             pay_type = "Phone Stipend"
+        elif income_type == "otherIncome":
+            pay_type = "Other Income"
+        elif income_type == "taxReturn":
+            pay_type = "Tax Return"
+        elif income_type == "transfer":
+            pay_type = "Transfer"
         else:
             pay_type = income_type.capitalize()
 
-        # Simplified tax calculation - assume 75% is taxable
+        # Get amount
         amount = float(data.get("amount", 0))
-        taxable = amount * 0.75
-        non_taxable = amount * 0.25
+
+        # Simple tax calculation - assume 75% is taxable for regular income, 0% for other types
+        if income_type == "salary":
+            taxable = amount * 0.75
+            non_taxable = amount * 0.25
+            net_amount = amount * 0.85  # Simplified calculation assuming 15% tax
+        else:
+            # For non-salary income, assume no tax
+            taxable = 0
+            non_taxable = amount
+            net_amount = amount
 
         # Create new paycheck
         paycheck = Paycheck(
@@ -43,7 +59,7 @@ def add_income():
             gross_amount=amount,
             taxable_amount=taxable,
             non_taxable_amount=non_taxable,
-            net_amount=amount * 0.85,  # Simplified calculation assuming 15% tax
+            net_amount=net_amount,
             phone_stipend=(income_type == "phoneStipend"),
             user_id=current_user.id,
         )
@@ -51,7 +67,22 @@ def add_income():
         db.session.add(paycheck)
         db.session.commit()
 
-        return jsonify({"success": True, "message": "Income added successfully"}), 201
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": "Income added successfully",
+                    "paycheck": {
+                        "id": paycheck.id,
+                        "date": paycheck.date.strftime("%Y-%m-%d"),
+                        "pay_type": paycheck.pay_type,
+                        "gross_amount": float(paycheck.gross_amount),
+                        "net_amount": float(paycheck.net_amount),
+                    },
+                }
+            ),
+            201,
+        )
 
     except Exception as e:
         db.session.rollback()
@@ -138,3 +169,89 @@ def get_budget_data():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@api.route("/api/income/add", methods=["GET", "POST"])
+@login_required
+def add_one_time_income():
+    """Form to add one-time income"""
+    from flask_wtf import FlaskForm
+    from wtforms import StringField, FloatField, DateField, SelectField, SubmitField
+    from wtforms.validators import DataRequired, NumberRange
+    from datetime import datetime
+
+    class IncomeForm(FlaskForm):
+        income_type = SelectField(
+            "Income Type",
+            choices=[
+                ("otherIncome", "Other Income"),
+                ("salary", "Salary"),
+                ("phoneStipend", "Phone Stipend"),
+                ("taxReturn", "Tax Return"),
+                ("transfer", "Transfer from Savings"),
+            ],
+            validators=[DataRequired()],
+        )
+        description = StringField("Description")
+        date = DateField("Date", validators=[DataRequired()], default=datetime.today)
+        amount = FloatField("Amount", validators=[DataRequired(), NumberRange(min=0)])
+        submit = SubmitField("Add Income")
+
+    form = IncomeForm()
+
+    if form.validate_on_submit():
+        # Process form data
+        income_type = form.income_type.data
+
+        # Determine pay type based on income_type
+        if income_type == "salary":
+            pay_type = "Regular"
+        elif income_type == "phoneStipend":
+            pay_type = "Phone Stipend"
+        elif income_type == "otherIncome":
+            pay_type = "Other Income"
+        elif income_type == "taxReturn":
+            pay_type = "Tax Return"
+        elif income_type == "transfer":
+            pay_type = "Transfer"
+        else:
+            pay_type = income_type.capitalize()
+
+        # Get amount
+        amount = form.amount.data
+
+        # Simple tax calculation - assume 75% is taxable for regular income, 0% for other types
+        if income_type == "salary":
+            taxable = amount * 0.75
+            non_taxable = amount * 0.25
+            net_amount = amount * 0.85  # Simplified calculation assuming 15% tax
+        else:
+            # For non-salary income, assume no tax
+            taxable = 0
+            non_taxable = amount
+            net_amount = amount
+
+        # Create new paycheck
+        paycheck = Paycheck(
+            date=form.date.data,
+            pay_type=pay_type,
+            gross_amount=amount,
+            taxable_amount=taxable,
+            non_taxable_amount=non_taxable,
+            net_amount=net_amount,
+            phone_stipend=(income_type == "phoneStipend"),
+            user_id=current_user.id,
+        )
+
+        db.session.add(paycheck)
+        try:
+            db.session.commit()
+            flash(f"{pay_type} income of ${amount:.2f} added successfully!")
+            return redirect(url_for("main.budget"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error adding income: {str(e)}")
+
+    return render_template(
+        "finance/add_income.html", form=form, title="Add One-Time Income"
+    )

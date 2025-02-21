@@ -19,10 +19,11 @@ class Config:
     WTF_CSRF_SECRET_KEY = os.environ.get("WTF_CSRF_SECRET_KEY") or os.urandom(24)
 
     # Session configuration
-    PERMANENT_SESSION_LIFETIME = timedelta(days=31)
-    SESSION_PROTECTION = "strong"
-    SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS
-    SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
-    REMEMBER_COOKIE_DURATION = timedelta(days=31)
-    REMEMBER_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_SECURE = False  # Set to True if using HTTPS
     REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = 'Lax'
+    WTF_CSRF_ENABLED = True
+    WTF_CSRF_TIME_LIMIT = 3600  # 1 hour
