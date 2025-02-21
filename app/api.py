@@ -1,10 +1,12 @@
 # app/api.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
-from app import db
-from app.models import Paycheck, Expense
+from flask_wtf import FlaskForm
+from wtforms import StringField, FloatField, DateField, SelectField, SubmitField
+from wtforms.validators import DataRequired, NumberRange
 from datetime import datetime
-import json
+from app import db
+from app.models import Paycheck, Expense, User
 
 api = Blueprint("api", __name__)
 
@@ -175,10 +177,6 @@ def get_budget_data():
 @login_required
 def add_one_time_income():
     """Form to add one-time income"""
-    from flask_wtf import FlaskForm
-    from wtforms import StringField, FloatField, DateField, SelectField, SubmitField
-    from wtforms.validators import DataRequired, NumberRange
-    from datetime import datetime
 
     class IncomeForm(FlaskForm):
         income_type = SelectField(
@@ -252,6 +250,16 @@ def add_one_time_income():
             db.session.rollback()
             flash(f"Error adding income: {str(e)}")
 
+    # For iframe or modal usage, use a simpler template
+    if (
+        request.args.get("modal") == "true"
+        or request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    ):
+        return render_template(
+            "finance/add_income_modal.html", form=form, title="Add One-Time Income"
+        )
+
+    # Regular usage
     return render_template(
         "finance/add_income.html", form=form, title="Add One-Time Income"
     )

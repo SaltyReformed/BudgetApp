@@ -1,0 +1,119 @@
+<!-- templates/finance/add_income_modal.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for modal view */
+        body {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-container {
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <form method="POST" class="space-y-4">
+            {{ form.hidden_tag() }}
+
+            <div>
+                <label for="income_type" class="block text-sm font-medium text-gray-700">Income Type</label>
+                <div class="mt-1">
+                    {{ form.income_type(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                    sm:text-sm border-gray-300 rounded-md") }}
+                </div>
+                {% for error in form.income_type.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700">Description
+                    (Optional)</label>
+                <div class="mt-1">
+                    {{ form.description(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                    sm:text-sm border-gray-300 rounded-md") }}
+                </div>
+                {% for error in form.description.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                <div class="mt-1">
+                    {{ form.date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm
+                    border-gray-300 rounded-md", type="date") }}
+                </div>
+                {% for error in form.date.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="text-gray-500 sm:text-sm">$</span>
+                    </div>
+                    {{ form.amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full pl-7
+                    sm:text-sm border-gray-300 rounded-md") }}
+                </div>
+                {% for error in form.amount.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="flex justify-end">
+                {{ form.submit(class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white
+                bg-blue-600 hover:bg-blue-700") }}
+            </div>
+        </form>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="mt-4">
+            {% for message in messages %}
+            <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
+                <p>{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        // Add a script to close the modal on successful submission
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+
+            form.addEventListener('submit', function () {
+                // After submit, set a flag that we can check after redirect
+                localStorage.setItem('income_added', 'true');
+            });
+
+            // Check if we were redirected after a successful submission
+            if (localStorage.getItem('income_added') === 'true') {
+                localStorage.removeItem('income_added');
+
+                // Tell the parent window to refresh
+                if (window.parent) {
+                    window.parent.location.reload();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
