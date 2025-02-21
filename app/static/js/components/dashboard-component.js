@@ -1,9 +1,8 @@
 // app/static/js/dashboard-component.js
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-const DashboardComponent = ({ paychecks = [], expenses = [] }) => {
+const DashboardComponent = ({ paychecks = [], expenses = [], salaryData = null, SalaryForecastCard }) => {
   // Early return with loading state if data is not yet available
   if (!Array.isArray(paychecks) || !Array.isArray(expenses)) {
     return (
@@ -38,11 +37,9 @@ const DashboardComponent = ({ paychecks = [], expenses = [] }) => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {/* Income Overview */}
-      <Card className="col-span-2">
-        <CardHeader>
-          <CardTitle>Income Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="col-span-2">
+        <div className="bg-white rounded-lg shadow p-4">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Income Overview</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={payCheckData}>
@@ -56,15 +53,18 @@ const DashboardComponent = ({ paychecks = [], expenses = [] }) => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Salary Forecast */}
+      <div className="lg:col-span-1">
+        {React.createElement(SalaryForecastCard, { salaryData })}
+      </div>
 
       {/* Expense Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Expenses</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="lg:col-span-2">
+        <div className="bg-white rounded-lg shadow p-4">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Expenses</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={expenseData}>
@@ -76,15 +76,13 @@ const DashboardComponent = ({ paychecks = [], expenses = [] }) => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Summary Cards */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Financial Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="lg:col-span-1">
+        <div className="bg-white rounded-lg shadow p-4">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Financial Summary</h3>
           <div className="space-y-4">
             <div>
               <p className="text-sm font-medium text-gray-500">Total Income</p>
@@ -98,9 +96,15 @@ const DashboardComponent = ({ paychecks = [], expenses = [] }) => {
                 ${expenseData.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
               </p>
             </div>
+            <div className="pt-4 border-t">
+              <p className="text-sm font-medium text-gray-500">Balance</p>
+              <p className="text-2xl font-bold">
+                ${(payCheckData.reduce((sum, p) => sum + p.net, 0) - expenseData.reduce((sum, e) => sum + e.amount, 0)).toFixed(2)}
+              </p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,10 +1,9 @@
 # app/models.py
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login_manager
 from decimal import Decimal
-from datetime import date
 from sqlalchemy.orm import validates
 
 
@@ -125,16 +124,6 @@ class Expense(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-class SalaryProjection(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    effective_date = db.Column(db.Date, nullable=False)
-    type = db.Column(db.String(20), nullable=False)  # Promotion, Step, COLA
-    base_salary = db.Column(db.Float, nullable=False)
-    percentage_increase = db.Column(db.Float)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-
 class AuditLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
@@ -143,6 +132,55 @@ class AuditLog(db.Model):
     model_name = db.Column(db.String(50))
     record_id = db.Column(db.Integer)
     changes = db.Column(db.JSON)
+
+
+class SalaryProjection(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=True)
+    annual_salary = db.Column(db.Float, nullable=False)
+    tax_rate = db.Column(db.Float, nullable=False, default=25.0)  # Default 25% tax rate
+    is_current = db.Column(db.Boolean, default=True)
+    notes = db.Column(db.Text, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def calculate_biweekly_gross(self):
+        """Calculate biweekly gross pay"""
+        return self.annual_salary / 26.0
+
+    def calculate_biweekly_net(self):
+        """Calculate biweekly net pay after estimated taxes"""
+        gross_biweekly = self.calculate_biweekly_gross()
+        net_biweekly = gross_biweekly * (1 - (self.tax_rate / 100))
+        return net_biweekly
+
+    def get_pay_periods(self):
+        """Generate all biweekly pay periods between start and end date"""
+        if not self.end_date:
+            # If no end date specified, project for one year
+            end_date = self.start_date.replace(year=self.start_date.year + 1)
+        else:
+            end_date = self.end_date
+
+        # Start from the first period
+        current_date = self.start_date
+        periods = []
+
+        # Generate biweekly periods
+        while current_date <= end_date:
+            period_end = current_date + timedelta(days=13)  # Biweekly period
+            periods.append(
+                {
+                    "start": current_date,
+                    "end": period_end,
+                    "gross": self.calculate_biweekly_gross(),
+                    "net": self.calculate_biweekly_net(),
+                }
+            )
+            current_date = period_end + timedelta(days=1)
+
+        return periods
 
 
 @login_manager.user_loader

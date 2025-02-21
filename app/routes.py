@@ -4,9 +4,10 @@ from flask_login import login_required, current_user
 from app import db
 from app.models import Paycheck, Expense, SalaryProjection
 from app.errors import FinanceAppError
-from app.forms import PaycheckForm, ExpenseForm
+from app.forms import PaycheckForm, ExpenseForm, SalaryForecastForm
 from datetime import datetime, timedelta
 import json
+from app.utils.paycheck_generator import create_salary_paychecks
 
 main = Blueprint("main", __name__)
 
@@ -70,6 +71,9 @@ def add_expense():
     return render_template("finance/add_expense.html", title="Add Expense", form=form)
 
 
+# Update the dashboard route in app/routes.py
+
+
 @main.route("/dashboard")
 @login_required
 def dashboard():
@@ -94,6 +98,24 @@ def dashboard():
 
     total_income = sum(p.net_amount for p in all_paychecks)
     total_expenses = sum(e.amount for e in all_expenses)
+
+    # Get the current salary projection
+    current_salary = SalaryProjection.query.filter_by(
+        user_id=current_user.id, is_current=True
+    ).first()
+
+    # Prepare salary data for the dashboard
+    salary_data = None
+    if current_salary:
+        salary_data = {
+            "annualGross": float(current_salary.annual_salary),
+            "annualNet": float(
+                current_salary.annual_salary * (1 - (current_salary.tax_rate / 100))
+            ),
+            "biweeklyGross": float(current_salary.calculate_biweekly_gross()),
+            "biweeklyNet": float(current_salary.calculate_biweekly_net()),
+            "taxRate": float(current_salary.tax_rate),
+        }
 
     # Prepare data for charts
     paycheck_data = [
@@ -122,6 +144,11 @@ def dashboard():
         .all()
     ]
 
+    # Convert data to JSON for JavaScript
+    paychecks_json = json.dumps(paycheck_data)
+    expenses_json = json.dumps(expense_data)
+    salary_json = json.dumps(salary_data) if salary_data else "null"
+
     return render_template(
         "dashboard.html",
         title="Dashboard",
@@ -129,12 +156,10 @@ def dashboard():
         expenses=recent_expenses,
         total_income=total_income,
         total_expenses=total_expenses,
-        paycheck_data=paycheck_data,
-        expense_data=expense_data,
+        paychecks_json=paychecks_json,
+        expenses_json=expenses_json,
+        salary_json=salary_json,
     )
-
-
-# app/routes.py - Update the budget route
 
 
 @main.route("/budget")
@@ -232,3 +257,313 @@ def budget():
         summary_json=summary_json,
         period_data_json=period_data_json,
     )
+
+
+@main.route("/salary/history")
+@login_required
+def salary_history():
+    """View all historical salary projections"""
+    projections = (
+        SalaryProjection.query.filter_by(user_id=current_user.id)
+        .order_by(SalaryProjection.start_date.desc())
+        .all()
+    )
+
+    return render_template(
+        "finance/salary_history.html", title="Salary History", projections=projections
+    )
+
+
+@main.route("/salary/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_salary(id):
+    """Delete a salary projection"""
+    projection = SalaryProjection.query.filter_by(
+        id=id, user_id=current_user.id
+    ).first_or_404()
+
+    db.session.delete(projection)
+    try:
+        db.session.commit()
+        flash("Salary projection deleted successfully.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting salary projection: {str(e)}")
+
+    return redirect(url_for("main.salary_history"))
+
+
+@main.route("/salary/generate-paychecks", methods=["GET", "POST"])
+@login_required
+def generate_paychecks():
+    """Generate paychecks from salary forecasts"""
+
+    # Get all the user's salary projections
+    salary_projections = (
+        SalaryProjection.query.filter_by(user_id=current_user.id)
+        .order_by(SalaryProjection.start_date.asc())
+        .all()
+    )
+
+    if not salary_projections:
+        flash("No salary forecasts found. Please create one first.")
+        return redirect(url_for("main.salary_forecast"))
+
+    # Default dates
+    today = datetime.today().date()
+    default_first_paycheck = today
+    default_end = today + timedelta(days=365)  # 1 year ahead
+
+    if request.method == "POST":
+        # Parse form input
+        first_paycheck_date = datetime.strptime(
+            request.form.get("first_paycheck_date"), "%Y-%m-%d"
+        ).date()
+        end_date = datetime.strptime(request.form.get("end_date"), "%Y-%m-%d").date()
+        frequency = int(
+            request.form.get("frequency", "14")
+        )  # Default to biweekly (14 days)
+        force_regenerate = "force_regenerate" in request.form
+
+        # Generate paychecks
+        success, message, paychecks = create_salary_paychecks(
+            user_id=current_user.id,
+            first_paycheck_date=first_paycheck_date,
+            end_date=end_date,
+            frequency=frequency,
+            force_regenerate=force_regenerate,
+        )
+
+        flash(message)
+
+        if success:
+            return redirect(url_for("main.dashboard"))
+
+    # Get existing paychecks for display
+    existing_paychecks = (
+        Paycheck.query.filter_by(user_id=current_user.id, pay_type="Regular")
+        .filter(Paycheck.date >= today)
+        .order_by(Paycheck.date.asc())
+        .all()
+    )
+
+    # Prepare a list of salary periods for display
+    salary_periods = []
+    for projection in salary_projections:
+        end_date_str = (
+            projection.end_date.strftime("%b %d, %Y")
+            if projection.end_date
+            else "No end date"
+        )
+        period = {
+            "id": projection.id,
+            "start_date": projection.start_date.strftime("%b %d, %Y"),
+            "end_date": end_date_str,
+            "annual_salary": projection.annual_salary,
+            "biweekly_gross": projection.calculate_biweekly_gross(),
+            "biweekly_net": projection.calculate_biweekly_net(),
+        }
+        salary_periods.append(period)
+
+    return render_template(
+        "finance/generate_paychecks.html",
+        title="Generate Paychecks",
+        salary_projections=salary_projections,
+        salary_periods=salary_periods,
+        default_first_paycheck=default_first_paycheck,
+        default_end=default_end,
+        existing_paychecks=existing_paychecks,
+    )
+
+
+@main.route("/salary/forecast", methods=["GET", "POST"])
+@login_required
+def salary_forecast():
+    form = SalaryForecastForm()
+
+    # Load existing current salary projection if available
+    current_projection = SalaryProjection.query.filter_by(
+        user_id=current_user.id, is_current=True
+    ).first()
+
+    if current_projection and request.method == "GET":
+        # Pre-populate form with current salary data
+        form.start_date.data = current_projection.start_date
+        form.end_date.data = current_projection.end_date
+        form.annual_salary.data = current_projection.annual_salary
+        form.tax_rate.data = current_projection.tax_rate
+        form.is_current.data = current_projection.is_current
+        form.notes.data = current_projection.notes
+
+    forecast_data = None
+
+    if form.validate_on_submit():
+        # If setting as current salary, update any existing current projections
+        if form.is_current.data:
+            SalaryProjection.query.filter_by(
+                user_id=current_user.id, is_current=True
+            ).update({"is_current": False})
+
+        # Create new salary projection
+        projection = SalaryProjection(
+            start_date=form.start_date.data,
+            end_date=form.end_date.data,
+            annual_salary=form.annual_salary.data,
+            tax_rate=form.tax_rate.data,
+            is_current=form.is_current.data,
+            notes=form.notes.data,
+            user_id=current_user.id,
+        )
+
+        db.session.add(projection)
+        try:
+            db.session.commit()
+            flash("Salary forecast created successfully!")
+
+            # The updated auto-generate functionality begins here
+            if request.form.get("auto_generate_paychecks"):
+                # Get the specified first paycheck date, default to the start date
+                first_paycheck_date = projection.start_date
+
+                try:
+                    if request.form.get("first_paycheck_date"):
+                        first_paycheck_date = datetime.strptime(
+                            request.form.get("first_paycheck_date"), "%Y-%m-%d"
+                        ).date()
+                except:
+                    pass  # Use the default if parsing fails
+
+                # End date is either the projection end date or 1 year from start if not specified
+                end_date = projection.end_date or (
+                    projection.start_date.replace(year=projection.start_date.year + 1)
+                )
+
+                # Generate the paychecks using the improved generator
+                success, message, _ = create_salary_paychecks(
+                    user_id=current_user.id,
+                    first_paycheck_date=first_paycheck_date,
+                    end_date=end_date,
+                    frequency=14,  # Default to biweekly
+                    force_regenerate=False,
+                )
+
+                if success:
+                    flash("Paychecks have been automatically generated!")
+                else:
+                    flash(message)
+            # End of updated auto-generate functionality
+
+            # Generate forecast data for display
+            forecast_data = {
+                "projection": projection,
+                "periods": projection.get_pay_periods(),
+                "annual": {
+                    "gross": projection.annual_salary,
+                    "net": projection.annual_salary * (1 - (projection.tax_rate / 100)),
+                },
+                "biweekly": {
+                    "gross": projection.calculate_biweekly_gross(),
+                    "net": projection.calculate_biweekly_net(),
+                },
+            }
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating salary forecast: {str(e)}")
+
+    # Get historical salary projections for the user
+    history = (
+        SalaryProjection.query.filter_by(user_id=current_user.id)
+        .order_by(SalaryProjection.start_date.desc())
+        .all()
+    )
+
+    return render_template(
+        "finance/salary_forecast.html",
+        title="Salary Forecast",
+        form=form,
+        history=history,
+        forecast_data=forecast_data,
+    )
+
+
+@main.route("/salary/manage-paychecks")
+@login_required
+def manage_paychecks():
+    """View and manage all paychecks"""
+
+    # Get all paychecks for the user, ordered by date
+    paychecks = (
+        Paycheck.query.filter_by(user_id=current_user.id)
+        .order_by(Paycheck.date.desc())
+        .all()
+    )
+
+    return render_template(
+        "finance/manage_paychecks.html", title="Manage Paychecks", paychecks=paychecks
+    )
+
+
+@main.route("/salary/edit-paycheck/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_paycheck(id):
+    """Edit an individual paycheck"""
+
+    paycheck = Paycheck.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+
+    # Create a form and populate it with the paycheck data
+    form = PaycheckForm()
+
+    if form.validate_on_submit():
+        # Update paycheck data
+        paycheck.date = form.date.data
+        paycheck.pay_type = form.pay_type.data
+        paycheck.gross_amount = form.gross_amount.data
+        paycheck.taxable_amount = form.taxable_amount.data
+        paycheck.non_taxable_amount = form.non_taxable_amount.data
+        paycheck.phone_stipend = form.phone_stipend.data
+
+        # Calculate net amount
+        paycheck.net_amount = form.gross_amount.data - (form.taxable_amount.data * 0.25)
+
+        try:
+            db.session.commit()
+            flash("Paycheck updated successfully!")
+            return redirect(url_for("main.manage_paychecks"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error updating paycheck: {str(e)}")
+
+    # Pre-populate form with existing data
+    elif request.method == "GET":
+        form.date.data = paycheck.date
+        form.pay_type.data = paycheck.pay_type
+        form.gross_amount.data = paycheck.gross_amount
+        form.taxable_amount.data = paycheck.taxable_amount
+        form.non_taxable_amount.data = paycheck.non_taxable_amount
+        form.phone_stipend.data = paycheck.phone_stipend
+
+    return render_template(
+        "finance/edit_paycheck.html",
+        title="Edit Paycheck",
+        form=form,
+        paycheck=paycheck,
+    )
+
+
+@main.route("/salary/delete-paycheck/<int:id>", methods=["POST"])
+@login_required
+def delete_paycheck(id):
+    """Delete an individual paycheck"""
+
+    paycheck = Paycheck.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+
+    try:
+        db.session.delete(paycheck)
+        db.session.commit()
+        flash("Paycheck deleted successfully.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting paycheck: {str(e)}")
+
+    return redirect(url_for("main.manage_paychecks"))

@@ -64,3 +64,18 @@ class ExpenseForm(FlaskForm):
         ],
     )
     submit = SubmitField("Add Expense")
+
+class SalaryForecastForm(FlaskForm):
+    start_date = DateField("Start Date", validators=[DataRequired()])
+    end_date = DateField("End Date", validators=[DataRequired()])
+    annual_salary = FloatField(
+        "Annual Gross Salary", validators=[DataRequired(), NumberRange(min=0)]
+    )
+    tax_rate = FloatField(
+        "Estimated Tax Rate (%)", 
+        validators=[DataRequired(), NumberRange(min=0, max=100)],
+        default=25.0
+    )
+    is_current = BooleanField("Current Salary")
+    notes = TextAreaField("Notes")
+    submit = SubmitField("Calculate Forecast")

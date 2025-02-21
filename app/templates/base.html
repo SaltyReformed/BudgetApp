@@ -10,8 +10,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- React Dependencies -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+    <!-- Recharts for data visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.2/Recharts.min.js"></script>
 </head>
 
 <body class="bg-gray-100">
@@ -31,6 +34,18 @@
                         <a href="{{ url_for('main.budget') }}"
                             class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Budget Tracker
+                        </a>
+                        <a href="{{ url_for('main.salary_forecast') }}"
+                            class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Salary Forecast
+                        </a>
+                        <a href="{{ url_for('main.generate_paychecks') }}"
+                            class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Generate Paychecks
+                        </a>
+                        <a href="{{ url_for('main.manage_paychecks') }}"
+                            class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Manage Paychecks
                         </a>
                         {% if current_user.can_manage_users() %}
                         <a href="{{ url_for('admin.user_list') }}"
@@ -78,6 +93,7 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Custom app scripts -->
     {% block scripts %}{% endblock %}
 </body>
 

@@ -1,121 +1,62 @@
-2025-02-17 21:26:01,310 ERROR: Exception on /users/new [POST] [in /home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py:825]
-Traceback (most recent call last):
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/wtforms/validators.py", line 401, in __call__
-    import email_validator
-ModuleNotFoundError: No module named 'email_validator'
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/admin.py", line 63, in create_user
-    if form.validate_on_submit():
-       ~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_wtf/form.py", line 86, in validate_on_submit
-    return self.is_submitted() and self.validate(extra_validators=extra_validators)
-                                   ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/wtforms/form.py", line 330, in validate
-    return super().validate(extra)
-           ~~~~~~~~~~~~~~~~^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/wtforms/form.py", line 147, in validate
-    if not field.validate(self, extra):
-           ~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/wtforms/fields/core.py", line 234, in validate
-    stop_validation = self._run_validation_chain(form, chain)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/wtforms/fields/core.py", line 254, in _run_validation_chain
-    validator(form, self)
-    ~~~~~~~~~^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/wtforms/validators.py", line 403, in __call__
-    raise Exception(
-        "Install 'email_validator' for email validation support."
-    ) from exc
-Exception: Install 'email_validator' for email validation support.
-2025-02-17 21:26:01,314 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in /home/josh/BudgetApp/app/errors.py:19]
-2025-02-17 21:26:14,153 ERROR: Exception on /dashboard [GET] [in /home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py:825]
-Traceback (most recent call last):
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/routes.py", line 32, in dashboard
-    return render_template(
-        "dashboard.html",
-    ...<2 lines>...
-        expenses=recent_expenses,
-    )
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 126, in load
-    source, filename, uptodate = self.get_source(environment, name)
-                                 ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 65, in get_source
-    return self._get_source_fast(environment, template)
-           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 99, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: dashboard.html
-2025-02-17 21:26:14,157 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in /home/josh/BudgetApp/app/errors.py:19]
-2025-02-17 21:26:17,648 ERROR: Exception on /profile [GET] [in /home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py:825]
-Traceback (most recent call last):
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/auth.py", line 47, in profile
-    return render_template("auth/profile.html", title="Profile")
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/josh/BudgetApp/app/templates/auth/profile.html", line 41, in template
-    {% endfor %}
-jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endfor'.
-2025-02-17 21:26:17,650 ERROR: Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in /home/josh/BudgetApp/app/errors.py:19]
+2025-02-20 10:59:43,365 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 10:59:51,795 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 10:59:57,732 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:00:33,057 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:00:34,994 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:00:39,729 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:18:45,389 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 11:18:45,909 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 11:18:50,285 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:18:54,845 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:20:06,816 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 11:20:07,334 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 11:20:11,040 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:20:15,081 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:20:15,109 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:20:20,558 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:20:22,775 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:20:47,097 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 11:20:47,677 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 11:20:50,812 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 11:20:53,806 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 13:52:24,561 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 13:52:25,086 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 13:52:33,849 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 13:52:37,351 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 14:44:45,466 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 14:45:53,599 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 14:45:54,165 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 14:46:00,245 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 14:46:07,092 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 15:08:02,866 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:08:03,449 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:08:10,509 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 15:08:15,811 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 15:14:06,552 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:21:49,363 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:21:49,881 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:21:53,547 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 15:23:33,986 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:23:37,644 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 15:23:41,111 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 15:25:11,087 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:25:23,778 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:25:26,455 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 15:25:43,658 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 15:25:47,821 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 18:26:14,203 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:26:14,723 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:26:23,986 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 18:26:29,161 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 18:29:57,725 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 18:31:10,604 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:31:17,063 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 18:31:27,210 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 18:33:45,860 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:34:18,172 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:34:37,846 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:34:53,210 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:34:53,728 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:34:58,241 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
+2025-02-20 18:37:29,472 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
+2025-02-20 18:37:30,051 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
