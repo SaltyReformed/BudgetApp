@@ -392,7 +392,7 @@
         const createModalContainer = () => {
             const container = document.createElement('div');
             container.id = 'modal-container';
-            container.className = 'bg-white rounded-lg shadow-lg p-6 w-full max-w-md';
+            container.className = 'bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto';
             return container;
         };
 
@@ -466,6 +466,8 @@
             iframe.src = '/api/income/add?modal=true';
             iframe.className = 'w-full h-96 border-0';
             iframe.style.height = '450px'; // Fixed height
+            // Enable scrolling in the iframe to ensure all content is accessible
+            iframe.scrolling = 'yes';
             iframe.onload = function () {
                 try {
                     // Try to access iframe content (may fail due to same-origin policy)
@@ -499,7 +501,7 @@
             iframe.style.height = '500px'; // Fixed height
 
             // Remove scrolling from the iframe
-            iframe.scrolling = 'no';
+            iframe.scrolling = 'yes';
 
             // Add custom styling to adjust the view inside the iframe
             iframe.onload = function () {
@@ -546,56 +548,60 @@
             const modal = createModal('expense-modal', 'Add Expense');
 
             // Create a div to hold the iframe
-            const iframeContainer = document.createElement('div');
-            iframeContainer.className = 'overflow-hidden rounded';
+            const createExpenseIframe = () => {
+                const modal = createModal('expense-modal', 'Add Expense');
 
-            const iframe = document.createElement('iframe');
-            iframe.src = '/expense/add';
-            iframe.className = 'w-full border-0';
-            iframe.style.height = '550px'; // Fixed height
+                // Create a div to hold the iframe
+                const iframeContainer = document.createElement('div');
+                iframeContainer.className = 'overflow-hidden rounded max-h-[80vh] overflow-y-auto'; // Added max height and scrolling
 
-            // Remove scrolling from the iframe
-            iframe.scrolling = 'no';
+                const iframe = document.createElement('iframe');
+                iframe.src = '/expense/add';
+                iframe.className = 'w-full border-0';
+                iframe.style.height = '700px'; // Increased height from 550px to 700px
 
-            // Add custom styling to adjust the view inside the iframe
-            iframe.onload = function () {
-                try {
-                    // Try to access iframe content
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                // Remove scrolling from the iframe
+                iframe.scrolling = 'yes';
 
-                    // Check if we got redirected (usually after form submission)
-                    if (iframeDoc.URL.indexOf('/expense/add') === -1) {
-                        window.location.reload();
-                        return;
+                // Add custom styling to adjust the view inside the iframe
+                iframe.onload = function () {
+                    try {
+                        // Try to access iframe content
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                        // Check if we got redirected (usually after form submission)
+                        if (iframeDoc.URL.indexOf('/expense/add') === -1) {
+                            window.location.reload();
+                            return;
+                        }
+
+                        // Add custom CSS to the iframe content to hide the header/footer
+                        const style = iframeDoc.createElement('style');
+                        style.textContent = `
+        body { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            background: transparent !important;
+        }
+        .py-6, .px-6, .px-8 { padding: 0 !important; }
+        .max-w-2xl { max-width: none !important; }
+        .mx-auto { margin: 0 !important; }
+        .shadow-sm { box-shadow: none !important; }
+        .rounded-lg { border-radius: 0 !important; }
+        .bg-white { background: transparent !important; }
+        nav, h1 { display: none !important; }
+        a[href="{{ url_for('main.dashboard') }}"] { display: none !important; }
+    `;
+                        iframeDoc.head.appendChild(style);
+                    } catch (e) {
+                        console.log("Cannot access iframe content due to same-origin policy");
                     }
+                };
 
-                    // Add custom CSS to the iframe content to hide the header/footer
-                    const style = iframeDoc.createElement('style');
-                    style.textContent = `
-                body { 
-                    padding: 0 !important; 
-                    margin: 0 !important;
-                    background: transparent !important;
-                }
-                .py-6, .px-6, .px-8 { padding: 0 !important; }
-                .max-w-2xl { max-width: none !important; }
-                .mx-auto { margin: 0 !important; }
-                .shadow-sm { box-shadow: none !important; }
-                .rounded-lg { border-radius: 0 !important; }
-                .bg-white { background: transparent !important; }
-                nav, h1 { display: none !important; }
-                a[href="{{ url_for('main.dashboard') }}"] { display: none !important; }
-            `;
-                    iframeDoc.head.appendChild(style);
-                } catch (e) {
-                    console.log("Cannot access iframe content due to same-origin policy");
-                }
+                iframeContainer.appendChild(iframe);
+                modal.appendChild(iframeContainer);
+                container.appendChild(modal);
             };
-
-            iframeContainer.appendChild(iframe);
-            modal.appendChild(iframeContainer);
-            container.appendChild(modal);
-        };
         // Create all modals
         createIncomeIframe();
         createPaycheckIframe();

@@ -4,10 +4,12 @@ from flask_login import login_required, current_user
 from app import db
 from app.models import Paycheck, Expense, SalaryProjection
 from app.errors import FinanceAppError
-from app.forms import PaycheckForm, ExpenseForm, SalaryForecastForm
-from datetime import datetime, timedelta
+from app.forms import PaycheckForm, ExpenseForm, SalaryForecastForm, ExpenseFilterForm
+from app.models import Paycheck, Expense, SalaryProjection, ExpenseCategory
+from datetime import datetime, timedelta, date
 import json
 from app.utils.paycheck_generator import create_salary_paychecks
+from sqlalchemy import desc, asc
 
 main = Blueprint("main", __name__)
 
@@ -809,7 +811,7 @@ def manage_expenses():
     )
 
 
-@main.route("/expenses/add", methods=["GET", "POST"])
+@main.route("/expense/add", methods=["GET", "POST"])
 @login_required
 def add_expense():
     """Add a new expense"""
