@@ -151,7 +151,7 @@ def dashboard():
 def budget():
     # Set default date range (last 3 months to today)
     today = datetime.today().date()
-    default_start_date = today - timedelta(weeks=2)
+    default_start_date = today - timedelta(weeks=1)
     default_end_date = today + timedelta(weeks=52)
 
     # Get date range from query parameters or form submission
@@ -290,6 +290,7 @@ def budget():
 
     # Process data for each period
     period_data = {}
+    running_balance = starting_balance  # Start with the initial balance
     for period in periods:
         period_id = period["id"]
         period_data[period_id] = {
@@ -302,7 +303,9 @@ def budget():
                 "total": 0,
             },
             "expenses": {},
+            "startingBalance": running_balance,
             "net": 0,
+            "endingBalance": 0,
         }
 
         # Add the paycheck amounts directly
@@ -322,15 +325,12 @@ def budget():
             period_data[period_id]["income"][income_type] += float(paycheck.net_amount)
             period_data[period_id]["income"]["total"] += float(paycheck.net_amount)
 
-    # Map expenses to periods based on date ranges
-    for expense in expenses:
-        expense_date = expense.date
+        # Map expenses to periods based on date ranges
+        for expense in expenses:
+            expense_date = expense.date
 
-        # Find the period that contains this date
-        for period in periods:
+            # Find the period that contains this date
             if period["start_date"] <= expense_date <= period["end_date"]:
-                period_id = period["id"]
-
                 # Get or create category
                 category = expense.category.lower()
                 if category not in period_data[period_id]["expenses"]:
@@ -339,11 +339,17 @@ def budget():
                 # Add expense amount
                 period_data[period_id]["expenses"][category] += float(expense.amount)
 
-                # Update net for the period
-                period_data[period_id]["net"] = period_data[period_id]["income"][
-                    "total"
-                ] - sum(period_data[period_id]["expenses"].values())
-                break
+        # Calculate net for the period
+        period_total_income = period_data[period_id]["income"]["total"]
+        period_total_expenses = sum(period_data[period_id]["expenses"].values())
+        period_net = period_total_income - period_total_expenses
+
+        # Update period net and balances
+        period_data[period_id]["net"] = period_net
+        period_data[period_id]["endingBalance"] = running_balance + period_net
+
+        # Update running balance for the next period
+        running_balance += period_net
 
     # For JSON serialization (for future use if needed)
     periods_json = json.dumps(
@@ -870,17 +876,51 @@ def add_expense():
                 db.session.flush()  # Get the ID without committing
                 category_id = new_category.id
 
+        # Generate a human-readable frequency string for backwards compatibility
+        frequency = None
+        if (
+            form.recurring.data
+            and form.frequency_value.data
+            and form.frequency_type.data
+        ):
+            if form.frequency_value.data == 1:
+                if form.frequency_type.data == "days":
+                    frequency = "daily"
+                elif form.frequency_type.data == "weeks":
+                    frequency = "weekly"
+                elif form.frequency_type.data == "months":
+                    frequency = "monthly"
+                elif form.frequency_type.data == "years":
+                    frequency = "annually"
+            elif form.frequency_value.data == 2 and form.frequency_type.data == "weeks":
+                frequency = "bi-weekly"
+            elif (
+                form.frequency_value.data == 3 and form.frequency_type.data == "months"
+            ):
+                frequency = "quarterly"
+            elif (
+                form.frequency_value.data == 6 and form.frequency_type.data == "months"
+            ):
+                frequency = "semi-annually"
+            else:
+                # Custom frequency
+                frequency = (
+                    f"custom-{form.frequency_value.data}-{form.frequency_type.data}"
+                )
+
         # Create the expense
         expense = Expense(
             date=form.date.data,
             due_date=form.due_date.data,
-            category=category_name,  # For backward compatibility
+            category=category_name,
             category_id=category_id,
             description=form.description.data,
             amount=form.amount.data,
             paid=form.paid.data,
             recurring=form.recurring.data,
-            frequency=form.frequency.data if form.recurring.data else None,
+            frequency=frequency,
+            frequency_type=form.frequency_type.data if form.recurring.data else None,
+            frequency_value=form.frequency_value.data if form.recurring.data else None,
             user_id=current_user.id,
         )
 
@@ -914,6 +954,40 @@ def edit_expense(id):
         if expense.category_id:
             form.category_id.data = expense.category_id
 
+        # Handle frequency fields
+        if expense.frequency_type and expense.frequency_value:
+            form.frequency_type.data = expense.frequency_type
+            form.frequency_value.data = expense.frequency_value
+        elif expense.recurring and expense.frequency:
+            # Handle legacy frequencies
+            if expense.frequency == "daily":
+                form.frequency_type.data = "days"
+                form.frequency_value.data = 1
+            elif expense.frequency == "weekly":
+                form.frequency_type.data = "weeks"
+                form.frequency_value.data = 1
+            elif expense.frequency == "bi-weekly":
+                form.frequency_type.data = "weeks"
+                form.frequency_value.data = 2
+            elif expense.frequency == "monthly":
+                form.frequency_type.data = "months"
+                form.frequency_value.data = 1
+            elif expense.frequency == "quarterly":
+                form.frequency_type.data = "months"
+                form.frequency_value.data = 3
+            elif expense.frequency == "semi-annually":
+                form.frequency_type.data = "months"
+                form.frequency_value.data = 6
+            elif expense.frequency == "annually":
+                form.frequency_type.data = "years"
+                form.frequency_value.data = 1
+            elif expense.frequency.startswith("custom-"):
+                # Try to parse custom format like 'custom-2-weeks'
+                parts = expense.frequency.split("-")
+                if len(parts) == 3 and parts[1].isdigit():
+                    form.frequency_value.data = int(parts[1])
+                    form.frequency_type.data = parts[2]
+
     if form.validate_on_submit():
         category_id = None
         category_name = (
@@ -946,16 +1020,54 @@ def edit_expense(id):
                 db.session.flush()  # Get the ID without committing
                 category_id = new_category.id
 
+        # Generate a human-readable frequency string for backwards compatibility
+        frequency = None
+        if (
+            form.recurring.data
+            and form.frequency_value.data
+            and form.frequency_type.data
+        ):
+            if form.frequency_value.data == 1:
+                if form.frequency_type.data == "days":
+                    frequency = "daily"
+                elif form.frequency_type.data == "weeks":
+                    frequency = "weekly"
+                elif form.frequency_type.data == "months":
+                    frequency = "monthly"
+                elif form.frequency_type.data == "years":
+                    frequency = "annually"
+            elif form.frequency_value.data == 2 and form.frequency_type.data == "weeks":
+                frequency = "bi-weekly"
+            elif (
+                form.frequency_value.data == 3 and form.frequency_type.data == "months"
+            ):
+                frequency = "quarterly"
+            elif (
+                form.frequency_value.data == 6 and form.frequency_type.data == "months"
+            ):
+                frequency = "semi-annually"
+            else:
+                # Custom frequency
+                frequency = (
+                    f"custom-{form.frequency_value.data}-{form.frequency_type.data}"
+                )
+
         # Update the expense
         expense.date = form.date.data
         expense.due_date = form.due_date.data
-        expense.category = category_name  # For backward compatibility
+        expense.category = category_name
         expense.category_id = category_id
         expense.description = form.description.data
         expense.amount = form.amount.data
         expense.paid = form.paid.data
         expense.recurring = form.recurring.data
-        expense.frequency = form.frequency.data if form.recurring.data else None
+        expense.frequency = frequency
+        expense.frequency_type = (
+            form.frequency_type.data if form.recurring.data else None
+        )
+        expense.frequency_value = (
+            form.frequency_value.data if form.recurring.data else None
+        )
         expense.updated_at = datetime.utcnow()
 
         try:
@@ -967,7 +1079,10 @@ def edit_expense(id):
             flash(f"Error updating expense: {str(e)}")
 
     return render_template(
-        "finance/expense_form.html", title="Edit Expense", form=form, expense=expense
+        "finance/expense_form.html",
+        title="Edit Expense",
+        form=form,
+        expense=expense,
     )
 
 

@@ -1,59 +1,86 @@
-2025-02-21 00:32:16,222 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 00:32:17,737 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 00:42:37,932 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 00:43:00,748 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 00:43:07,445 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 00:43:18,543 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 00:43:22,675 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 00:46:03,319 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 00:46:03,866 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 00:46:07,887 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 00:46:11,409 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 00:52:47,738 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 00:52:48,252 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 00:59:52,606 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 01:01:47,444 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 01:01:51,354 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 01:02:24,189 INFO: User Josh-iPhone created by Josh [in /home/josh/BudgetApp/app/admin.py:75]
-2025-02-21 01:02:24,496 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:12]
-2025-02-21 01:02:50,936 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 01:03:29,722 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:48]
-2025-02-21 10:34:07,340 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 10:34:07,845 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:00:50,751 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:00:51,201 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:12:27,770 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:13:44,004 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:13:54,930 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 11:15:39,831 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:15:40,311 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:17:03,429 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:17:03,919 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 11:44:42,746 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 14:32:57,523 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 14:32:57,986 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 14:33:33,648 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 14:54:58,938 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 14:55:09,802 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 15:12:03,749 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:48]
-2025-02-21 15:16:07,510 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:16:19,339 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:19:17,149 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:19:27,653 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:19:45,157 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:20:12,511 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:20:17,890 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:22:32,559 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:22:44,378 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:22:45,020 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:22:49,403 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 15:25:19,420 INFO: Finance app startup [in C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:26:44,894 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:26:45,482 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-21 15:26:47,652 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 15:27:15,300 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 15:27:37,376 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 15:27:45,766 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 15:27:47,852 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 15:28:34,572 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
-2025-02-21 15:28:46,561 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
+2025-02-24 10:02:12,120 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 10:02:12,865 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 10:02:16,350 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 10:02:25,109 ERROR: Server Error: NameError - name 'ExpenseCategoryForm' is not defined
+Traceback: Traceback (most recent call last):
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 1041, in add_category
+    form = ExpenseCategoryForm()
+           ^^^^^^^^^^^^^^^^^^^
+NameError: name 'ExpenseCategoryForm' is not defined. Did you mean: 'ExpenseCategory'?
+ [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
+2025-02-24 10:03:48,117 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 10:16:54,669 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 10:16:55,322 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:01:24,665 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:02:40,564 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:02:55,568 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:03:08,782 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:08:17,507 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:12:10,498 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:12:15,313 ERROR: Server Error: NameError - name 'Expense' is not defined
+Traceback: Traceback (most recent call last):
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 213, in budget
+    recurring_expenses = generate_recurring_expenses(
+        current_user.id, start_date_obj, end_date_obj
+    )
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\utils\recurring_expense_generator.py", line 14, in generate_recurring_expenses
+    recurring_expenses = Expense.query.filter_by(user_id=user_id, recurring=True).all()
+                         ^^^^^^^
+NameError: name 'Expense' is not defined
+ [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
+2025-02-24 11:12:20,265 ERROR: Server Error: NameError - name 'Expense' is not defined
+Traceback: Traceback (most recent call last):
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 213, in budget
+    recurring_expenses = generate_recurring_expenses(
+        current_user.id, start_date_obj, end_date_obj
+    )
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\utils\recurring_expense_generator.py", line 14, in generate_recurring_expenses
+    recurring_expenses = Expense.query.filter_by(user_id=user_id, recurring=True).all()
+                         ^^^^^^^
+NameError: name 'Expense' is not defined
+ [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
+2025-02-24 11:13:26,102 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:14:34,929 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:16:06,220 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 11:16:52,855 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 11:19:13,543 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:19:14,253 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:26:15,484 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 11:29:19,587 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:30:43,345 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:30:44,070 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:32:46,654 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:33:17,279 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:33:17,880 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:35:01,968 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 11:59:24,131 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 12:19:05,210 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 12:23:45,813 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 12:28:56,688 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 12:29:52,116 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 12:29:55,932 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 13:27:31,637 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]

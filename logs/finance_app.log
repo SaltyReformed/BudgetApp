@@ -1,7 +1,6 @@
-2025-02-24 10:02:12,120 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 10:02:12,865 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 10:02:16,350 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
-2025-02-24 10:02:25,109 ERROR: Server Error: NameError - name 'ExpenseCategoryForm' is not defined
+2025-02-24 14:46:27,479 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 14:46:28,130 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 14:46:47,974 ERROR: Server Error: TemplateSyntaxError - Unexpected end of template. Jinja was looking for the following tags: 'endblock'. The innermost block that needs to be closed is 'block'.
 Traceback: Traceback (most recent call last):
   File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
     rv = self.dispatch_request()
@@ -11,59 +10,44 @@ Traceback: Traceback (most recent call last):
   File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 1041, in add_category
-    form = ExpenseCategoryForm()
-           ^^^^^^^^^^^^^^^^^^^
-NameError: name 'ExpenseCategoryForm' is not defined. Did you mean: 'ExpenseCategory'?
- [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
-2025-02-24 10:03:48,117 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 10:16:54,669 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 10:16:55,322 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:01:24,665 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:02:40,564 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:02:55,568 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:03:08,782 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:08:17,507 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:12:10,498 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:12:15,313 ERROR: Server Error: NameError - name 'Expense' is not defined
-Traceback: Traceback (most recent call last):
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 213, in budget
-    recurring_expenses = generate_recurring_expenses(
-        current_user.id, start_date_obj, end_date_obj
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 822, in manage_expenses
+    return render_template(
+        "finance/manage_expenses.html",
+    ...<7 lines>...
+        categories=user_categories,
     )
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\utils\recurring_expense_generator.py", line 14, in generate_recurring_expenses
-    recurring_expenses = Expense.query.filter_by(user_id=user_id, recurring=True).all()
-                         ^^^^^^^
-NameError: name 'Expense' is not defined
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\templating.py", line 151, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\finance\manage_expenses.html", line 286, in template
+    {% block scripts %}
+jinja2.exceptions.TemplateSyntaxError: Unexpected end of template. Jinja was looking for the following tags: 'endblock'. The innermost block that needs to be closed is 'block'.
  [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
-2025-02-24 11:12:20,265 ERROR: Server Error: NameError - name 'Expense' is not defined
-Traceback: Traceback (most recent call last):
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 213, in budget
-    recurring_expenses = generate_recurring_expenses(
-        current_user.id, start_date_obj, end_date_obj
-    )
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\utils\recurring_expense_generator.py", line 14, in generate_recurring_expenses
-    recurring_expenses = Expense.query.filter_by(user_id=user_id, recurring=True).all()
-                         ^^^^^^^
-NameError: name 'Expense' is not defined
- [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
-2025-02-24 11:13:26,102 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:14:34,929 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:16:06,220 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
-2025-02-24 11:16:52,855 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 14:55:11,191 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 14:55:11,857 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 14:58:21,105 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 14:58:21,916 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 14:58:23,355 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 14:58:49,711 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 14:58:50,408 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 14:58:51,286 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 15:00:33,205 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 15:00:33,869 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 15:01:10,788 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 15:01:11,489 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 15:01:52,774 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 15:01:53,449 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from app.models import Expense, db
 
 
@@ -24,17 +24,11 @@ def generate_recurring_expenses(user_id, start_date, end_date):
         if not base_expense.recurring:
             continue
 
-        # Determine the frequency multiplier
-        if base_expense.frequency == "weekly":
-            freq_days = 7
-        elif base_expense.frequency == "bi-weekly":
-            freq_days = 14
-        elif base_expense.frequency == "monthly":
-            freq_days = 30
-        elif base_expense.frequency == "annually":
-            freq_days = 365
-        else:
-            # If no frequency or invalid, skip
+        # Get frequency in days using the helper method
+        freq_days = base_expense.get_frequency_days()
+
+        # Skip if no valid frequency
+        if not freq_days:
             continue
 
         # Start generating from the base expense date
@@ -44,7 +38,7 @@ def generate_recurring_expenses(user_id, start_date, end_date):
             # Only add if the current date is within the range and after the base expense date
             if (
                 start_date <= current_date <= end_date
-                and current_date >= base_expense.date
+                and current_date > base_expense.date
             ):
                 # Check if an expense with this exact date and base details already exists
                 existing_expense = Expense.query.filter(
@@ -52,14 +46,21 @@ def generate_recurring_expenses(user_id, start_date, end_date):
                     Expense.date == current_date,
                     Expense.category == base_expense.category,
                     Expense.amount == base_expense.amount,
-                    Expense.description == base_expense.description,
+                    Expense.description.like(f"%{base_expense.description}%"),
                 ).first()
 
                 # Only create if no matching expense exists
                 if not existing_expense:
+                    # Adjust due date if present
+                    adjusted_due_date = None
+                    if base_expense.due_date:
+                        # Calculate the offset between the original date and due date
+                        days_offset = (base_expense.due_date - base_expense.date).days
+                        adjusted_due_date = current_date + timedelta(days=days_offset)
+
                     recurring_expense = Expense(
                         date=current_date,
-                        due_date=base_expense.due_date,  # Might need adjustment based on frequency
+                        due_date=adjusted_due_date,
                         category=base_expense.category,
                         category_id=base_expense.category_id,
                         description=f"{base_expense.description} (Recurring)",
@@ -67,6 +68,8 @@ def generate_recurring_expenses(user_id, start_date, end_date):
                         paid=False,  # New recurrence is unpaid by default
                         recurring=True,
                         frequency=base_expense.frequency,
+                        frequency_type=base_expense.frequency_type,
+                        frequency_value=base_expense.frequency_value,
                         user_id=base_expense.user_id,
                     )
                     generated_expenses.append(recurring_expense)

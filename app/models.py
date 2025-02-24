@@ -84,6 +84,7 @@ class Paycheck(db.Model):
     phone_stipend = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
     @validates("gross_amount", "taxable_amount", "non_taxable_amount", "net_amount")
     def validate_amounts(self, key, value):
         if not isinstance(value, (int, float, Decimal)):
@@ -115,18 +116,18 @@ class Paycheck(db.Model):
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False, index=True)
-    due_date = db.Column(db.Date, nullable=True, index=True)  # Add due date
-    # Keep string category for backward compatibility
+    due_date = db.Column(db.Date, nullable=True, index=True)
     category = db.Column(db.String(50), nullable=False)
-    # Add reference to actual category object
     category_id = db.Column(
         db.Integer, db.ForeignKey("expense_category.id"), nullable=True
     )
     description = db.Column(db.String(200))
     amount = db.Column(db.Float, nullable=False)
-    paid = db.Column(db.Boolean, default=False)  # Track if expense is paid
+    paid = db.Column(db.Boolean, default=False)
     recurring = db.Column(db.Boolean, default=False)
-    frequency = db.Column(db.String(20))  # monthly, bi-weekly, etc.
+    frequency = db.Column(db.String(20))  # Keep for backward compatibility
+    frequency_type = db.Column(db.String(10))  # 'days', 'weeks', 'months', 'years'
+    frequency_value = db.Column(db.Integer)  # 1, 2, 3, etc.
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
@@ -158,6 +159,44 @@ class Expense(db.Model):
             return "due_soon"
         else:
             return "upcoming"
+
+    # Add a helper method to get the frequency in days
+    def get_frequency_days(self):
+        """Calculate the frequency in days based on frequency_type and frequency_value"""
+        if not self.recurring:
+            return None
+
+        # Handle new frequency format
+        if self.frequency_type and self.frequency_value:
+            if self.frequency_type == "days":
+                return self.frequency_value
+            elif self.frequency_type == "weeks":
+                return self.frequency_value * 7
+            elif self.frequency_type == "months":
+                # Approximate - 30 days per month
+                return self.frequency_value * 30
+            elif self.frequency_type == "years":
+                # Approximate - 365 days per year
+                return self.frequency_value * 365
+
+        # Handle legacy frequency format for backward compatibility
+        if self.frequency == "daily":
+            return 1
+        elif self.frequency == "weekly":
+            return 7
+        elif self.frequency == "bi-weekly":
+            return 14
+        elif self.frequency == "monthly":
+            return 30
+        elif self.frequency == "quarterly":
+            return 90
+        elif self.frequency == "semi-annually":
+            return 182
+        elif self.frequency == "annually":
+            return 365
+
+        # Default to bi-weekly if no valid frequency found
+        return 14
 
 
 class ExpenseCategory(db.Model):

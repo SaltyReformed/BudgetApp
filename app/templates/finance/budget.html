@@ -58,10 +58,12 @@
                         <!-- Starting Balance Row -->
                         <tr class="border-b hover:bg-gray-50">
                             <td class="py-2 px-4 font-medium">Starting Balance</td>
-                            <td class="text-right py-2 px-4 {% if summary.startingBalance >= 0 %}text-green-600{% else %}text-red-600{% endif %}"
-                                colspan="{{ periods|length }}">
-                                ${{ "%.2f"|format(summary.startingBalance) }}
+                            {% for period in periods %}
+                            <td
+                                class="text-right py-2 px-4 {% if period_data[period.id].startingBalance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                ${{ "%.2f"|format(period_data[period.id].startingBalance) }}
                             </td>
+                            {% endfor %}
                             <td
                                 class="text-right py-2 px-4 {% if summary.startingBalance >= 0 %}text-green-600{% else %}text-red-600{% endif %} bg-gray-100">
                                 ${{ "%.2f"|format(summary.startingBalance) }}
@@ -116,15 +118,10 @@
                         <!-- Projected End Balance Row - Running total accumulated across periods -->
                         <tr class="bg-gray-50 font-bold">
                             <td class="py-2 px-4">Projected End Balance</td>
-                            {% set running_balance = summary.startingBalance %}
                             {% for period in periods %}
-                            {% set period_income = period_data[period.id].income.total %}
-                            {% set period_expenses = period_data[period.id].expenses.values()|sum %}
-                            {% set period_net = period_income - period_expenses %}
-                            {% set running_balance = running_balance + period_net %}
                             <td
-                                class="text-right py-2 px-4 {% if running_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
-                                ${{ "%.2f"|format(running_balance) }}
+                                class="text-right py-2 px-4 {% if period_data[period.id].endingBalance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                ${{ "%.2f"|format(period_data[period.id].endingBalance) }}
                             </td>
                             {% endfor %}
                             <td

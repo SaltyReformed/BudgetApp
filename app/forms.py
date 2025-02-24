@@ -1,4 +1,3 @@
-# app/forms.py
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
@@ -8,6 +7,7 @@ from wtforms import (
     BooleanField,
     SubmitField,
     TextAreaField,
+    IntegerField,
 )
 from wtforms.validators import DataRequired, NumberRange, Optional, Length
 
@@ -57,26 +57,32 @@ class ExpenseCategoryForm(FlaskForm):
 
 class ExpenseForm(FlaskForm):
     date = DateField("Expense Date", validators=[DataRequired()])
-    due_date = DateField("Due Date", validators=[Optional()])  # New field
+    due_date = DateField("Due Date", validators=[Optional()])
     category_id = SelectField("Category", coerce=int, validators=[Optional()])
     category_name = StringField(
         "Or enter a new category", validators=[Optional(), Length(max=50)]
     )
     description = TextAreaField("Description", validators=[Optional(), Length(max=200)])
     amount = FloatField("Amount", validators=[DataRequired(), NumberRange(min=0)])
-    paid = BooleanField("Paid")  # New field
+    paid = BooleanField("Paid")
     recurring = BooleanField("Recurring Expense")
-    frequency = SelectField(
-        "Frequency",
+
+    # New fields for frequency
+    frequency_value = IntegerField(
+        "Every", validators=[Optional(), NumberRange(min=1)], default=1
+    )
+
+    frequency_type = SelectField(
+        "Period",
         choices=[
-            ("", "One-time"),
-            ("monthly", "Monthly"),
-            ("bi-weekly", "Bi-weekly"),
-            ("weekly", "Weekly"),
-            ("annually", "Annually"),
+            ("days", "Days"),
+            ("weeks", "Weeks"),
+            ("months", "Months"),
+            ("years", "Years"),
         ],
         validators=[Optional()],
     )
+
     submit = SubmitField("Save Expense")
 
     def __init__(self, *args, **kwargs):

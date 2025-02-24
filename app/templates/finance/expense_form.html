@@ -17,8 +17,7 @@
                         <label for="date" class="block text-sm font-medium text-gray-700">Expense Date</label>
                         <div class="mt-1">
                             {{ form.date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
-                            sm:text-sm
-                            border-gray-300 rounded-md", type="date") }}
+                            sm:text-sm border-gray-300 rounded-md", type="date") }}
                         </div>
                         {% for error in form.date.errors %}
                         <p class="mt-2 text-sm text-red-600">{{ error }}</p>
@@ -30,8 +29,7 @@
                             (Optional)</label>
                         <div class="mt-1">
                             {{ form.due_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
-                            sm:text-sm
-                            border-gray-300 rounded-md", type="date") }}
+                            sm:text-sm border-gray-300 rounded-md", type="date") }}
                         </div>
                         {% for error in form.due_date.errors %}
                         <p class="mt-2 text-sm text-red-600">{{ error }}</p>
@@ -96,19 +94,29 @@
                 <div class="space-y-4">
                     <div class="flex items-center">
                         {{ form.recurring(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
-                        onclick="toggleFrequency()") }}
+                        onclick="toggleFrequencyFields()") }}
                         <label for="recurring" class="ml-2 block text-sm text-gray-900">Recurring Expense</label>
                     </div>
 
-                    <div id="frequency-field" style="display: none;">
-                        <label for="frequency" class="block text-sm font-medium text-gray-700">Frequency</label>
-                        <div class="mt-1">
-                            {{ form.frequency(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
-                            sm:text-sm border-gray-300 rounded-md") }}
+                    <div id="frequency-fields" style="display: none;">
+                        <div class="flex items-end space-x-2">
+                            <div>
+                                <label for="frequency_value"
+                                    class="block text-sm font-medium text-gray-700">Every</label>
+                                <div class="mt-1">
+                                    {{ form.frequency_value(class="shadow-sm focus:ring-blue-500 focus:border-blue-500
+                                    block w-full sm:text-sm border-gray-300 rounded-md", min="1", type="number") }}
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <label for="frequency_type"
+                                    class="block text-sm font-medium text-gray-700">Period</label>
+                                <div class="mt-1">
+                                    {{ form.frequency_type(class="shadow-sm focus:ring-blue-500 focus:border-blue-500
+                                    block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                            </div>
                         </div>
-                        {% for error in form.frequency.errors %}
-                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                        {% endfor %}
                     </div>
                 </div>
 
@@ -128,15 +136,15 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        toggleFrequency();
+        toggleFrequencyFields();
     });
 
-    function toggleFrequency() {
+    function toggleFrequencyFields() {
         const recurringCheckbox = document.getElementById('recurring');
-        const frequencyField = document.getElementById('frequency-field');
+        const frequencyFields = document.getElementById('frequency-fields');
 
-        if (recurringCheckbox && frequencyField) {
-            frequencyField.style.display = recurringCheckbox.checked ? 'block' : 'none';
+        if (recurringCheckbox && frequencyFields) {
+            frequencyFields.style.display = recurringCheckbox.checked ? 'block' : 'none';
         }
     }
 </script>
