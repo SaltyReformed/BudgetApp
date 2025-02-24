@@ -3,3 +3,21 @@
 2025-02-24 08:28:23,254 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
 2025-02-24 08:28:40,884 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
 2025-02-24 08:41:33,052 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:12]
+2025-02-24 08:55:50,051 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 08:55:50,751 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-24 08:56:08,041 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
+2025-02-24 08:56:12,757 ERROR: Server Error: NameError - name 'ExpenseCategory' is not defined
+Traceback: Traceback (most recent call last):
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 819, in add_expense
+    categories = ExpenseCategory.query.filter_by(user_id=current_user.id).all()
+                 ^^^^^^^^^^^^^^^
+NameError: name 'ExpenseCategory' is not defined
+ [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
