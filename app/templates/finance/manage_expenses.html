@@ -28,46 +28,52 @@
             </div>
         </div>
 
-        
+
 
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Total Expenses</h3>
-                <p class="text-2xl font-bold text-gray-900">${{ "%.2f"|format(total_amount) }}</p>
+                <p class="text-2xl font-bold text-gray-900" id="total-amount">${{ "%.2f"|format(total_amount) }}</p>
             </div>
 
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Unpaid Expenses</h3>
-                <p class="text-2xl font-bold text-yellow-600">${{ "%.2f"|format(unpaid_amount) }}</p>
+                <p class="text-2xl font-bold text-yellow-600" id="unpaid-amount">${{ "%.2f"|format(unpaid_amount) }}</p>
             </div>
 
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Overdue Expenses</h3>
-                <p class="text-2xl font-bold text-red-600">${{ "%.2f"|format(overdue_amount) }}</p>
+                <p class="text-2xl font-bold text-red-600" id="overdue-amount">${{ "%.2f"|format(overdue_amount) }}</p>
             </div>
         </div>
 
-        <div class="mb-4 flex space-x-4 items-center">
-            <div>
-                <label for="min-date" class="block text-sm font-medium text-gray-700">Min Date</label>
-                <input type="date" id="min-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div>
-                <label for="max-date" class="block text-sm font-medium text-gray-700">Max Date</label>
-                <input type="date" id="max-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-        </div>
 
         <!-- Expenses Table -->
         <div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
             <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-                <h2 class="text-lg font-medium text-gray-900">All Expenses</h2>
-                {% if expenses %}
-                <p class="mt-1 text-sm text-gray-500">Showing {{ expenses|length }} expense{% if expenses|length != 1
-                    %}s{%
-                    endif %}</p>
-                {% endif %}
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-900">All Expenses</h2>
+                        {% if expenses %}
+                        <p class="mt-1 text-sm text-gray-500">Showing {{ expenses|length }} expense{% if expenses|length
+                            != 1
+                            %}s{% endif %}</p>
+                        {% endif %}
+                    </div>
+                    <div class="flex space-x-4 items-end">
+                        <div>
+                            <label for="min-date" class="block text-sm font-medium text-gray-700">Min Date</label>
+                            <input type="date" id="min-date"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="max-date" class="block text-sm font-medium text-gray-700">Max Date</label>
+                            <input type="date" id="max-date"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {% if expenses %}
@@ -233,6 +239,32 @@
     <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 
     <script>
+        function updateSummaryCards(table) {
+            let totalAmount = 0;
+            let unpaidAmount = 0;
+            let overdueAmount = 0;
+
+            // Get all visible rows after filtering
+            table.rows({ search: 'applied' }).every(function () {
+                const data = this.data();
+                const amount = parseFloat(data[4].replace('$', '').replace(',', '')); // Amount column
+                const status = data[5]; // Status column
+
+                totalAmount += amount;
+
+                if (!status.includes('Paid')) {
+                    unpaidAmount += amount;
+                    if (status.includes('Overdue')) {
+                        overdueAmount += amount;
+                    }
+                }
+            });
+
+            // Update summary cards with formatted numbers
+            $('#total-amount').text('$' + totalAmount.toFixed(2));
+            $('#unpaid-amount').text('$' + unpaidAmount.toFixed(2));
+            $('#overdue-amount').text('$' + overdueAmount.toFixed(2));
+        }
         $(document).ready(function () {
             // Custom date range filter
             $.fn.dataTable.ext.search.push(
@@ -256,9 +288,11 @@
 
             // Initialize DataTable
             const table = $('#expenses-table').DataTable({
-                dom: 'Bfrtip',
+                dom: 'lBfrtip',
                 responsive: true,
-                order: [[0, 'desc']], // Sort by date descending by default
+                pageLength: 25,  // This will show 25 rows per page
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]], // Gives user option to select number of rows
+                order: [[0, 'asc']],
                 columnDefs: [
                     {
                         targets: 5, // Status column
@@ -309,12 +343,16 @@
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "No entries to show",
                     infoFiltered: "(filtered from _MAX_ total entries)"
+                },
+                drawCallback: function () {
+                    updateSummaryCards(this.api());
                 }
             });
 
             // Date range filter
             $('#min-date, #max-date').on('change', function () {
                 table.draw();
+                // updateSummaryCards will be called automatically through drawCallback
             });
 
             // AJAX for toggle paid status
