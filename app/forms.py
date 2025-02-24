@@ -9,7 +9,7 @@ from wtforms import (
     SubmitField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, NumberRange
+from wtforms.validators import DataRequired, NumberRange, Optional, Length
 
 
 class PaycheckForm(FlaskForm):
@@ -32,26 +32,39 @@ class PaycheckForm(FlaskForm):
     submit = SubmitField("Add Paycheck")
 
 
-class ExpenseForm(FlaskForm):
-    date = DateField("Date", validators=[DataRequired()])
-    category = SelectField(
-        "Category",
-        choices=[
-            ("Housing", "Housing"),
-            ("Transportation", "Transportation"),
-            ("Food", "Food"),
-            ("Utilities", "Utilities"),
-            ("Insurance", "Insurance"),
-            ("Healthcare", "Healthcare"),
-            ("Savings", "Savings"),
-            ("Personal", "Personal"),
-            ("Entertainment", "Entertainment"),
-            ("Other", "Other"),
-        ],
-        validators=[DataRequired()],
+class SalaryForecastForm(FlaskForm):
+    start_date = DateField("Start Date", validators=[DataRequired()])
+    end_date = DateField("End Date", validators=[DataRequired()])
+    annual_salary = FloatField(
+        "Annual Gross Salary", validators=[DataRequired(), NumberRange(min=0)]
     )
-    description = TextAreaField("Description")
+    tax_rate = FloatField(
+        "Estimated Tax Rate (%)",
+        validators=[DataRequired(), NumberRange(min=0, max=100)],
+        default=25.0,
+    )
+    is_current = BooleanField("Current Salary")
+    notes = TextAreaField("Notes")
+    submit = SubmitField("Calculate Forecast")
+
+
+class ExpenseCategoryForm(FlaskForm):
+    name = StringField("Category Name", validators=[DataRequired(), Length(max=50)])
+    description = TextAreaField("Description", validators=[Length(max=200)])
+    color = StringField("Color", default="#6B7280", validators=[Length(max=7)])
+    submit = SubmitField("Save Category")
+
+
+class ExpenseForm(FlaskForm):
+    date = DateField("Expense Date", validators=[DataRequired()])
+    due_date = DateField("Due Date", validators=[Optional()])  # New field
+    category_id = SelectField("Category", coerce=int, validators=[Optional()])
+    category_name = StringField(
+        "Or enter a new category", validators=[Optional(), Length(max=50)]
+    )
+    description = TextAreaField("Description", validators=[Optional(), Length(max=200)])
     amount = FloatField("Amount", validators=[DataRequired(), NumberRange(min=0)])
+    paid = BooleanField("Paid")  # New field
     recurring = BooleanField("Recurring Expense")
     frequency = SelectField(
         "Frequency",
@@ -62,20 +75,46 @@ class ExpenseForm(FlaskForm):
             ("weekly", "Weekly"),
             ("annually", "Annually"),
         ],
+        validators=[Optional()],
     )
-    submit = SubmitField("Add Expense")
+    submit = SubmitField("Save Expense")
 
-class SalaryForecastForm(FlaskForm):
-    start_date = DateField("Start Date", validators=[DataRequired()])
-    end_date = DateField("End Date", validators=[DataRequired()])
-    annual_salary = FloatField(
-        "Annual Gross Salary", validators=[DataRequired(), NumberRange(min=0)]
+    def __init__(self, *args, **kwargs):
+        super(ExpenseForm, self).__init__(*args, **kwargs)
+        # The categories will be populated in the route
+
+
+class ExpenseFilterForm(FlaskForm):
+    start_date = DateField("Start Date", validators=[Optional()])
+    end_date = DateField("End Date", validators=[Optional()])
+    category = SelectField("Category", validators=[Optional()], coerce=int)
+    paid_status = SelectField(
+        "Payment Status",
+        choices=[
+            ("all", "All Statuses"),
+            ("paid", "Paid"),
+            ("unpaid", "Unpaid"),
+            ("overdue", "Overdue"),
+            ("due_soon", "Due Soon (Next 7 days)"),
+        ],
+        default="all",
     )
-    tax_rate = FloatField(
-        "Estimated Tax Rate (%)", 
-        validators=[DataRequired(), NumberRange(min=0, max=100)],
-        default=25.0
+    sort_by = SelectField(
+        "Sort By",
+        choices=[
+            ("date", "Date"),
+            ("due_date", "Due Date"),
+            ("amount", "Amount"),
+            ("category", "Category"),
+        ],
+        default="date",
     )
-    is_current = BooleanField("Current Salary")
-    notes = TextAreaField("Notes")
-    submit = SubmitField("Calculate Forecast")
+    sort_order = SelectField(
+        "Sort Order",
+        choices=[
+            ("desc", "Descending"),
+            ("asc", "Ascending"),
+        ],
+        default="desc",
+    )
+    submit = SubmitField("Apply Filters")

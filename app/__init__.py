@@ -8,9 +8,11 @@ from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from config import Config
+from flask_migrate import Migrate
 
 # Initialize Flask extensions
 db = SQLAlchemy()
+migrate = Migrate()
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 
@@ -54,6 +56,7 @@ def create_app(config_class=Config):
 
     # Initialize extensions
     db.init_app(app)
+    migrate.init_app(app, db)
     login_manager.init_app(app)
     limiter.init_app(app)
 
@@ -62,7 +65,7 @@ def create_app(config_class=Config):
     from app.auth import auth
     from app.admin import admin
     from app.errors import errors
-    from app.api import api  # Import the API blueprintc
+    from app.api import api
 
     # Apply rate limiting to auth blueprint
     auth.decorators = [
@@ -76,12 +79,58 @@ def create_app(config_class=Config):
     app.register_blueprint(auth)
     app.register_blueprint(admin)
     app.register_blueprint(errors)
-    app.register_blueprint(api)  # Register the API blueprint
+    app.register_blueprint(api)
 
     # Register CLI commands
     from app.cli import register_commands
 
     register_commands(app)
+
+    from app.errors import (
+        ValidationError,
+        ResourceNotFoundError,
+        AuthorizationError,
+        handle_validation_error,
+    )
+    from flask import request, jsonify
+
+    @app.errorhandler(ValidationError)
+    def handle_validation_exception(error):
+        # Try the API handler first
+        api_response = handle_validation_error(error)
+        if api_response:
+            return api_response
+
+        # Fall back to HTML template
+        return render_template("errors/422.html", error_message=str(error)), 422
+
+    @app.errorhandler(ResourceNotFoundError)
+    def handle_resource_not_found_exception(error):
+        if request.path.startswith("/api/"):
+            return (
+                jsonify(
+                    {
+                        "error": "Resource Not Found",
+                        "message": str(error),
+                        "resource_type": error.resource_type,
+                        "resource_id": error.resource_id,
+                        "code": 404,
+                    }
+                ),
+                404,
+            )
+        return render_template("errors/404.html"), 404
+
+    @app.errorhandler(AuthorizationError)
+    def handle_authorization_exception(error):
+        if request.path.startswith("/api/"):
+            return (
+                jsonify(
+                    {"error": "Authorization Error", "message": str(error), "code": 403}
+                ),
+                403,
+            )
+        return render_template("errors/403.html"), 403
 
     # Create database tables
     with app.app_context():

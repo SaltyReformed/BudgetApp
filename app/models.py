@@ -115,13 +115,67 @@ class Paycheck(db.Model):
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False, index=True)
+    due_date = db.Column(db.Date, nullable=True, index=True)  # Add due date
+    # Keep string category for backward compatibility
     category = db.Column(db.String(50), nullable=False)
+    # Add reference to actual category object
+    category_id = db.Column(
+        db.Integer, db.ForeignKey("expense_category.id"), nullable=True
+    )
     description = db.Column(db.String(200))
     amount = db.Column(db.Float, nullable=False)
+    paid = db.Column(db.Boolean, default=False)  # Track if expense is paid
     recurring = db.Column(db.Boolean, default=False)
     frequency = db.Column(db.String(20))  # monthly, bi-weekly, etc.
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    # Add method to show days until due
+    def days_until_due(self):
+        if not self.due_date:
+            return None
+        today = date.today()
+        delta = self.due_date - today
+        return delta.days
+
+    # Add status method to determine the payment status
+    def status(self):
+        if self.paid:
+            return "paid"
+
+        if not self.due_date:
+            return "no_due_date"
+
+        days = self.days_until_due()
+        if days is None:
+            return "unknown"
+        elif days < 0:
+            return "overdue"
+        elif days <= 7:
+            return "due_soon"
+        else:
+            return "upcoming"
+
+
+class ExpenseCategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    description = db.Column(db.String(200))
+    color = db.Column(db.String(7), default="#6B7280")  # Default gray color in hex
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    expenses = db.relationship(
+        "Expense",
+        backref="category_obj",
+        lazy="dynamic",
+        foreign_keys="Expense.category_id",
+    )
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<ExpenseCategory {self.name}>"
 
 
 class AuditLog(db.Model):

@@ -1,0 +1,144 @@
+<!-- templates/finance/expense_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="bg-white shadow-sm rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">
+                {% if expense %}Edit Expense{% else %}Add Expense{% endif %}
+            </h1>
+
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-gray-700">Expense Date</label>
+                        <div class="mt-1">
+                            {{ form.date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                            sm:text-sm
+                            border-gray-300 rounded-md", type="date") }}
+                        </div>
+                        {% for error in form.date.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <label for="due_date" class="block text-sm font-medium text-gray-700">Due Date
+                            (Optional)</label>
+                        <div class="mt-1">
+                            {{ form.due_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                            sm:text-sm
+                            border-gray-300 rounded-md", type="date") }}
+                        </div>
+                        {% for error in form.due_date.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="category_id" class="block text-sm font-medium text-gray-700">Category</label>
+                    <div class="mt-1">
+                        {{ form.category_id(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                        sm:text-sm border-gray-300 rounded-md") }}
+                    </div>
+                    {% for error in form.category_id.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label for="category_name" class="block text-sm font-medium text-gray-700">
+                        Or enter a new category name
+                    </label>
+                    <div class="mt-1">
+                        {{ form.category_name(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                        sm:text-sm border-gray-300 rounded-md") }}
+                    </div>
+                    {% for error in form.category_name.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <div class="mt-1">
+                        {{ form.description(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                        sm:text-sm border-gray-300 rounded-md", rows="2") }}
+                    </div>
+                    {% for error in form.description.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        {{ form.amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full pl-7
+                        sm:text-sm border-gray-300 rounded-md") }}
+                    </div>
+                    {% for error in form.amount.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="flex items-center">
+                    {{ form.paid(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded") }}
+                    <label for="paid" class="ml-2 block text-sm text-gray-900">Mark as paid</label>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        {{ form.recurring(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
+                        onclick="toggleFrequency()") }}
+                        <label for="recurring" class="ml-2 block text-sm text-gray-900">Recurring Expense</label>
+                    </div>
+
+                    <div id="frequency-field" style="display: none;">
+                        <label for="frequency" class="block text-sm font-medium text-gray-700">Frequency</label>
+                        <div class="mt-1">
+                            {{ form.frequency(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                            sm:text-sm border-gray-300 rounded-md") }}
+                        </div>
+                        {% for error in form.frequency.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <a href="{{ url_for('main.manage_expenses') }}"
+                        class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </a>
+                    {{ form.submit(class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white
+                    bg-blue-600 hover:bg-blue-700") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        toggleFrequency();
+    });
+
+    function toggleFrequency() {
+        const recurringCheckbox = document.getElementById('recurring');
+        const frequencyField = document.getElementById('frequency-field');
+
+        if (recurringCheckbox && frequencyField) {
+            frequencyField.style.display = recurringCheckbox.checked ? 'block' : 'none';
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

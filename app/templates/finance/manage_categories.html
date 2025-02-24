@@ -1,0 +1,148 @@
+<!-- templates/finance/manage_categories.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Manage Expense Categories</h1>
+            <a href="{{ url_for('main.add_category') }}"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Category
+            </a>
+        </div>
+
+        <!-- Categories Table -->
+        <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Expense Categories</h2>
+                {% if categories %}
+                <p class="mt-1 text-sm text-gray-500">You have {{ categories|length }} expense {% if categories|length
+                    == 1 %}category{% else %}categories{% endif %}</p>
+                {% endif %}
+            </div>
+
+            {% if categories %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Color
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Description
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Expenses
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Total Amount
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for category in categories %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                    style="background-color: {{ category.color }}20; color: {{ category.color }};">
+                                    {{ category.name }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ category.description or "-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                                {{ category_stats[category.id].count }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
+                                ${{ "%.2f"|format(category_stats[category.id].total) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
+                                <div class="flex justify-end space-x-3">
+                                    <a href="{{ url_for('main.edit_category', id=category.id) }}"
+                                        class="text-blue-600 hover:text-blue-900" title="Edit">
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('main.delete_category', id=category.id) }}"
+                                        class="inline delete-category-form">
+                                        <button type="submit" class="text-red-600 hover:text-red-900" title="Delete"
+                                            onclick="return confirm('Are you sure you want to delete this category? This action cannot be undone if the category has expenses associated with it.')">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="px-4 py-6 sm:px-6 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No categories found</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by creating a new category.</p>
+                <div class="mt-6">
+                    <a href="{{ url_for('main.add_category') }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                        <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add Category
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Back to Expenses Button -->
+        <div class="mt-6">
+            <a href="{{ url_for('main.manage_expenses') }}"
+                class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+                <svg class="mr-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Expenses
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+<div class="w-6 h-6 rounded" style="background-color: {{ category.color }}"></div>
+</td>
+<td class="px-6

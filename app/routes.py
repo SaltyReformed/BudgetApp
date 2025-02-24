@@ -46,31 +46,6 @@ def add_paycheck():
     return render_template("finance/add_paycheck.html", title="Add Paycheck", form=form)
 
 
-@main.route("/expense/add", methods=["GET", "POST"])
-@login_required
-def add_expense():
-    form = ExpenseForm()
-    if form.validate_on_submit():
-        expense = Expense(
-            date=form.date.data,
-            category=form.category.data,
-            description=form.description.data,
-            amount=form.amount.data,
-            recurring=form.recurring.data,
-            frequency=form.frequency.data if form.recurring.data else None,
-            user_id=current_user.id,
-        )
-        db.session.add(expense)
-        try:
-            db.session.commit()
-            flash("Expense added successfully!")
-            return redirect(url_for("main.dashboard"))
-        except Exception as e:
-            db.session.rollback()
-            flash("Error adding expense. Please try again.")
-    return render_template("finance/add_expense.html", title="Add Expense", form=form)
-
-
 # Update the dashboard route in app/routes.py
 
 
@@ -705,3 +680,476 @@ def delete_paycheck(id):
         flash(f"Error deleting paycheck: {str(e)}")
 
     return redirect(url_for("main.manage_paychecks"))
+
+
+# ============= EXPENSE MANAGEMENT =============
+
+
+@main.route("/expenses", methods=["GET"])
+@login_required
+def manage_expenses():
+    """View and manage all expenses on a single page"""
+    # Initialize the filter form
+    filter_form = ExpenseFilterForm()
+
+    # Load all categories for the user for the filter form
+    user_categories = (
+        ExpenseCategory.query.filter_by(user_id=current_user.id)
+        .order_by(ExpenseCategory.name)
+        .all()
+    )
+    filter_form.category.choices = [(0, "All Categories")] + [
+        (c.id, c.name) for c in user_categories
+    ]
+
+    # Get filter parameters from request
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+    category_id = request.args.get("category", type=int)
+    paid_status = request.args.get("paid_status", "all")
+    sort_by = request.args.get("sort_by", "date")
+    sort_order = request.args.get("sort_order", "desc")
+
+    # Pre-fill the form with current filter values
+    if start_date:
+        filter_form.start_date.data = datetime.strptime(start_date, "%Y-%m-%d").date()
+    if end_date:
+        filter_form.end_date.data = datetime.strptime(end_date, "%Y-%m-%d").date()
+    if category_id:
+        filter_form.category.data = category_id
+    if paid_status:
+        filter_form.paid_status.data = paid_status
+    if sort_by:
+        filter_form.sort_by.data = sort_by
+    if sort_order:
+        filter_form.sort_order.data = sort_order
+
+    # Start building the query
+    query = Expense.query.filter_by(user_id=current_user.id)
+
+    # Apply date filters
+    if start_date:
+        query = query.filter(
+            Expense.date >= datetime.strptime(start_date, "%Y-%m-%d").date()
+        )
+    if end_date:
+        query = query.filter(
+            Expense.date <= datetime.strptime(end_date, "%Y-%m-%d").date()
+        )
+
+    # Apply category filter
+    if category_id and category_id > 0:
+        query = query.filter(Expense.category_id == category_id)
+
+    # Apply paid status filter
+    if paid_status == "paid":
+        query = query.filter(Expense.paid == True)
+    elif paid_status == "unpaid":
+        query = query.filter(Expense.paid == False)
+    elif paid_status == "overdue":
+        query = query.filter(
+            Expense.paid == False,
+            Expense.due_date.isnot(None),
+            Expense.due_date < date.today(),
+        )
+    elif paid_status == "due_soon":
+        query = query.filter(
+            Expense.paid == False,
+            Expense.due_date.isnot(None),
+            Expense.due_date >= date.today(),
+            Expense.due_date <= date.today() + timedelta(days=7),
+        )
+
+    # Apply sorting
+    sort_column = getattr(Expense, sort_by)
+    if sort_by == "category":
+        sort_column = Expense.category  # Use the category string field
+
+    if sort_order == "desc":
+        query = query.order_by(desc(sort_column))
+    else:
+        query = query.order_by(asc(sort_column))
+
+    # Execute the query
+    expenses = query.all()
+
+    # Compute summary statistics
+    total_amount = sum(expense.amount for expense in expenses)
+    unpaid_amount = sum(expense.amount for expense in expenses if not expense.paid)
+    overdue_amount = sum(
+        expense.amount
+        for expense in expenses
+        if not expense.paid and expense.due_date and expense.due_date < date.today()
+    )
+
+    # Group expenses by category for the chart
+    category_totals = {}
+    for expense in expenses:
+        category = expense.category
+        if category not in category_totals:
+            category_totals[category] = 0
+        category_totals[category] += expense.amount
+
+    # Prepare category data for the template
+    category_data = [
+        {"name": cat, "amount": amt} for cat, amt in category_totals.items()
+    ]
+    category_data.sort(key=lambda x: x["amount"], reverse=True)
+
+    return render_template(
+        "finance/manage_expenses.html",
+        title="Manage Expenses",
+        expenses=expenses,
+        filter_form=filter_form,
+        total_amount=total_amount,
+        unpaid_amount=unpaid_amount,
+        overdue_amount=overdue_amount,
+        category_data=category_data,
+        categories=user_categories,
+    )
+
+
+@main.route("/expenses/add", methods=["GET", "POST"])
+@login_required
+def add_expense():
+    """Add a new expense"""
+    form = ExpenseForm()
+
+    # Load categories for the form dropdown
+    categories = ExpenseCategory.query.filter_by(user_id=current_user.id).all()
+    form.category_id.choices = [(0, "-- Select Category --")] + [
+        (c.id, c.name) for c in categories
+    ]
+
+    if form.validate_on_submit():
+        category_id = None
+        category_name = (
+            form.category_name.data.strip() if form.category_name.data else None
+        )
+
+        # Determine category - either existing or new
+        if form.category_id.data and form.category_id.data > 0:
+            # Using an existing category
+            category_id = form.category_id.data
+            category_obj = ExpenseCategory.query.get(category_id)
+            category_name = category_obj.name
+        elif category_name:
+            # Using a new category name - check if it already exists
+            existing_category = ExpenseCategory.query.filter(
+                ExpenseCategory.user_id == current_user.id,
+                ExpenseCategory.name.ilike(category_name),
+            ).first()
+
+            if existing_category:
+                # Use existing category with this name
+                category_id = existing_category.id
+                category_name = existing_category.name
+            else:
+                # Create new category
+                new_category = ExpenseCategory(
+                    name=category_name, user_id=current_user.id
+                )
+                db.session.add(new_category)
+                db.session.flush()  # Get the ID without committing
+                category_id = new_category.id
+
+        # Create the expense
+        expense = Expense(
+            date=form.date.data,
+            due_date=form.due_date.data,
+            category=category_name,  # For backward compatibility
+            category_id=category_id,
+            description=form.description.data,
+            amount=form.amount.data,
+            paid=form.paid.data,
+            recurring=form.recurring.data,
+            frequency=form.frequency.data if form.recurring.data else None,
+            user_id=current_user.id,
+        )
+
+        db.session.add(expense)
+        try:
+            db.session.commit()
+            flash("Expense added successfully!")
+            return redirect(url_for("main.manage_expenses"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error adding expense: {str(e)}")
+
+    return render_template("finance/expense_form.html", title="Add Expense", form=form)
+
+
+@main.route("/expenses/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_expense(id):
+    """Edit an expense"""
+    expense = Expense.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+    form = ExpenseForm(obj=expense)
+
+    # Load categories for the form dropdown
+    categories = ExpenseCategory.query.filter_by(user_id=current_user.id).all()
+    form.category_id.choices = [(0, "-- Select Category --")] + [
+        (c.id, c.name) for c in categories
+    ]
+
+    if request.method == "GET":
+        # Pre-populate the form
+        if expense.category_id:
+            form.category_id.data = expense.category_id
+
+    if form.validate_on_submit():
+        category_id = None
+        category_name = (
+            form.category_name.data.strip() if form.category_name.data else None
+        )
+
+        # Determine category - either existing or new
+        if form.category_id.data and form.category_id.data > 0:
+            # Using an existing category
+            category_id = form.category_id.data
+            category_obj = ExpenseCategory.query.get(category_id)
+            category_name = category_obj.name
+        elif category_name:
+            # Using a new category name - check if it already exists
+            existing_category = ExpenseCategory.query.filter(
+                ExpenseCategory.user_id == current_user.id,
+                ExpenseCategory.name.ilike(category_name),
+            ).first()
+
+            if existing_category:
+                # Use existing category with this name
+                category_id = existing_category.id
+                category_name = existing_category.name
+            else:
+                # Create new category
+                new_category = ExpenseCategory(
+                    name=category_name, user_id=current_user.id
+                )
+                db.session.add(new_category)
+                db.session.flush()  # Get the ID without committing
+                category_id = new_category.id
+
+        # Update the expense
+        expense.date = form.date.data
+        expense.due_date = form.due_date.data
+        expense.category = category_name  # For backward compatibility
+        expense.category_id = category_id
+        expense.description = form.description.data
+        expense.amount = form.amount.data
+        expense.paid = form.paid.data
+        expense.recurring = form.recurring.data
+        expense.frequency = form.frequency.data if form.recurring.data else None
+        expense.updated_at = datetime.utcnow()
+
+        try:
+            db.session.commit()
+            flash("Expense updated successfully!")
+            return redirect(url_for("main.manage_expenses"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error updating expense: {str(e)}")
+
+    return render_template(
+        "finance/expense_form.html", title="Edit Expense", form=form, expense=expense
+    )
+
+
+@main.route("/expenses/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_expense(id):
+    """Delete an expense"""
+    expense = Expense.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+
+    try:
+        db.session.delete(expense)
+        db.session.commit()
+        flash("Expense deleted successfully.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting expense: {str(e)}")
+
+    return redirect(url_for("main.manage_expenses"))
+
+
+@main.route("/expenses/toggle-paid/<int:id>", methods=["POST"])
+@login_required
+def toggle_expense_paid(id):
+    """Toggle the paid status of an expense"""
+    expense = Expense.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+
+    try:
+        expense.paid = not expense.paid
+        expense.updated_at = datetime.utcnow()
+        db.session.commit()
+
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify(
+                {
+                    "success": True,
+                    "paid": expense.paid,
+                    "message": f"Expense marked as {'paid' if expense.paid else 'unpaid'}.",
+                }
+            )
+
+        flash(f"Expense marked as {'paid' if expense.paid else 'unpaid'}.")
+    except Exception as e:
+        db.session.rollback()
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"success": False, "message": str(e)})
+        flash(f"Error updating expense: {str(e)}")
+
+    return redirect(url_for("main.manage_expenses"))
+
+
+# ============= CATEGORY MANAGEMENT =============
+
+
+@main.route("/expenses/categories", methods=["GET"])
+@login_required
+def manage_categories():
+    """View and manage expense categories"""
+    categories = (
+        ExpenseCategory.query.filter_by(user_id=current_user.id)
+        .order_by(ExpenseCategory.name)
+        .all()
+    )
+
+    # Get expense counts and totals for each category
+    category_stats = {}
+    for category in categories:
+        expenses = Expense.query.filter_by(
+            category_id=category.id, user_id=current_user.id
+        ).all()
+        count = len(expenses)
+        total = sum(e.amount for e in expenses)
+        category_stats[category.id] = {"count": count, "total": total}
+
+    return render_template(
+        "finance/manage_categories.html",
+        title="Manage Categories",
+        categories=categories,
+        category_stats=category_stats,
+    )
+
+
+@main.route("/expenses/categories/add", methods=["GET", "POST"])
+@login_required
+def add_category():
+    """Add a new expense category"""
+    form = ExpenseCategoryForm()
+
+    if form.validate_on_submit():
+        # Check if category already exists
+        existing = ExpenseCategory.query.filter(
+            ExpenseCategory.user_id == current_user.id,
+            ExpenseCategory.name.ilike(form.name.data),
+        ).first()
+
+        if existing:
+            flash("A category with this name already exists.")
+            return render_template(
+                "finance/category_form.html", title="Add Category", form=form
+            )
+
+        category = ExpenseCategory(
+            name=form.name.data,
+            description=form.description.data,
+            color=form.color.data,
+            user_id=current_user.id,
+        )
+
+        db.session.add(category)
+        try:
+            db.session.commit()
+            flash("Category added successfully!")
+            return redirect(url_for("main.manage_categories"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error adding category: {str(e)}")
+
+    return render_template(
+        "finance/category_form.html", title="Add Category", form=form
+    )
+
+
+@main.route("/expenses/categories/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_category(id):
+    """Edit an expense category"""
+    category = ExpenseCategory.query.filter_by(
+        id=id, user_id=current_user.id
+    ).first_or_404()
+    form = ExpenseCategoryForm(obj=category)
+
+    if form.validate_on_submit():
+        # Check if this would create a duplicate
+        if form.name.data.lower() != category.name.lower():
+            existing = ExpenseCategory.query.filter(
+                ExpenseCategory.user_id == current_user.id,
+                ExpenseCategory.id != category.id,
+                ExpenseCategory.name.ilike(form.name.data),
+            ).first()
+
+            if existing:
+                flash("A category with this name already exists.")
+                return render_template(
+                    "finance/category_form.html",
+                    title="Edit Category",
+                    form=form,
+                    category=category,
+                )
+
+        # Update the category
+        category.name = form.name.data
+        category.description = form.description.data
+        category.color = form.color.data
+
+        try:
+            # Also update any expenses using this category
+            expenses = Expense.query.filter_by(
+                category_id=category.id, user_id=current_user.id
+            ).all()
+            for expense in expenses:
+                expense.category = category.name  # Update the category name string too
+
+            db.session.commit()
+            flash("Category updated successfully!")
+            return redirect(url_for("main.manage_categories"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error updating category: {str(e)}")
+
+    return render_template(
+        "finance/category_form.html",
+        title="Edit Category",
+        form=form,
+        category=category,
+    )
+
+
+@main.route("/expenses/categories/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_category(id):
+    """Delete an expense category"""
+    category = ExpenseCategory.query.filter_by(
+        id=id, user_id=current_user.id
+    ).first_or_404()
+
+    # Check if the category is in use
+    expense_count = Expense.query.filter_by(
+        category_id=category.id, user_id=current_user.id
+    ).count()
+
+    if expense_count > 0:
+        flash(f"Cannot delete category. It is used by {expense_count} expenses.")
+        return redirect(url_for("main.manage_categories"))
+
+    try:
+        db.session.delete(category)
+        db.session.commit()
+        flash("Category deleted successfully.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting category: {str(e)}")
+
+    return redirect(url_for("main.manage_categories"))
