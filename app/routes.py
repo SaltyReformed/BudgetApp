@@ -4,12 +4,19 @@ from flask_login import login_required, current_user
 from app import db
 from app.models import Paycheck, Expense, SalaryProjection
 from app.errors import FinanceAppError
-from app.forms import PaycheckForm, ExpenseForm, SalaryForecastForm, ExpenseFilterForm
+from app.forms import (
+    PaycheckForm,
+    ExpenseForm,
+    SalaryForecastForm,
+    ExpenseFilterForm,
+    ExpenseCategoryForm,
+)
 from app.models import Paycheck, Expense, SalaryProjection, ExpenseCategory
 from datetime import datetime, timedelta, date
 import json
 from app.utils.paycheck_generator import create_salary_paychecks
 from sqlalchemy import desc, asc
+from .utils.recurring_expense_generator import generate_recurring_expenses
 
 main = Blueprint("main", __name__)
 
@@ -194,13 +201,21 @@ def budget():
         .all()
     )
 
-    # Get the expenses within the date range
-    expenses = (
+    # Get the base expenses within the date range
+    base_expenses = (
         Expense.query.filter_by(user_id=current_user.id)
         .filter(Expense.date >= start_date_obj, Expense.date <= end_date_obj)
         .order_by(Expense.date)
         .all()
     )
+
+    # Generate recurring expenses
+    recurring_expenses = generate_recurring_expenses(
+        current_user.id, start_date_obj, end_date_obj
+    )
+
+    # Combine base and recurring expenses
+    expenses = base_expenses + recurring_expenses
 
     # Determine the pay periods based on actual paycheck dates
     # We'll group paychecks that fall on the same day
