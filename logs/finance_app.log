@@ -32,3 +32,20 @@
 2025-02-25 08:56:57,157 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
 2025-02-25 08:56:57,790 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
 2025-02-25 09:03:04,103 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:14:08,213 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:14:09,021 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:17:17,445 ERROR: Server Error: AttributeError - 'Expense' object has no attribute 'parent_expense_id'
+Traceback: Traceback (most recent call last):
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 974, in edit_expense
+    is_materialized = expense.parent_expense_id is not None
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Expense' object has no attribute 'parent_expense_id'
+ [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
