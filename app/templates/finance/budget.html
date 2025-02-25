@@ -1,31 +1,5 @@
 {% extends "base.html" %}
 
-<!-- <style>
-    .expense-details {
-        display: none;
-    }
-
-    .expense-row.expanded .expense-details {
-        display: table-row;
-    }
-
-    .toggle-icon-plus {
-        display: inline-block;
-    }
-
-    .toggle-icon-minus {
-        display: none;
-    }
-
-    .expense-row.expanded .toggle-icon-plus {
-        display: none;
-    }
-
-    .expense-row.expanded .toggle-icon-minus {
-        display: inline-block;
-    }
-</style> -->
-
 {% block content %}
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
@@ -289,103 +263,385 @@
         <div class="bg-white rounded-lg shadow p-6 mb-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold">Expenses</h2>
-                <div>
-                    <a href="{{ url_for('main.add_expense') }}"
-                        class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 mr-2">
-                        Add Expense
-                    </a>
-                    <button id="toggle-debug-mode"
-                        class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Debug Mode
-                    </button>
-                </div>
+                <a href="{{ url_for('main.add_expense') }}"
+                    class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
+                    Add Expense
+                </a>
             </div>
 
-            <!-- Mount point for React component -->
-            <div id="detailed-expense-table">
-                <p class="text-center py-4 text-gray-500">Loading expense data...</p>
-            </div>
+            <div class="overflow-x-auto">
+                {% if period_data and periods %}
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b">
+                            <th class="text-left py-2 px-4">Category</th>
+                            {% for period in periods %}
+                            <th class="text-right py-2 px-4">{{ period.date }}</th>
+                            {% endfor %}
+                            <th class="text-right py-2 px-4 bg-gray-100">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set categories = [] %}
+                        {% set category_totals = {} %}
 
-            <!-- Debug info (hidden by default) -->
-            <div id="debug-info" class="mt-4 p-4 bg-gray-100 rounded hidden">
-                <h3 class="text-lg font-medium mb-2">Debug Information</h3>
-                <p><strong>Periods Count:</strong> {{ periods|length }}</p>
-                <p><strong>Expenses Count:</strong> {{ all_expenses|length }}</p>
+                        {# Collect all unique expense categories #}
+                        {% for period_id, period_info in period_data.items() %}
+                        {% for category, amount in period_info.expenses.items() %}
+                        {% if category not in categories %}
+                        {% set _ = categories.append(category) %}
+                        {% set _ = category_totals.update({category: 0}) %}
+                        {% endif %}
+                        {% set _ = category_totals.update({category: category_totals[category] + amount}) %}
+                        {% endfor %}
+                        {% endfor %}
 
-                <div class="mt-4">
-                    <button id="view-raw-data" class="px-3 py-1 text-sm bg-gray-600 text-white rounded">
-                        View Raw Data
-                    </button>
-                    <div id="raw-data-container" class="mt-2 hidden">
-                        <h4 class="font-medium">Raw Data:</h4>
-                        <pre id="raw-data"
-                            class="mt-2 p-2 bg-gray-200 rounded text-xs overflow-auto max-h-[300px]"></pre>
-                    </div>
-                </div>
+                        {# Display each category row #}
+                        {% for category in categories %}
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4 capitalize">{{ category }}</td>
+                            {% for period in periods %}
+                            {% set amount = period_data[period.id].expenses.get(category, 0) %}
+                            <td class="text-right py-2 px-4">
+                                ${{ "%.2f"|format(amount) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 bg-gray-100">
+                                ${{ "%.2f"|format(category_totals[category]) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
 
-                <div class="mt-4">
-                    <h4 class="font-medium">Sample Period Data:</h4>
-                    <pre class="mt-2 p-2 bg-gray-200 rounded text-xs">
-        {% if periods and periods|length > 0 %}
-        Period 1:
-        ID: {{ periods[0].id }}
-        Date: {{ periods[0].date }}
-        Start Date: {{ periods[0].start_date }}
-        End Date: {{ periods[0].end_date }}
-        {% else %}
-        No period data available
-        {% endif %}
-                    </pre>
-
-                    <h4 class="font-medium mt-4">Sample Expense Data:</h4>
-                    <pre class="mt-2 p-2 bg-gray-200 rounded text-xs">
-        {% if all_expenses and all_expenses|length > 0 %}
-        Expense 1:
-        ID: {{ all_expenses[0].id }}
-        Date: {{ all_expenses[0].date }}
-        Category: {{ all_expenses[0].category|default('None', true) }}
-        Description: {{ all_expenses[0].description|default('None', true) }}
-        Amount: {{ all_expenses[0].amount|default(0) }}
-        {% else %}
-        No expense data available
-        {% endif %}
-                    </pre>
-                </div>
+                        <!-- Total Row -->
+                        <tr class="bg-gray-50 font-bold">
+                            <td class="py-2 px-4">Total Expenses</td>
+                            {% for period in periods %}
+                            {% set total_expenses = period_data[period.id].expenses.values()|sum %}
+                            <td class="text-right py-2 px-4 text-red-600">
+                                ${{ "%.2f"|format(total_expenses) }}
+                            </td>
+                            {% endfor %}
+                            <td class="text-right py-2 px-4 text-red-600 bg-gray-100">
+                                ${{ "%.2f"|format(summary.totalExpenses) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-center text-gray-500 py-4">No expenses found for this period.</p>
+                {% endif %}
             </div>
         </div>
-        {% endblock %}
 
-        {% block scripts %}
-        <!-- Setup data for JavaScript -->
-        <script>
-            // Setup expense data for React - with proper null handling
-            window.periodsData = {{ periods_json | safe }};
-            window.expensesData = [];
+        <!-- Recent Paychecks -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Recent Paychecks</h2>
+                <a href="{{ url_for('main.manage_paychecks') }}" class="text-blue-600 hover:text-blue-800">
+                    View All
+                </a>
+            </div>
 
-            {% for expense in all_expenses %}
-            window.expensesData.push({
-                id: {{ expense.id }},
-                date: "{{ expense.date.strftime('%Y-%m-%d') }}",
-                category: "{{ (expense.category or 'uncategorized')|lower|replace('"', '\\"') }}",
-                description: "{{ (expense.description or '')|replace('"', '\\"')|replace("\n", " ") }}",
-                amount: {{ expense.amount |default(0) }},
-                recurring: {{ 'true' if expense.recurring else 'false' }},
-                paid: {{ 'true' if expense.paid else 'false' }}
-    });
-            {% endfor %}
+            <div class="overflow-x-auto">
+                {% if paychecks %}
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b">
+                            <th class="text-left py-2 px-4">Date</th>
+                            <th class="text-left py-2 px-4">Type</th>
+                            <th class="text-right py-2 px-4">Gross</th>
+                            <th class="text-right py-2 px-4">Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paycheck in paychecks[:5] %}
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-2 px-4">{{ paycheck.date.strftime('%m/%d/%Y') }}</td>
+                            <td class="py-2 px-4">{{ paycheck.pay_type }}</td>
+                            <td class="py-2 px-4 text-right">${{ "%.2f"|format(paycheck.gross_amount) }}</td>
+                            <td class="py-2 px-4 text-right text-green-600">${{ "%.2f"|format(paycheck.net_amount) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">No paychecks found in this date range.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
-            // Add period start/end dates to the periods data - with proper null handling
-            window.periodsWithDates = [];
-            {% for p in periods %}
-            window.periodsWithDates.push({
-                id: {{ p.id }},
-                date: "{{ p.date }}",
-                start_date: "{{ p.start_date.strftime('%Y-%m-%d') }}",
-                end_date: "{{ p.end_date.strftime('%Y-%m-%d') }}"
-    });
-            {% endfor %}
-        </script>
 
-        <!-- Import external JavaScript file -->
-        <script src="{{ url_for('static', filename='js/budget-page.js') }}"></script>
-        {% endblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Create modal overlay
+        const createModalOverlay = () => {
+            const overlay = document.createElement('div');
+            overlay.id = 'modal-overlay';
+            overlay.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden';
+            document.body.appendChild(overlay);
+            return overlay;
+        };
+
+        // Create the modal container
+        const createModalContainer = () => {
+            const container = document.createElement('div');
+            container.id = 'modal-container';
+            container.className = 'bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto';
+            return container;
+        };
+
+        // Create a modal
+        const createModal = (id, title) => {
+            const modal = document.createElement('div');
+            modal.id = id;
+            modal.className = 'hidden';
+
+            // Modal header
+            const header = document.createElement('div');
+            header.className = 'flex justify-between items-center mb-4';
+
+            const titleEl = document.createElement('h3');
+            titleEl.className = 'text-xl font-bold';
+            titleEl.textContent = title;
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'text-gray-500 hover:text-gray-700 text-xl font-bold';
+            closeBtn.textContent = '×';
+            closeBtn.addEventListener('click', () => {
+                hideModal(id);
+            });
+
+            header.appendChild(titleEl);
+            header.appendChild(closeBtn);
+            modal.appendChild(header);
+
+            return modal;
+        };
+
+        // Show a modal
+        const showModal = (id) => {
+            const overlay = document.getElementById('modal-overlay');
+            const modal = document.getElementById(id);
+
+            if (overlay && modal) {
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+
+                // Hide all other modals
+                document.querySelectorAll('#modal-container > div').forEach(m => {
+                    if (m.id !== id) {
+                        m.classList.add('hidden');
+                    }
+                });
+            }
+        };
+
+        // Hide a modal
+        const hideModal = (id) => {
+            const overlay = document.getElementById('modal-overlay');
+            const modal = document.getElementById(id);
+
+            if (overlay && modal) {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+            }
+        };
+
+        // Setup modals
+        const overlay = createModalOverlay();
+        const container = createModalContainer();
+        overlay.appendChild(container);
+
+        // Create income modal with iframe
+        const createIncomeIframe = () => {
+            const modal = createModal('income-modal', 'Add One-Time Income');
+
+            const iframe = document.createElement('iframe');
+            iframe.src = '/api/income/add?modal=true';
+            iframe.className = 'w-full h-96 border-0';
+            iframe.style.height = '450px'; // Fixed height
+            // Enable scrolling in the iframe to ensure all content is accessible
+            iframe.scrolling = 'yes';
+            iframe.onload = function () {
+                try {
+                    // Try to access iframe content (may fail due to same-origin policy)
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                    // Check if we got redirected (usually after form submission)
+                    if (iframeDoc.URL.indexOf('/api/income/add') === -1) {
+                        // Redirect to the main page or reload
+                        window.location.reload();
+                    }
+                } catch (e) {
+                    console.log("Cannot access iframe content due to same-origin policy");
+                }
+            };
+
+            modal.appendChild(iframe);
+            container.appendChild(modal);
+        };
+
+        // Create paycheck modal with iframe
+        const createPaycheckIframe = () => {
+            const modal = createModal('paycheck-modal', 'Add Paycheck');
+
+            // Create a div to hold the iframe
+            const iframeContainer = document.createElement('div');
+            iframeContainer.className = 'overflow-hidden rounded';
+
+            const iframe = document.createElement('iframe');
+            iframe.src = '/paycheck/add';
+            iframe.className = 'w-full border-0';
+            iframe.style.height = '500px'; // Fixed height
+
+            // Remove scrolling from the iframe
+            iframe.scrolling = 'yes';
+
+            // Add custom styling to adjust the view inside the iframe
+            iframe.onload = function () {
+                try {
+                    // Try to access iframe content
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                    // Check if we got redirected (usually after form submission)
+                    if (iframeDoc.URL.indexOf('/paycheck/add') === -1) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    // Add custom CSS to the iframe content to hide the header/footer
+                    const style = iframeDoc.createElement('style');
+                    style.textContent = `
+                body { 
+                    padding: 0 !important; 
+                    margin: 0 !important;
+                    background: transparent !important;
+                }
+                .py-6, .px-6, .px-8 { padding: 0 !important; }
+                .max-w-2xl { max-width: none !important; }
+                .mx-auto { margin: 0 !important; }
+                .shadow-sm { box-shadow: none !important; }
+                .rounded-lg { border-radius: 0 !important; }
+                .bg-white { background: transparent !important; }
+                nav, h1 { display: none !important; }
+                a[href="{{ url_for('main.dashboard') }}"] { display: none !important; }
+            `;
+                    iframeDoc.head.appendChild(style);
+                } catch (e) {
+                    console.log("Cannot access iframe content due to same-origin policy");
+                }
+            };
+
+            iframeContainer.appendChild(iframe);
+            modal.appendChild(iframeContainer);
+            container.appendChild(modal);
+        };
+
+        // Create expense modal with iframe
+        const createExpenseIframe = () => {
+            const modal = createModal('expense-modal', 'Add Expense');
+
+            // Create a div to hold the iframe
+            const createExpenseIframe = () => {
+                const modal = createModal('expense-modal', 'Add Expense');
+
+                // Create a div to hold the iframe
+                const iframeContainer = document.createElement('div');
+                iframeContainer.className = 'overflow-hidden rounded max-h-[80vh] overflow-y-auto'; // Added max height and scrolling
+
+                const iframe = document.createElement('iframe');
+                iframe.src = '/expense/add';
+                iframe.className = 'w-full border-0';
+                iframe.style.height = '700px'; // Increased height from 550px to 700px
+
+                // Remove scrolling from the iframe
+                iframe.scrolling = 'yes';
+
+                // Add custom styling to adjust the view inside the iframe
+                iframe.onload = function () {
+                    try {
+                        // Try to access iframe content
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                        // Check if we got redirected (usually after form submission)
+                        if (iframeDoc.URL.indexOf('/expense/add') === -1) {
+                            window.location.reload();
+                            return;
+                        }
+
+                        // Add custom CSS to the iframe content to hide the header/footer
+                        const style = iframeDoc.createElement('style');
+                        style.textContent = `
+        body { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            background: transparent !important;
+        }
+        .py-6, .px-6, .px-8 { padding: 0 !important; }
+        .max-w-2xl { max-width: none !important; }
+        .mx-auto { margin: 0 !important; }
+        .shadow-sm { box-shadow: none !important; }
+        .rounded-lg { border-radius: 0 !important; }
+        .bg-white { background: transparent !important; }
+        nav, h1 { display: none !important; }
+        a[href="{{ url_for('main.dashboard') }}"] { display: none !important; }
+    `;
+                        iframeDoc.head.appendChild(style);
+                    } catch (e) {
+                        console.log("Cannot access iframe content due to same-origin policy");
+                    }
+                };
+
+                iframeContainer.appendChild(iframe);
+                modal.appendChild(iframeContainer);
+                container.appendChild(modal);
+            };
+            // Create all modals
+            createIncomeIframe();
+            createPaycheckIframe();
+            createExpenseIframe();
+
+            // Add event listeners to buttons
+            const setupButtonListeners = () => {
+                // Find all links to the add pages
+                document.querySelectorAll('a').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (!href) return;
+
+                    if (href === '/api/income/add') {
+                        link.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            showModal('income-modal');
+                        });
+                    } else if (href === '/paycheck/add') {
+                        link.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            showModal('paycheck-modal');
+                        });
+                    } else if (href === '/expense/add') {
+                        link.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            showModal('expense-modal');
+                        });
+                    }
+                });
+            };
+
+            // Initialize everything
+            setupButtonListeners();
+
+            // Allow clicking outside to close
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) {
+                    overlay.classList.add('hidden');
+                    document.querySelectorAll('#modal-container > div').forEach(modal => {
+                        modal.classList.add('hidden');
+                    });
+                }
+            });
+        });
+</script>
+{% endblock %}
