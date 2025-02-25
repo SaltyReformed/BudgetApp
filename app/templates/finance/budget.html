@@ -289,147 +289,162 @@
         <div class="bg-white rounded-lg shadow p-6 mb-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold">Expenses</h2>
-                <a href="{{ url_for('main.add_expense') }}"
-                    class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
-                    Add Expense
-                </a>
+                <div>
+                    <a href="{{ url_for('main.add_expense') }}"
+                        class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 mr-2">
+                        Add Expense
+                    </a>
+                    <button id="toggle-debug-mode" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Debug Mode
+                    </button>
+                </div>
             </div>
         
-            <div class="overflow-x-auto">
-                {% if period_data and periods %}
-                <table class="min-w-full" id="expense-breakdown-table">
-                    <thead>
-                        <tr class="bg-gray-50 border-b">
-                            <th class="text-left py-2 px-4">Category</th>
-                            {% for period in periods %}
-                            <th class="text-right py-2 px-4">{{ period.date }}</th>
-                            {% endfor %}
-                            <th class="text-right py-2 px-4 bg-gray-100">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% set categories = [] %}
-                        {% set category_totals = {} %}
-        
-                        {# Collect all unique expense categories #}
-                        {% for period_id, period_info in period_data.items() %}
-                        {% for category, amount in period_info.expenses.items() %}
-                        {% if category not in categories %}
-                        {% set _ = categories.append(category) %}
-                        {% set _ = category_totals.update({category: 0}) %}
-                        {% endif %}
-                        {% set _ = category_totals.update({category: category_totals[category] + amount}) %}
-                        {% endfor %}
-                        {% endfor %}
-        
-                        {# Display each category row with expandable details #}
-                        {% for category in categories %}
-                        <tr class="border-b expense-row hover:bg-gray-50" data-category="{{ category }}">
-                            <td class="py-2 px-4 capitalize">
-                                <button class="toggle-details flex items-center focus:outline-none" aria-expanded="false">
-                                    <svg class="h-4 w-4 mr-1 toggle-icon-plus" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    <svg class="h-4 w-4 mr-1 toggle-icon-minus" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
-                                    </svg>
-                                    {{ category }}
-                                </button>
-                            </td>
-                            {% for period in periods %}
-                            {% set amount = period_data[period.id].expenses.get(category, 0) %}
-                            <td class="text-right py-2 px-4">
-                                ${{ "%.2f"|format(amount) }}
-                            </td>
-                            {% endfor %}
-                            <td class="text-right py-2 px-4 bg-gray-100">
-                                ${{ "%.2f"|format(category_totals[category]) }}
-                            </td>
-                        </tr>
-        
-                        {# Add detail rows for this category #}
-                        <tr class="expense-details bg-gray-50" data-parent-category="{{ category }}">
-                            <td colspan="{{ periods|length + 2 }}" class="py-0">
-                                <div class="pl-8 py-2">
-                                    <div class="text-sm divide-y">
-                                        {% for expense in all_expenses %}
-                                        {% if expense.category.lower() == category %}
-                                        {% for p in periods %}
-                                        {% if p.start_date <= expense.date <=p.end_date %} <div
-                                            class="py-1 flex justify-between">
-                                            <div>
-                                                <span class="font-medium">{{ expense.date.strftime('%m/%d/%Y') }}</span>
-                                                {% if expense.recurring %}
-                                                <span class="ml-1 text-xs text-gray-500">(Recurring)</span>
-                                                {% endif %}
-                                                <span class="ml-2">{{ expense.description or '(No description)' }}</span>
-                                            </div>
-                                            <div class="font-medium">${{ "%.2f"|format(expense.amount) }}</div>
-                                    </div>
-                                    {% endif %}
-                                    {% endfor %}
-                                    {% endif %}
-                                    {% endfor %}
-                                </div>
+            <!-- Mount point for React component -->
+            <div id="detailed-expense-table">
+                <p class="text-center py-4 text-gray-500">Loading expense data...</p>
             </div>
-            </td>
-            </tr>
-            {% endfor %}
         
-            <!-- Total Row -->
-            <tr class="bg-gray-50 font-bold">
-                <td class="py-2 px-4">Total Expenses</td>
-                {% for period in periods %}
-                {% set total_expenses = period_data[period.id].expenses.values()|sum %}
-                <td class="text-right py-2 px-4 text-red-600">
-                    ${{ "%.2f"|format(total_expenses) }}
-                </td>
-                {% endfor %}
-                <td class="text-right py-2 px-4 text-red-600 bg-gray-100">
-                    ${{ "%.2f"|format(summary.totalExpenses) }}
-                </td>
-            </tr>
-            </tbody>
-            </table>
-            {% else %}
-            <p class="text-center text-gray-500 py-4">No expenses found for this period.</p>
-            {% endif %}
-        </div>
-        </div>
-
+            <!-- Debug info (hidden by default) -->
+            <div id="debug-info" class="mt-4 p-4 bg-gray-100 rounded hidden">
+                <h3 class="text-lg font-medium mb-2">Debug Information</h3>
+                <p><strong>Periods Count:</strong> {{ periods|length }}</p>
+                <p><strong>Expenses Count:</strong> {{ all_expenses|length }}</p>
         
-    </div>
-</div>
+                <div class="mt-4">
+                    <button id="view-raw-data" class="px-3 py-1 text-sm bg-gray-600 text-white rounded">
+                        View Raw Data
+                    </button>
+                    <div id="raw-data-container" class="mt-2 hidden">
+                        <h4 class="font-medium">Raw Data:</h4>
+                        <pre id="raw-data" class="mt-2 p-2 bg-gray-200 rounded text-xs overflow-auto max-h-[300px]"></pre>
+                    </div>
+                </div>
+        
+                <div class="mt-4">
+                    <h4 class="font-medium">Sample Period Data:</h4>
+                    <pre class="mt-2 p-2 bg-gray-200 rounded text-xs">
+        {% if periods and periods|length > 0 %}
+        Period 1:
+        ID: {{ periods[0].id }}
+        Date: {{ periods[0].date }}
+        Start Date: {{ periods[0].start_date }}
+        End Date: {{ periods[0].end_date }}
+        {% else %}
+        No period data available
+        {% endif %}
+                    </pre>
+        
+                    <h4 class="font-medium mt-4">Sample Expense Data:</h4>
+                    <pre class="mt-2 p-2 bg-gray-200 rounded text-xs">
+        {% if all_expenses and all_expenses|length > 0 %}
+        Expense 1:
+        ID: {{ all_expenses[0].id }}
+        Date: {{ all_expenses[0].date }}
+        Category: {{ all_expenses[0].category|default('None', true) }}
+        Description: {{ all_expenses[0].description|default('None', true) }}
+        Amount: {{ all_expenses[0].amount|default(0) }}
+        {% else %}
+        No expense data available
+        {% endif %}
+                    </pre>
+                </div>
+            </div>
+        </div>
+{% endblock %}
 
-
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-            // Add click handlers for the expense category toggles
-            const toggleButtons = document.querySelectorAll('.toggle-details');
-
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const row = this.closest('.expense-row');
-                    const category = row.dataset.category;
-                    const isExpanded = row.classList.toggle('expanded');
-
-                    // Toggle aria-expanded attribute for accessibility
-                    this.setAttribute('aria-expanded', isExpanded);
-
-                    // Toggle visibility of detail rows
-                    document.querySelectorAll(`.expense-details[data-parent-category="${category}"]`).forEach(detail => {
-                        if (isExpanded) {
-                            detail.style.display = 'table-row';
-                        } else {
-                            detail.style.display = 'none';
-                        }
-                    });
-                });
+            // Debug mode toggle
+            document.getElementById('toggle-debug-mode').addEventListener('click', function () {
+                document.getElementById('debug-info').classList.toggle('hidden');
             });
+
+            // Raw data view toggle
+            document.getElementById('view-raw-data').addEventListener('click', function () {
+                const container = document.getElementById('raw-data-container');
+                container.classList.toggle('hidden');
+
+                if (!container.classList.contains('hidden')) {
+                    try {
+                        const rawData = {
+                            periods: periodsWithDates,
+                            expenses: expensesData
+                        };
+                        document.getElementById('raw-data').textContent = JSON.stringify(rawData, null, 2);
+                    } catch (error) {
+                        document.getElementById('raw-data').textContent = 'Error generating raw data: ' + error.message;
+                    }
+                }
+            });
+
+            // Setup expense data for React - with careful handling of null/None values
+            const periodsData = {{ periods_json| safe
+        }};
+        const expensesData = [];
+
+        {% for expense in all_expenses %}
+        expensesData.push({
+            id: {{ expense.id }},
+            date: "{{ expense.date.strftime('%Y-%m-%d') }}",
+            category: "{{ (expense.category or 'uncategorized')|lower|replace('"', '\\"') }}",
+            description: "{{ (expense.description or '')|replace('"', '\\"')|replace("\n", " ") }}",
+            amount: {{ expense.amount |default(0) }},
+            recurring: {{ 'true' if expense.recurring else 'false' }},
+            paid: {{ 'true' if expense.paid else 'false' }}
         });
+        {% endfor %}
+
+        // Add period start/end dates to the periods data - with careful null handling
+        const periodsWithDates = [];
+        {% for p in periods %}
+        periodsWithDates.push({
+            id: {{ p.id }},
+            date: "{{ p.date }}",
+            start_date: "{{ p.start_date.strftime('%Y-%m-%d') }}",
+            end_date: "{{ p.end_date.strftime('%Y-%m-%d') }}"
+        });
+        {% endfor %}
+
+        // Import and mount the React component
+        const mountDetailedExpenseTable = async () => {
+            try {
+                console.log("Mounting expense table with data:", {
+                    periods: periodsWithDates,
+                    expenses: expensesData
+                });
+
+                const { createRoot } = await import('react-dom/client');
+                const { createElement } = await import('react');
+                const module = await import('/static/js/components/detailed-expense-table.js');
+                const DetailedExpenseTable = module.default;
+
+                const domNode = document.getElementById('detailed-expense-table');
+                if (domNode) {
+                    const root = createRoot(domNode);
+                    root.render(createElement(DetailedExpenseTable, {
+                        periods: periodsWithDates,
+                        expenses: expensesData
+                    }));
+                } else {
+                    console.error("Could not find mount point #detailed-expense-table");
+                }
+            } catch (error) {
+                console.error('Error loading expense table component:', error);
+
+                const errorMessage =
+                    `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+                        <p>Error loading expense table component: ${error.message}</p>
+                        <pre class="mt-2 text-xs overflow-auto">${error.stack}</pre>
+                     </div>`;
+
+                document.getElementById('detailed-expense-table').innerHTML = errorMessage;
+            }
+        };
+
+        mountDetailedExpenseTable();
+    });
     document.addEventListener('DOMContentLoaded', function () {
         // Create modal overlay
         const createModalOverlay = () => {
@@ -600,36 +615,32 @@
             const modal = createModal('expense-modal', 'Add Expense');
 
             // Create a div to hold the iframe
-            const createExpenseIframe = () => {
-                const modal = createModal('expense-modal', 'Add Expense');
+            const iframeContainer = document.createElement('div');
+            iframeContainer.className = 'overflow-hidden rounded max-h-[80vh] overflow-y-auto'; // Added max height and scrolling
 
-                // Create a div to hold the iframe
-                const iframeContainer = document.createElement('div');
-                iframeContainer.className = 'overflow-hidden rounded max-h-[80vh] overflow-y-auto'; // Added max height and scrolling
+            const iframe = document.createElement('iframe');
+            iframe.src = '/expense/add';
+            iframe.className = 'w-full border-0';
+            iframe.style.height = '700px'; // Increased height from 550px to 700px
 
-                const iframe = document.createElement('iframe');
-                iframe.src = '/expense/add';
-                iframe.className = 'w-full border-0';
-                iframe.style.height = '700px'; // Increased height from 550px to 700px
+            // Remove scrolling from the iframe
+            iframe.scrolling = 'yes';
 
-                // Remove scrolling from the iframe
-                iframe.scrolling = 'yes';
+            // Add custom styling to adjust the view inside the iframe
+            iframe.onload = function () {
+                try {
+                    // Try to access iframe content
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-                // Add custom styling to adjust the view inside the iframe
-                iframe.onload = function () {
-                    try {
-                        // Try to access iframe content
-                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    // Check if we got redirected (usually after form submission)
+                    if (iframeDoc.URL.indexOf('/expense/add') === -1) {
+                        window.location.reload();
+                        return;
+                    }
 
-                        // Check if we got redirected (usually after form submission)
-                        if (iframeDoc.URL.indexOf('/expense/add') === -1) {
-                            window.location.reload();
-                            return;
-                        }
-
-                        // Add custom CSS to the iframe content to hide the header/footer
-                        const style = iframeDoc.createElement('style');
-                        style.textContent = `
+                    // Add custom CSS to the iframe content to hide the header/footer
+                    const style = iframeDoc.createElement('style');
+                    style.textContent = `
         body { 
             padding: 0 !important; 
             margin: 0 !important;
@@ -644,16 +655,17 @@
         nav, h1 { display: none !important; }
         a[href="{{ url_for('main.dashboard') }}"] { display: none !important; }
     `;
-                        iframeDoc.head.appendChild(style);
-                    } catch (e) {
-                        console.log("Cannot access iframe content due to same-origin policy");
-                    }
-                };
-
-                iframeContainer.appendChild(iframe);
-                modal.appendChild(iframeContainer);
-                container.appendChild(modal);
+                    iframeDoc.head.appendChild(style);
+                } catch (e) {
+                    console.log("Cannot access iframe content due to same-origin policy");
+                }
             };
+
+            iframeContainer.appendChild(iframe);
+            modal.appendChild(iframeContainer);
+            container.appendChild(modal);
+        };
+
         // Create all modals
         createIncomeIframe();
         createPaycheckIframe();

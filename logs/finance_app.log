@@ -1,57 +1,10 @@
-2025-02-24 19:13:35,366 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
-2025-02-24 20:16:38,160 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:16:38,835 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:16:50,822 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
-2025-02-24 20:16:56,023 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
-2025-02-24 20:25:07,112 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:25:07,851 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:33:13,108 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:33:13,760 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:34:12,862 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:34:13,571 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:01:29,988 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:05:42,324 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:05:50,815 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:05:51,509 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:06:01,933 ERROR: Server Error: UndefinedError - 'hasattr' is undefined
-Traceback: Traceback (most recent call last):
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/routes.py", line 385, in budget
-    return render_template(
-        "finance/budget.html",
-    ...<13 lines>...
-        paycheck_data_json=paycheck_data_json,
-    )
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
-    return _render(app, template, context)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 133, in _render
-    rv = template.render(context)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/josh/BudgetApp/app/templates/base.html", line 391, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 336, in block 'content'
-    {% if category in detailed_expenses and period.id in detailed_expenses[category] %} {% set
-    
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/utils.py", line 92, in from_obj
-    if hasattr(obj, "jinja_pass_arg"):
-       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-jinja2.exceptions.UndefinedError: 'hasattr' is undefined
- [in /home/josh/BudgetApp/app/errors.py:121]
-2025-02-24 21:17:48,346 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:17:49,043 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:18:19,509 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:18:20,182 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:34:47,910 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:34:55,111 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
+2025-02-24 21:36:15,578 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:36:16,235 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:42:12,963 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:42:13,605 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:46:16,416 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:46:17,254 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:47:51,563 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:47:52,264 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]

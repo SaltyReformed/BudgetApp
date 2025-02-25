@@ -392,8 +392,7 @@ def budget():
         start_date=start_date,
         end_date=end_date,
         starting_balance=starting_balance,
-        all_expenses=all_expenses,  # Added all_expenses to the template context
-        # Include these for backward compatibility or future use
+        all_expenses=all_expenses,  # This is important for the React component
         periods_json=periods_json,
         summary_json=summary_json,
         period_data_json=period_data_json,
