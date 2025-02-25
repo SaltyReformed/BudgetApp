@@ -119,6 +119,18 @@ class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False, index=True)
     due_date = db.Column(db.Date, nullable=True, index=True)
+
+    # New fields for materialization
+    start_date = db.Column(
+        db.Date, nullable=True, index=True
+    )  # When the expense starts (for recurring)
+    end_date = db.Column(
+        db.Date, nullable=True, index=True
+    )  # When the expense ends (for recurring)
+    parent_expense_id = db.Column(
+        db.Integer, db.ForeignKey("expense.id"), nullable=True
+    )  # For materialized instances
+
     category = db.Column(db.String(50), nullable=False)
     category_id = db.Column(
         db.Integer, db.ForeignKey("expense_category.id"), nullable=True
@@ -127,13 +139,18 @@ class Expense(db.Model):
     amount = db.Column(db.Float, nullable=False)
     paid = db.Column(db.Boolean, default=False)
     recurring = db.Column(db.Boolean, default=False)
-    frequency = db.Column(db.String(20))  # Keep for backward compatibility
-    frequency_type = db.Column(db.String(10))  # 'days', 'weeks', 'months', 'years'
-    frequency_value = db.Column(db.Integer)  # 1, 2, 3, etc.
+    frequency = db.Column(db.String(20))
+    frequency_type = db.Column(db.String(10))
+    frequency_value = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    # Add relationship for materialized instances
+    materialized_instances = db.relationship(
+        "Expense", backref=db.backref("parent_expense", remote_side=[id])
     )
 
     # Add method to show days until due

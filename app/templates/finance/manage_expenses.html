@@ -391,7 +391,12 @@
             }
         );
 
-        // Initialize DataTable
+        // Before initializing, destroy any existing DataTable
+        if ($.fn.DataTable.isDataTable('#expenses-table')) {
+            $('#expenses-table').DataTable().destroy();
+        }
+
+        // Then initialize
         const table = $('#expenses-table').DataTable({
             dom: 'lBfrtip',
             responsive: true,

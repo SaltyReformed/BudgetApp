@@ -66,6 +66,8 @@ class ExpenseForm(FlaskForm):
     amount = FloatField("Amount", validators=[DataRequired(), NumberRange(min=0)])
     paid = BooleanField("Paid")
     recurring = BooleanField("Recurring Expense")
+    start_date = DateField("Start Date", validators=[Optional()])
+    end_date = DateField("End Date", validators=[Optional()])
 
     # New fields for frequency
     frequency_value = IntegerField(

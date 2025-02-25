@@ -1,138 +1,112 @@
-2025-02-24 19:13:35,366 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
-2025-02-24 20:16:38,160 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:16:38,835 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:16:50,822 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
-2025-02-24 20:16:56,023 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
-2025-02-24 20:25:07,112 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:25:07,851 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:33:13,108 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:33:13,760 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:34:12,862 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 20:34:13,571 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:01:29,988 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:05:42,324 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:05:50,815 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:05:51,509 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:06:01,933 ERROR: Server Error: UndefinedError - 'hasattr' is undefined
+2025-02-25 09:36:52,943 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:36:53,791 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:37:09,405 ERROR: Server Error: UndefinedError - 'app.forms.ExpenseForm object' has no attribute 'start_date'
 Traceback: Traceback (most recent call last):
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
     rv = self.dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/routes.py", line 385, in budget
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 1199, in edit_expense
     return render_template(
-        "finance/budget.html",
-    ...<13 lines>...
-        paycheck_data_json=paycheck_data_json,
+        "finance/expense_form.html",
+    ...<3 lines>...
+        is_materialized=is_materialized,
     )
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\templating.py", line 152, in render_template
     return _render(app, template, context)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 133, in _render
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\templating.py", line 133, in _render
     rv = template.render(context)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1295, in render
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 1295, in render
     self.environment.handle_exception()
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 1, in top-level template code
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\finance\expense_form.html", line 2, in top-level template code
     {% extends "base.html" %}
-  File "/home/josh/BudgetApp/app/templates/base.html", line 391, in top-level template code
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\base.html", line 391, in top-level template code
     {% block content %}{% endblock %}
     ^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 336, in block 'content'
-    {% if category in detailed_expenses and period.id in detailed_expenses[category] %} {% set
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\finance\expense_form.html", line 161, in block 'content'
+    {{ form.start_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block
     
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/utils.py", line 92, in from_obj
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\utils.py", line 92, in from_obj
     if hasattr(obj, "jinja_pass_arg"):
        ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-jinja2.exceptions.UndefinedError: 'hasattr' is undefined
- [in /home/josh/BudgetApp/app/errors.py:121]
-2025-02-24 21:17:48,346 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:17:49,043 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:18:19,509 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:18:20,182 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:28:08,876 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:28:09,529 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:28:19,129 ERROR: Server Error: TemplateSyntaxError - unexpected '}'
+jinja2.exceptions.UndefinedError: 'app.forms.ExpenseForm object' has no attribute 'start_date'
+ [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
+2025-02-25 09:38:20,935 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:38:21,692 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:38:41,076 ERROR: Server Error: UndefinedError - 'app.forms.ExpenseForm object' has no attribute 'start_date'
 Traceback: Traceback (most recent call last):
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
     rv = self.dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/routes.py", line 385, in budget
-    return render_template(
-        "finance/budget.html",
-    ...<12 lines>...
-        paycheck_data_json=paycheck_data_json,
-    )
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 964, in add_expense
+    return render_template("finance/expense_form.html", title="Add Expense", form=form)
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 329, in template
-    if (period.id === {{ p.id }
-    ^^^^^^^^^^^^^
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
- [in /home/josh/BudgetApp/app/errors.py:121]
-2025-02-24 21:32:15,806 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:32:16,533 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-24 21:32:25,972 ERROR: Server Error: TemplateSyntaxError - unexpected '}'
-Traceback: Traceback (most recent call last):
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/app/routes.py", line 385, in budget
-    return render_template(
-        "finance/budget.html",
-    ...<12 lines>...
-        paycheck_data_json=paycheck_data_json,
-    )
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
-  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 352, in template
-    if (period.id === {{ p.id }
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\finance\expense_form.html", line 2, in top-level template code
+    {% extends "base.html" %}
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\base.html", line 391, in top-level template code
+    {% block content %}{% endblock %}
     ^^^^^^^^^^^^^^^^^
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
- [in /home/josh/BudgetApp/app/errors.py:121]
-2025-02-24 21:34:47,240 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\finance\expense_form.html", line 161, in block 'content'
+    {{ form.start_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block
+    
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\utils.py", line 92, in from_obj
+    if hasattr(obj, "jinja_pass_arg"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'app.forms.ExpenseForm object' has no attribute 'start_date'
+ [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
+2025-02-25 09:39:06,003 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:39:06,789 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+2025-02-25 09:39:30,986 ERROR: Server Error: UndefinedError - 'app.forms.ExpenseForm object' has no attribute 'start_date'
+Traceback: Traceback (most recent call last):
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 964, in add_expense
+    return render_template("finance/expense_form.html", title="Add Expense", form=form)
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\finance\expense_form.html", line 2, in top-level template code
+    {% extends "base.html" %}
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\base.html", line 391, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^
+  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\templates\finance\expense_form.html", line 161, in block 'content'
+    {{ form.start_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block
+    
+  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\jinja2\utils.py", line 92, in from_obj
+    if hasattr(obj, "jinja_pass_arg"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'app.forms.ExpenseForm object' has no attribute 'start_date'
+ [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]

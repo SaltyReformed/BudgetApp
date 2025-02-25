@@ -17,6 +17,7 @@ import json
 from app.utils.paycheck_generator import create_salary_paychecks
 from sqlalchemy import desc, asc
 from .utils.recurring_expense_generator import generate_recurring_expenses
+from app.utils.expense_materializer import materialize_expense
 
 main = Blueprint("main", __name__)
 
@@ -1151,17 +1152,6 @@ def edit_expense(id):
                         instance.category_id = category_id
                         instance.description = expense.description
                         instance.amount = expense.amount
-
-                    # Option 2: Delete all future instances and rematerialize
-                    # This is safer but will lose any manual modifications
-                    # Uncomment if you prefer this approach:
-                    """
-                    # Delete future instances
-                    Expense.query.filter(
-                        Expense.parent_expense_id == expense.id,
-                        Expense.date >= today
-                    ).delete()
-                    """
 
                     # Materialize new instances
                     materialized_expenses = materialize_expense(expense)

@@ -1,86 +1,138 @@
-2025-02-24 10:02:12,120 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 10:02:12,865 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 10:02:16,350 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
-2025-02-24 10:02:25,109 ERROR: Server Error: NameError - name 'ExpenseCategoryForm' is not defined
+2025-02-24 19:13:35,366 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
+2025-02-24 20:16:38,160 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 20:16:38,835 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 20:16:50,822 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
+2025-02-24 20:16:56,023 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in /home/josh/BudgetApp/app/errors.py:72]
+2025-02-24 20:25:07,112 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 20:25:07,851 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 20:33:13,108 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 20:33:13,760 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 20:34:12,862 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 20:34:13,571 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:01:29,988 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:05:42,324 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:05:50,815 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:05:51,509 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:06:01,933 ERROR: Server Error: UndefinedError - 'hasattr' is undefined
 Traceback: Traceback (most recent call last):
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
     rv = self.dispatch_request()
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 1041, in add_category
-    form = ExpenseCategoryForm()
-           ^^^^^^^^^^^^^^^^^^^
-NameError: name 'ExpenseCategoryForm' is not defined. Did you mean: 'ExpenseCategory'?
- [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
-2025-02-24 10:03:48,117 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 10:16:54,669 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 10:16:55,322 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:01:24,665 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:02:40,564 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:02:55,568 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:03:08,782 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:08:17,507 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:12:10,498 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:12:15,313 ERROR: Server Error: NameError - name 'Expense' is not defined
-Traceback: Traceback (most recent call last):
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 213, in budget
-    recurring_expenses = generate_recurring_expenses(
-        current_user.id, start_date_obj, end_date_obj
+  File "/home/josh/BudgetApp/app/routes.py", line 385, in budget
+    return render_template(
+        "finance/budget.html",
+    ...<13 lines>...
+        paycheck_data_json=paycheck_data_json,
     )
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\utils\recurring_expense_generator.py", line 14, in generate_recurring_expenses
-    recurring_expenses = Expense.query.filter_by(user_id=user_id, recurring=True).all()
-                         ^^^^^^^
-NameError: name 'Expense' is not defined
- [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
-2025-02-24 11:12:20,265 ERROR: Server Error: NameError - name 'Expense' is not defined
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
+    return _render(app, template, context)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 133, in _render
+    rv = template.render(context)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/josh/BudgetApp/app/templates/base.html", line 391, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 336, in block 'content'
+    {% if category in detailed_expenses and period.id in detailed_expenses[category] %} {% set
+    
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/utils.py", line 92, in from_obj
+    if hasattr(obj, "jinja_pass_arg"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'hasattr' is undefined
+ [in /home/josh/BudgetApp/app/errors.py:121]
+2025-02-24 21:17:48,346 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:17:49,043 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:18:19,509 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:18:20,182 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:28:08,876 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:28:09,529 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:28:19,129 ERROR: Server Error: TemplateSyntaxError - unexpected '}'
 Traceback: Traceback (most recent call last):
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
     rv = self.dispatch_request()
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\myenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\routes.py", line 213, in budget
-    recurring_expenses = generate_recurring_expenses(
-        current_user.id, start_date_obj, end_date_obj
+  File "/home/josh/BudgetApp/app/routes.py", line 385, in budget
+    return render_template(
+        "finance/budget.html",
+    ...<12 lines>...
+        paycheck_data_json=paycheck_data_json,
     )
-  File "c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\utils\recurring_expense_generator.py", line 14, in generate_recurring_expenses
-    recurring_expenses = Expense.query.filter_by(user_id=user_id, recurring=True).all()
-                         ^^^^^^^
-NameError: name 'Expense' is not defined
- [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:121]
-2025-02-24 11:13:26,102 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:14:34,929 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:16:06,220 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
-2025-02-24 11:16:52,855 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
-2025-02-24 11:19:13,543 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:19:14,253 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:26:15,484 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
-2025-02-24 11:29:19,587 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:30:43,345 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:30:44,070 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:32:46,654 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:33:17,279 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:33:17,880 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:35:01,968 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 11:59:24,131 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
-2025-02-24 12:19:05,210 ERROR: Page not found: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\errors.py:72]
-2025-02-24 12:23:45,813 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 12:28:56,688 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 12:29:52,116 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 12:29:55,932 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-24 13:27:31,637 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 329, in template
+    if (period.id === {{ p.id }
+    ^^^^^^^^^^^^^
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+ [in /home/josh/BudgetApp/app/errors.py:121]
+2025-02-24 21:32:15,806 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:32:16,533 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-24 21:32:25,972 ERROR: Server Error: TemplateSyntaxError - unexpected '}'
+Traceback: Traceback (most recent call last):
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/app/routes.py", line 385, in budget
+    return render_template(
+        "finance/budget.html",
+    ...<12 lines>...
+        paycheck_data_json=paycheck_data_json,
+    )
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 352, in template
+    if (period.id === {{ p.id }
+    ^^^^^^^^^^^^^^^^^
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+ [in /home/josh/BudgetApp/app/errors.py:121]
+2025-02-24 21:34:47,240 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]

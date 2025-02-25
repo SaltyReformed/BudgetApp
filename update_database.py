@@ -3,15 +3,15 @@ import os
 
 
 def update_database():
-    """Add new frequency fields to the Expense table"""
+    """Add all new fields to the Expense table"""
 
     # Find the database file
     # Check the most common locations
     possible_paths = [
+        "finance.db",
         "app.db",
         "instance/app.db",
         "instance/finance_app.db",
-        "finance.db",
     ]
 
     db_path = None
@@ -40,21 +40,25 @@ def update_database():
         columns = cursor.fetchall()
         column_names = [col[1] for col in columns]
 
-        # Add frequency_type column if it doesn't exist
-        if "frequency_type" not in column_names:
-            print("Adding frequency_type column...")
-            cursor.execute("ALTER TABLE expense ADD COLUMN frequency_type VARCHAR(10)")
-            print("frequency_type column added successfully")
-        else:
-            print("frequency_type column already exists")
+        # Add all missing columns
+        columns_to_add = {
+            "frequency_type": "VARCHAR(10)",
+            "frequency_value": "INTEGER",
+            "start_date": "DATE",
+            "end_date": "DATE",
+            "parent_expense_id": "INTEGER",
+            "updated_at": "DATETIME",
+        }
 
-        # Add frequency_value column if it doesn't exist
-        if "frequency_value" not in column_names:
-            print("Adding frequency_value column...")
-            cursor.execute("ALTER TABLE expense ADD COLUMN frequency_value INTEGER")
-            print("frequency_value column added successfully")
-        else:
-            print("frequency_value column already exists")
+        for column_name, column_type in columns_to_add.items():
+            if column_name not in column_names:
+                print(f"Adding {column_name} column...")
+                cursor.execute(
+                    f"ALTER TABLE expense ADD COLUMN {column_name} {column_type}"
+                )
+                print(f"{column_name} column added successfully")
+            else:
+                print(f"{column_name} column already exists")
 
         # Update existing recurring expenses with appropriate values
         print("Updating existing recurring expenses...")
@@ -100,6 +104,12 @@ def update_database():
                     "UPDATE expense SET frequency_type = ?, frequency_value = ? WHERE id = ?",
                     (frequency_type, frequency_value, expense_id),
                 )
+
+        # Set updated_at to created_at for existing records (since that's the default)
+        print("Initializing updated_at values...")
+        cursor.execute(
+            "UPDATE expense SET updated_at = created_at WHERE updated_at IS NULL"
+        )
 
         # Commit the changes
         conn.commit()
