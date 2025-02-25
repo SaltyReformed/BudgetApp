@@ -332,10 +332,40 @@
                 {% endif %}
             </div>
         </div>
+        <!-- Detailed Expenses Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Detailed Expenses</h2>
+                <a href="{{ url_for('main.add_expense') }}"
+                    class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
+                    Add Expense
+                </a>
+            </div>
+
+            <!-- This div will be the mount point for our React component -->
+            <div id="detailed-expense-table">
+                <!-- Loading placeholder -->
+                <div class="p-4 text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p class="mt-2 text-gray-500">Loading expenses...</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-
+{% block scripts %}
+{{ super() }}
+<script>
+    // Make the periods and expenses data available to our JavaScript
+    window.periodsData = {{ periods_json | safe }};
+    window.expensesData = {{ expenses_json | safe }};
+</script>
+<!-- Load the DetailedExpenseTable component first -->
+<script src="{{ url_for('static', filename='js/components/detailed-expense-table.js') }}"></script>
+<!-- Then load the integration script that uses it -->
+<script src="{{ url_for('static', filename='js/budget-page-expense-table.js') }}"></script>
+{% endblock %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Create modal overlay

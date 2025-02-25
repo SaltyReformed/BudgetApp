@@ -2,15 +2,19 @@
 import json
 from datetime import date, datetime, timedelta
 
-from flask import (Blueprint, flash, jsonify, redirect, render_template,
-                   request, url_for)
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import asc, desc
 
 from app import db
 from app.errors import FinanceAppError
-from app.forms import (ExpenseCategoryForm, ExpenseFilterForm, ExpenseForm,
-                       PaycheckForm, SalaryForecastForm)
+from app.forms import (
+    ExpenseCategoryForm,
+    ExpenseFilterForm,
+    ExpenseForm,
+    PaycheckForm,
+    SalaryForecastForm,
+)
 from app.models import Expense, ExpenseCategory, Paycheck, SalaryProjection
 from app.utils.paycheck_generator import create_salary_paychecks
 
@@ -348,17 +352,6 @@ def budget():
         # Update running balance for the next period
         running_balance += period_net
 
-    # For JSON serialization (for future use if needed)
-    periods_json = json.dumps(
-        [
-            {
-                "id": period["id"],
-                "date": period["date"],
-            }
-            for period in periods
-        ]
-    )
-
     summary_json = json.dumps(summary)
     period_data_json = json.dumps(period_data)
     paycheck_data_json = json.dumps(
@@ -373,6 +366,34 @@ def budget():
             for paycheck in paychecks_in_range
         ]
     )
+    # Serialize periods for JSON
+    serialized_periods = []
+    for period in periods:
+        serialized_period = {
+            "id": period["id"],
+            "date": period["date"],
+            "start_date": period["start_date"].strftime("%Y-%m-%d"),
+            "end_date": period["end_date"].strftime("%Y-%m-%d"),
+        }
+        serialized_periods.append(serialized_period)
+
+    # Serialize expenses for JSON
+    serialized_expenses = []
+    for expense in all_expenses:  # Using the all_expenses variable that already exists
+        serialized_expense = {
+            "id": expense.id,
+            "date": expense.date.strftime("%Y-%m-%d"),
+            "description": expense.description,
+            "category": expense.category,
+            "amount": float(expense.amount),
+            "paid": expense.paid,
+            "recurring": expense.recurring,
+        }
+        serialized_expenses.append(serialized_expense)
+
+    # Convert to JSON for the template
+    periods_json = json.dumps(serialized_periods)
+    expenses_json = json.dumps(serialized_expenses)
 
     return render_template(
         "finance/budget.html",
@@ -389,6 +410,7 @@ def budget():
         summary_json=summary_json,
         period_data_json=period_data_json,
         paycheck_data_json=paycheck_data_json,
+        expenses_json=expenses_json,
     )
 
 
