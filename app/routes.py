@@ -942,7 +942,7 @@ def add_expense():
 
             # If it's recurring, materialize it automatically
             materialized_count = 0
-            if form.recurring.data:
+            if form.recurring.data and form.date.data < form.end_date.data:
                 materialized_expenses = materialize_expense(expense)
                 materialized_count = len(materialized_expenses)
 
