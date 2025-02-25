@@ -214,8 +214,13 @@ def budget():
         current_user.id, start_date_obj, end_date_obj
     )
 
+    # Mark recurring expenses as projected for UI purposes
+    for expense in recurring_expenses:
+        expense.is_projected = True
+
     # Combine base and recurring expenses
-    expenses = base_expenses + recurring_expenses
+    all_expenses = base_expenses + recurring_expenses
+    expenses = all_expenses  # Keep the original variable name for compatibility
 
     # Determine the pay periods based on actual paycheck dates
     # We'll group paychecks that fall on the same day
@@ -387,6 +392,7 @@ def budget():
         start_date=start_date,
         end_date=end_date,
         starting_balance=starting_balance,
+        all_expenses=all_expenses,  # Added all_expenses to the template context
         # Include these for backward compatibility or future use
         periods_json=periods_json,
         summary_json=summary_json,

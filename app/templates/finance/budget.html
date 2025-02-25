@@ -1,5 +1,31 @@
 {% extends "base.html" %}
 
+<style>
+    .expense-details {
+        display: none;
+    }
+
+    .expense-row.expanded .expense-details {
+        display: table-row;
+    }
+
+    .toggle-icon-plus {
+        display: inline-block;
+    }
+
+    .toggle-icon-minus {
+        display: none;
+    }
+
+    .expense-row.expanded .toggle-icon-plus {
+        display: none;
+    }
+
+    .expense-row.expanded .toggle-icon-minus {
+        display: inline-block;
+    }
+</style>
+
 {% block content %}
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
@@ -268,10 +294,10 @@
                     Add Expense
                 </a>
             </div>
-
+        
             <div class="overflow-x-auto">
                 {% if period_data and periods %}
-                <table class="min-w-full">
+                <table class="min-w-full" id="expense-breakdown-table">
                     <thead>
                         <tr class="bg-gray-50 border-b">
                             <th class="text-left py-2 px-4">Category</th>
@@ -284,7 +310,7 @@
                     <tbody>
                         {% set categories = [] %}
                         {% set category_totals = {} %}
-
+        
                         {# Collect all unique expense categories #}
                         {% for period_id, period_info in period_data.items() %}
                         {% for category, amount in period_info.expenses.items() %}
@@ -295,11 +321,24 @@
                         {% set _ = category_totals.update({category: category_totals[category] + amount}) %}
                         {% endfor %}
                         {% endfor %}
-
-                        {# Display each category row #}
+        
+                        {# Display each category row with expandable details #}
                         {% for category in categories %}
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="py-2 px-4 capitalize">{{ category }}</td>
+                        <tr class="border-b expense-row hover:bg-gray-50" data-category="{{ category }}">
+                            <td class="py-2 px-4 capitalize">
+                                <button class="toggle-details flex items-center focus:outline-none" aria-expanded="false">
+                                    <svg class="h-4 w-4 mr-1 toggle-icon-plus" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    <svg class="h-4 w-4 mr-1 toggle-icon-minus" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                                    </svg>
+                                    {{ category }}
+                                </button>
+                            </td>
                             {% for period in periods %}
                             {% set amount = period_data[period.id].expenses.get(category, 0) %}
                             <td class="text-right py-2 px-4">
@@ -310,71 +349,87 @@
                                 ${{ "%.2f"|format(category_totals[category]) }}
                             </td>
                         </tr>
-                        {% endfor %}
-
-                        <!-- Total Row -->
-                        <tr class="bg-gray-50 font-bold">
-                            <td class="py-2 px-4">Total Expenses</td>
-                            {% for period in periods %}
-                            {% set total_expenses = period_data[period.id].expenses.values()|sum %}
-                            <td class="text-right py-2 px-4 text-red-600">
-                                ${{ "%.2f"|format(total_expenses) }}
-                            </td>
-                            {% endfor %}
-                            <td class="text-right py-2 px-4 text-red-600 bg-gray-100">
-                                ${{ "%.2f"|format(summary.totalExpenses) }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-center text-gray-500 py-4">No expenses found for this period.</p>
-                {% endif %}
+        
+                        {# Add detail rows for this category #}
+                        <tr class="expense-details bg-gray-50" data-parent-category="{{ category }}">
+                            <td colspan="{{ periods|length + 2 }}" class="py-0">
+                                <div class="pl-8 py-2">
+                                    <div class="text-sm divide-y">
+                                        {% for expense in all_expenses %}
+                                        {% if expense.category.lower() == category %}
+                                        {% for p in periods %}
+                                        {% if p.start_date <= expense.date <=p.end_date %} <div
+                                            class="py-1 flex justify-between">
+                                            <div>
+                                                <span class="font-medium">{{ expense.date.strftime('%m/%d/%Y') }}</span>
+                                                {% if expense.recurring %}
+                                                <span class="ml-1 text-xs text-gray-500">(Recurring)</span>
+                                                {% endif %}
+                                                <span class="ml-2">{{ expense.description or '(No description)' }}</span>
+                                            </div>
+                                            <div class="font-medium">${{ "%.2f"|format(expense.amount) }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
             </div>
+            </td>
+            </tr>
+            {% endfor %}
+        
+            <!-- Total Row -->
+            <tr class="bg-gray-50 font-bold">
+                <td class="py-2 px-4">Total Expenses</td>
+                {% for period in periods %}
+                {% set total_expenses = period_data[period.id].expenses.values()|sum %}
+                <td class="text-right py-2 px-4 text-red-600">
+                    ${{ "%.2f"|format(total_expenses) }}
+                </td>
+                {% endfor %}
+                <td class="text-right py-2 px-4 text-red-600 bg-gray-100">
+                    ${{ "%.2f"|format(summary.totalExpenses) }}
+                </td>
+            </tr>
+            </tbody>
+            </table>
+            {% else %}
+            <p class="text-center text-gray-500 py-4">No expenses found for this period.</p>
+            {% endif %}
+        </div>
         </div>
 
-        <!-- Recent Paychecks -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">Recent Paychecks</h2>
-                <a href="{{ url_for('main.manage_paychecks') }}" class="text-blue-600 hover:text-blue-800">
-                    View All
-                </a>
-            </div>
-
-            <div class="overflow-x-auto">
-                {% if paychecks %}
-                <table class="min-w-full">
-                    <thead>
-                        <tr class="bg-gray-50 border-b">
-                            <th class="text-left py-2 px-4">Date</th>
-                            <th class="text-left py-2 px-4">Type</th>
-                            <th class="text-right py-2 px-4">Gross</th>
-                            <th class="text-right py-2 px-4">Net</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for paycheck in paychecks[:5] %}
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="py-2 px-4">{{ paycheck.date.strftime('%m/%d/%Y') }}</td>
-                            <td class="py-2 px-4">{{ paycheck.pay_type }}</td>
-                            <td class="py-2 px-4 text-right">${{ "%.2f"|format(paycheck.gross_amount) }}</td>
-                            <td class="py-2 px-4 text-right text-green-600">${{ "%.2f"|format(paycheck.net_amount) }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-gray-500 text-center py-4">No paychecks found in this date range.</p>
-                {% endif %}
-            </div>
-        </div>
+        
     </div>
 </div>
 
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+            // Add click handlers for the expense category toggles
+            const toggleButtons = document.querySelectorAll('.toggle-details');
+
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('.expense-row');
+                    const category = row.dataset.category;
+                    const isExpanded = row.classList.toggle('expanded');
+
+                    // Toggle aria-expanded attribute for accessibility
+                    this.setAttribute('aria-expanded', isExpanded);
+
+                    // Toggle visibility of detail rows
+                    document.querySelectorAll(`.expense-details[data-parent-category="${category}"]`).forEach(detail => {
+                        if (isExpanded) {
+                            detail.style.display = 'table-row';
+                        } else {
+                            detail.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
     document.addEventListener('DOMContentLoaded', function () {
         // Create modal overlay
         const createModalOverlay = () => {
