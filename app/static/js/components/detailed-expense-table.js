@@ -1,42 +1,92 @@
 // app/static/js/components/detailed-expense-table.js
 const DetailedExpenseTable = (props) => {
-  const [sortedExpenses, setSortedExpenses] = React.useState([]);
+  const [expensesByCategory, setExpensesByCategory] = React.useState({});
+  const [categoryTotals, setCategoryTotals] = React.useState({});
+  const [periodTotals, setPeriodTotals] = React.useState({});
+  const [totalAmount, setTotalAmount] = React.useState(0);
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   // Format currency helper
   const formatCurrency = (amount) => {
+    if (!amount || amount === 0) return "$0.00";
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
     }).format(amount);
   };
 
-  // Format date helper
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
-
   // Process expenses on load
   React.useEffect(() => {
-    console.log("Component mounted with data:", {
-      periods: props.periods?.length || 0,
-      expenses: props.expenses?.length || 0,
-    });
-
     if (!props.periods || !props.expenses || props.periods.length === 0) {
       setIsLoaded(true);
       return;
     }
 
     try {
-      // Make a copy and sort by date
-      const processedExpenses = [...props.expenses].sort(
-        (a, b) => new Date(a.date) - new Date(b.date)
-      );
+      // Group expenses by category and description
+      const byCategory = {};
+      const catTotals = {};
+      const perTotals = {};
+      let grandTotal = 0;
 
-      setSortedExpenses(processedExpenses);
+      // Initialize period totals
+      props.periods.forEach((period) => {
+        perTotals[period.id] = 0;
+      });
+
+      // Process each expense
+      props.expenses.forEach((expense) => {
+        const category = expense.category.toLowerCase();
+        const description = expense.description || "-";
+        const key = `${category}|${description}`;
+        const amount = parseFloat(expense.amount);
+        grandTotal += amount;
+
+        // Find which period this expense belongs to
+        const periodId = getExpensePeriod(expense);
+        if (periodId && perTotals[periodId] !== undefined) {
+          perTotals[periodId] += amount;
+        }
+
+        // Add to category totals
+        if (!catTotals[category]) {
+          catTotals[category] = 0;
+        }
+        catTotals[category] += amount;
+
+        // Group by category and description
+        if (!byCategory[key]) {
+          byCategory[key] = {
+            category,
+            description,
+            periods: {},
+            total: 0,
+          };
+        }
+
+        if (periodId) {
+          if (!byCategory[key].periods[periodId]) {
+            byCategory[key].periods[periodId] = 0;
+          }
+          byCategory[key].periods[periodId] += amount;
+        }
+
+        byCategory[key].total += amount;
+      });
+
+      setExpensesByCategory(byCategory);
+      setCategoryTotals(catTotals);
+      setPeriodTotals(perTotals);
+      setTotalAmount(grandTotal);
       setIsLoaded(true);
+
+      // Update the Budget Summary table with our calculated totals
+      // Use setTimeout to ensure this runs after the component is mounted
+      setTimeout(() => {
+        if (window.updateBudgetSummary) {
+          window.updateBudgetSummary(grandTotal, perTotals);
+        }
+      }, 500);
     } catch (error) {
       console.error("Error processing expenses:", error);
       setIsLoaded(true);
@@ -44,7 +94,7 @@ const DetailedExpenseTable = (props) => {
   }, [props.periods, props.expenses]);
 
   // Determine which period an expense belongs to
-  const getExpensePeriod = (expense) => {
+  function getExpensePeriod(expense) {
     if (!props.periods || props.periods.length === 0) return null;
 
     const expenseDate = new Date(expense.date);
@@ -59,14 +109,22 @@ const DetailedExpenseTable = (props) => {
     }
 
     return null;
-  };
+  }
 
   // Loading state
   if (!isLoaded) {
     return React.createElement(
       "div",
       { className: "p-4 text-center" },
-      React.createElement("p", {}, "Loading expense data...")
+      React.createElement("div", {
+        className:
+          "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto",
+      }),
+      React.createElement(
+        "p",
+        { className: "mt-2 text-gray-500" },
+        "Loading expenses..."
+      )
     );
   }
 
@@ -74,7 +132,7 @@ const DetailedExpenseTable = (props) => {
   if (!props.expenses || props.expenses.length === 0) {
     return React.createElement(
       "div",
-      { className: "p-4 text-center bg-white rounded-lg shadow" },
+      { className: "text-center py-4" },
       React.createElement(
         "p",
         { className: "text-gray-500" },
@@ -85,152 +143,181 @@ const DetailedExpenseTable = (props) => {
         {
           href: "/expense/add",
           className:
-            "inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700",
+            "inline-block mt-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm",
         },
-        "Add an Expense"
+        "Add Expense"
       )
     );
   }
 
-  // Create a table to display expenses
+  // Get all unique categories (for category grouping and subtotals)
+  const categories = [
+    ...new Set(Object.values(expensesByCategory).map((item) => item.category)),
+  ];
+
+  // Create a table matching the column-based Expense table with description column
   return React.createElement(
     "div",
-    { className: "bg-white rounded-lg shadow overflow-hidden" },
-    // Header
+    { className: "overflow-x-auto" },
     React.createElement(
-      "div",
-      { className: "px-4 py-5 sm:px-6 border-b border-gray-200" },
+      "table",
+      { className: "min-w-full table-fixed" },
+      // Table header
       React.createElement(
-        "h2",
-        { className: "text-lg font-medium text-gray-900" },
-        "Detailed Expenses"
-      ),
-      React.createElement(
-        "p",
-        { className: "mt-1 text-sm text-gray-500" },
-        `Showing ${sortedExpenses.length} expenses across ${props.periods.length} pay periods`
-      )
-    ),
-
-    // Table container
-    React.createElement(
-      "div",
-      { className: "overflow-x-auto" },
-      React.createElement(
-        "table",
-        { className: "min-w-full divide-y divide-gray-200" },
-        // Table header
+        "thead",
+        null,
         React.createElement(
-          "thead",
-          { className: "bg-gray-50" },
+          "tr",
+          { className: "bg-gray-50 border-b" },
           React.createElement(
-            "tr",
-            {},
+            "th",
+            { className: "text-left py-2 px-4 w-1/6" },
+            "Category"
+          ),
+          React.createElement(
+            "th",
+            { className: "text-left py-2 px-4 w-2/5" },
+            "Description"
+          ),
+          // Create a column for each period
+          props.periods.map((period) =>
             React.createElement(
               "th",
               {
-                className:
-                  "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                key: `period-${period.id}`,
+                className: "text-right py-2 px-4",
               },
-              "Date"
-            ),
-            React.createElement(
-              "th",
-              {
-                className:
-                  "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
-              },
-              "Category"
-            ),
-            React.createElement(
-              "th",
-              {
-                className:
-                  "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
-              },
-              "Description"
-            ),
-            React.createElement(
-              "th",
-              {
-                className:
-                  "px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider",
-              },
-              "Amount"
-            ),
-            React.createElement(
-              "th",
-              {
-                className:
-                  "px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider",
-              },
-              "Pay Period"
+              period.date
             )
+          ),
+          // Total column
+          React.createElement(
+            "th",
+            { className: "text-right py-2 px-4 bg-gray-100" },
+            "Total"
           )
-        ),
+        )
+      ),
+      // Table body with categories and expenses
+      React.createElement(
+        "tbody",
+        null,
+        // Group by categories first
+        categories.map((category) => {
+          // Get all rows for this category
+          const categoryItems = Object.values(expensesByCategory).filter(
+            (item) => item.category === category
+          );
+          const rows = [];
 
-        // Table body with expenses
-        React.createElement(
-          "tbody",
-          { className: "bg-white divide-y divide-gray-200" },
-          sortedExpenses.map((expense, index) => {
-            const periodId = getExpensePeriod(expense);
-            const periodDate =
-              props.periods.find((p) => p.id === periodId)?.date || "N/A";
-
-            return React.createElement(
+          // Add category header row
+          rows.push(
+            React.createElement(
               "tr",
-              { key: expense.id || index, className: "hover:bg-gray-50" },
-              // Date column
+              {
+                key: `category-${category}`,
+                className: "bg-gray-100 font-medium",
+              },
+              // Category name
               React.createElement(
                 "td",
-                {
-                  className:
-                    "px-6 py-4 whitespace-nowrap text-sm text-gray-900",
-                },
-                formatDate(expense.date)
+                { className: "py-2 px-4 capitalize" },
+                category
               ),
-
-              // Category column
-              React.createElement(
-                "td",
-                {
-                  className:
-                    "px-6 py-4 whitespace-nowrap text-sm text-gray-900",
-                },
-                expense.category
+              // Empty description cell
+              React.createElement("td", { className: "py-2 px-4" }, ""),
+              // Empty cells for each period
+              props.periods.map((period) =>
+                React.createElement(
+                  "td",
+                  {
+                    key: `cat-header-${category}-${period.id}`,
+                    className: "py-2 px-4",
+                  },
+                  ""
+                )
               ),
-
-              // Description column
+              // Category total
               React.createElement(
                 "td",
-                {
-                  className:
-                    "px-6 py-4 whitespace-nowrap text-sm text-gray-500",
-                },
-                expense.description || "-"
-              ),
+                { className: "text-right py-2 px-4 bg-gray-100" },
+                formatCurrency(categoryTotals[category] || 0)
+              )
+            )
+          );
 
-              // Amount column
+          // Add rows for each unique description in this category
+          categoryItems.forEach((item, index) => {
+            rows.push(
               React.createElement(
-                "td",
+                "tr",
                 {
-                  className:
-                    "px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-red-600",
+                  key: `expense-${category}-${item.description}`,
+                  className: `border-t hover:bg-gray-50 ${
+                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  }`,
                 },
-                formatCurrency(expense.amount)
-              ),
+                // Empty category cell (indented)
+                React.createElement("td", { className: "py-2 px-4" }, ""),
+                // Description
+                React.createElement(
+                  "td",
+                  { className: "py-2 px-4" },
+                  item.description
+                ),
+                // Amount for each period
+                props.periods.map((period) => {
+                  const amount = item.periods[period.id] || 0;
 
-              // Period column
-              React.createElement(
-                "td",
-                {
-                  className: "px-6 py-4 whitespace-nowrap text-sm text-center",
-                },
-                periodDate
+                  return React.createElement(
+                    "td",
+                    {
+                      key: `amount-${category}-${item.description}-${period.id}`,
+                      className: "text-right py-2 px-4",
+                    },
+                    amount > 0 ? formatCurrency(amount) : ""
+                  );
+                }),
+                // Row total
+                React.createElement(
+                  "td",
+                  { className: "text-right py-2 px-4" },
+                  formatCurrency(item.total)
+                )
               )
             );
-          })
+          });
+
+          return rows;
+        }),
+        // Total Row
+        React.createElement(
+          "tr",
+          { className: "bg-gray-50 font-bold" },
+          React.createElement(
+            "td",
+            { className: "py-2 px-4" },
+            "Total Expenses"
+          ),
+          // Empty description cell
+          React.createElement("td", { className: "py-2 px-4" }, ""),
+          // Period totals
+          props.periods.map((period) =>
+            React.createElement(
+              "td",
+              {
+                key: `total-period-${period.id}`,
+                className: "text-right py-2 px-4 text-red-600",
+              },
+              formatCurrency(periodTotals[period.id] || 0)
+            )
+          ),
+          // Grand total
+          React.createElement(
+            "td",
+            { className: "text-right py-2 px-4 text-red-600 bg-gray-100" },
+            formatCurrency(totalAmount)
+          )
         )
       )
     )
