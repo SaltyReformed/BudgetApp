@@ -82,7 +82,7 @@
                 </div>
 
                 <!-- Materialized Expenses Filter Toggle -->
-                <div class="flex items-center mt-4">
+                <!-- <div class="flex items-center mt-4">
                     <input type="checkbox" id="show-materialized" name="show_materialized" {% if show_materialized
                         %}checked{% endif %} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                     <label for="show-materialized" class="ml-2 text-sm text-gray-700">
@@ -91,7 +91,7 @@
                         <span class="text-xs text-gray-500">({{ materialized_count }} hidden)</span>
                         {% endif %}
                     </label>
-                </div>
+                </div> -->
 
                 <!-- Display filter or breadcrumb if filtering by parent expense -->
                 {% if request.args.get('parent_expense_id') %}
@@ -400,7 +400,7 @@
         const table = $('#expenses-table').DataTable({
             dom: 'lBfrtip',
             responsive: true,
-            pageLength: 25,  // This will show 25 rows per page
+            pageLength: -1,  // This will show 25 rows per page
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]], // Gives user option to select number of rows
             order: [[0, 'asc']], // Default sort by date
             columnDefs: [
@@ -431,9 +431,9 @@
                     titleAttr: 'Copy to clipboard'
                 },
                 {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i> Excel',
-                    titleAttr: 'Export to Excel'
+                    extend: 'csvHtml5',
+                    text: '<i class="fas fa-file-csv"></i> CSV',
+                    titleAttr: 'Export to CSV'
                 },
                 {
                     extend: 'pdfHtml5',

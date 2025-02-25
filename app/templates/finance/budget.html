@@ -41,7 +41,7 @@
 
         <!-- Budget Summary with Period Columns -->
         <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 class="text-xl font-bold mb-4">Budget Summary ({{ start_date }} to {{ end_date }})</h2>
+            <h2 class="text-xl font-bold mb-4">Budget Summary</h2>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full">
@@ -329,44 +329,6 @@
                 </table>
                 {% else %}
                 <p class="text-center text-gray-500 py-4">No expenses found for this period.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Recent Paychecks -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">Recent Paychecks</h2>
-                <a href="{{ url_for('main.manage_paychecks') }}" class="text-blue-600 hover:text-blue-800">
-                    View All
-                </a>
-            </div>
-
-            <div class="overflow-x-auto">
-                {% if paychecks %}
-                <table class="min-w-full">
-                    <thead>
-                        <tr class="bg-gray-50 border-b">
-                            <th class="text-left py-2 px-4">Date</th>
-                            <th class="text-left py-2 px-4">Type</th>
-                            <th class="text-right py-2 px-4">Gross</th>
-                            <th class="text-right py-2 px-4">Net</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for paycheck in paychecks[:5] %}
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="py-2 px-4">{{ paycheck.date.strftime('%m/%d/%Y') }}</td>
-                            <td class="py-2 px-4">{{ paycheck.pay_type }}</td>
-                            <td class="py-2 px-4 text-right">${{ "%.2f"|format(paycheck.gross_amount) }}</td>
-                            <td class="py-2 px-4 text-right text-green-600">${{ "%.2f"|format(paycheck.net_amount) }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-gray-500 text-center py-4">No paychecks found in this date range.</p>
                 {% endif %}
             </div>
         </div>
