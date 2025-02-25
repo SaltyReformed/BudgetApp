@@ -55,9 +55,13 @@ def materialize_expense(expense, end_date=None):
     ).all():
         existing_dates.add(instance.date)
 
+    # Make sure we don't duplicate the parent expense's date
+    existing_dates.add(expense.date)
+
     # Generate occurrences
     materialized_expenses = []
-    current_date = start_date
+    # Start at the first occurrence AFTER the expense date
+    current_date = start_date + timedelta(days=freq_days)
 
     while current_date <= end_date:
         # Skip if this date already has an instance
