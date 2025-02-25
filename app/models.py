@@ -121,20 +121,12 @@ class Expense(db.Model):
     due_date = db.Column(db.Date, nullable=True, index=True)
 
     # New fields for materialization
-    start_date = db.Column(
-        db.Date, nullable=True, index=True
-    )  # When the expense starts (for recurring)
-    end_date = db.Column(
-        db.Date, nullable=True, index=True
-    )  # When the expense ends (for recurring)
-    parent_expense_id = db.Column(
-        db.Integer, db.ForeignKey("expense.id"), nullable=True
-    )  # For materialized instances
+    start_date = db.Column(db.Date, nullable=True, index=True)  # When the expense starts (for recurring)
+    end_date = db.Column(db.Date, nullable=True, index=True)    # When the expense ends (for recurring)
+    parent_expense_id = db.Column(db.Integer, db.ForeignKey("expense.id"), nullable=True)  # For materialized instances
 
     category = db.Column(db.String(50), nullable=False)
-    category_id = db.Column(
-        db.Integer, db.ForeignKey("expense_category.id"), nullable=True
-    )
+    category_id = db.Column(db.Integer, db.ForeignKey("expense_category.id"), nullable=True)
     description = db.Column(db.String(200))
     amount = db.Column(db.Float, nullable=False)
     paid = db.Column(db.Boolean, default=False)
@@ -144,14 +136,10 @@ class Expense(db.Model):
     frequency_value = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Add relationship for materialized instances
-    materialized_instances = db.relationship(
-        "Expense", backref=db.backref("parent_expense", remote_side=[id])
-    )
+    materialized_instances = db.relationship("Expense", backref=db.backref("parent_expense", remote_side=[id]))
 
     # Add method to show days until due
     def days_until_due(self):
@@ -192,8 +180,8 @@ class Expense(db.Model):
             elif self.frequency_type == "weeks":
                 return self.frequency_value * 7
             elif self.frequency_type == "months":
-                # Approximate - 30 days per month
-                return self.frequency_value * 30
+                # Return a sentinel value for months to trigger special handling
+                return -self.frequency_value
             elif self.frequency_type == "years":
                 # Approximate - 365 days per year
                 return self.frequency_value * 365
@@ -206,7 +194,7 @@ class Expense(db.Model):
         elif self.frequency == "bi-weekly":
             return 14
         elif self.frequency == "monthly":
-            return 30
+            return -1  # Sentinel value for monthly
         elif self.frequency == "quarterly":
             return 90
         elif self.frequency == "semi-annually":

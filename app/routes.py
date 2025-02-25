@@ -17,6 +17,7 @@ from app.forms import (
 )
 from app.models import Expense, ExpenseCategory, Paycheck, SalaryProjection
 from app.utils.paycheck_generator import create_salary_paychecks
+from app.utils.expense_materializer import materialize_expense
 
 main = Blueprint("main", __name__)
 
