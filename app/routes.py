@@ -1,23 +1,18 @@
 # app/routes.py
-from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify
-from flask_login import login_required, current_user
-from app import db
-from app.models import Paycheck, Expense, SalaryProjection
-from app.errors import FinanceAppError
-from app.forms import (
-    PaycheckForm,
-    ExpenseForm,
-    SalaryForecastForm,
-    ExpenseFilterForm,
-    ExpenseCategoryForm,
-)
-from app.models import Paycheck, Expense, SalaryProjection, ExpenseCategory
-from datetime import datetime, timedelta, date
 import json
+from datetime import date, datetime, timedelta
+
+from flask import (Blueprint, flash, jsonify, redirect, render_template,
+                   request, url_for)
+from flask_login import current_user, login_required
+from sqlalchemy import asc, desc
+
+from app import db
+from app.errors import FinanceAppError
+from app.forms import (ExpenseCategoryForm, ExpenseFilterForm, ExpenseForm,
+                       PaycheckForm, SalaryForecastForm)
+from app.models import Expense, ExpenseCategory, Paycheck, SalaryProjection
 from app.utils.paycheck_generator import create_salary_paychecks
-from sqlalchemy import desc, asc
-from .utils.recurring_expense_generator import generate_recurring_expenses
-from app.utils.expense_materializer import materialize_expense
 
 main = Blueprint("main", __name__)
 
@@ -210,17 +205,13 @@ def budget():
         .all()
     )
 
-    # Generate recurring expenses
-    recurring_expenses = generate_recurring_expenses(
-        current_user.id, start_date_obj, end_date_obj
+    # Get all expenses within the date range (no need to generate virtual ones)
+    all_expenses = (
+        Expense.query.filter_by(user_id=current_user.id)
+        .filter(Expense.date >= start_date_obj, Expense.date <= end_date_obj)
+        .order_by(Expense.date)
+        .all()
     )
-
-    # Mark recurring expenses as projected for UI purposes
-    for expense in recurring_expenses:
-        expense.is_projected = True
-
-    # Combine base and recurring expenses
-    all_expenses = base_expenses + recurring_expenses
     expenses = all_expenses  # Keep the original variable name for compatibility
 
     # Determine the pay periods based on actual paycheck dates
@@ -1198,13 +1189,27 @@ def edit_expense(id):
 @main.route("/expenses/delete/<int:id>", methods=["POST"])
 @login_required
 def delete_expense(id):
-    """Delete an expense"""
+    """Delete an expense and its materialized instances if it's a recurring parent"""
     expense = Expense.query.filter_by(id=id, user_id=current_user.id).first_or_404()
 
     try:
+        deleted_count = 0
+        message = "Expense deleted successfully."
+
+        # If this is a parent recurring expense, delete all its materialized instances first
+        if expense.recurring and not expense.parent_expense_id:
+            # Delete all child instances
+            deleted_count = Expense.query.filter_by(
+                parent_expense_id=expense.id, user_id=current_user.id
+            ).delete()
+
+            if deleted_count > 0:
+                message = f"Expense and {deleted_count} materialized instances deleted successfully."
+
+        # Now delete the expense itself
         db.session.delete(expense)
         db.session.commit()
-        flash("Expense deleted successfully.")
+        flash(message)
     except Exception as e:
         db.session.rollback()
         flash(f"Error deleting expense: {str(e)}")
