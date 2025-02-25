@@ -1,10 +1,12 @@
 # app/models.py
-from datetime import datetime, timedelta, date
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
-from app import db, login_manager
+from datetime import date, datetime, timedelta
 from decimal import Decimal
+
+from flask_login import UserMixin
 from sqlalchemy.orm import validates
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app import db, login_manager
 
 
 class Role(db.Model):

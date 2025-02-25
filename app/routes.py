@@ -840,7 +840,7 @@ def manage_expenses():
 @main.route("/expense/add", methods=["GET", "POST"])
 @login_required
 def add_expense():
-    """Add a new expense"""
+    """Add a new expense and automatically materialize if recurring"""
     form = ExpenseForm()
 
     # Load categories for the form dropdown
@@ -917,6 +917,10 @@ def add_expense():
         expense = Expense(
             date=form.date.data,
             due_date=form.due_date.data,
+            # New fields for materialization
+            start_date=form.start_date.data if form.recurring.data else None,
+            end_date=form.end_date.data if form.recurring.data else None,
+            parent_expense_id=None,  # This is a parent expense, not materialized
             category=category_name,
             category_id=category_id,
             description=form.description.data,
@@ -930,9 +934,28 @@ def add_expense():
         )
 
         db.session.add(expense)
+
         try:
+            # First save the expense to get an ID
+            db.session.flush()
+
+            # If it's recurring, materialize it automatically
+            materialized_count = 0
+            if form.recurring.data:
+                materialized_expenses = materialize_expense(expense)
+                materialized_count = len(materialized_expenses)
+
+            # Commit all changes
             db.session.commit()
-            flash("Expense added successfully!")
+
+            # Success message
+            if materialized_count > 0:
+                flash(
+                    f"Expense added successfully with {materialized_count} materialized instances!"
+                )
+            else:
+                flash("Expense added successfully!")
+
             return redirect(url_for("main.manage_expenses"))
         except Exception as e:
             db.session.rollback()
@@ -944,8 +967,12 @@ def add_expense():
 @main.route("/expenses/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_expense(id):
-    """Edit an expense"""
+    """Edit an expense and update materialized instances if needed"""
     expense = Expense.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+
+    # Check if this is a materialized instance (has parent)
+    is_materialized = expense.parent_expense_id is not None
+
     form = ExpenseForm(obj=expense)
 
     # Load categories for the form dropdown
@@ -1057,37 +1084,124 @@ def edit_expense(id):
                     f"custom-{form.frequency_value.data}-{form.frequency_type.data}"
                 )
 
-        # Update the expense
-        expense.date = form.date.data
-        expense.due_date = form.due_date.data
-        expense.category = category_name
-        expense.category_id = category_id
-        expense.description = form.description.data
-        expense.amount = form.amount.data
-        expense.paid = form.paid.data
-        expense.recurring = form.recurring.data
-        expense.frequency = frequency
-        expense.frequency_type = (
-            form.frequency_type.data if form.recurring.data else None
-        )
-        expense.frequency_value = (
-            form.frequency_value.data if form.recurring.data else None
-        )
-        expense.updated_at = datetime.utcnow()
+        # If this is a materialized instance, only update this specific instance
+        if is_materialized:
+            expense.date = form.date.data
+            expense.due_date = form.due_date.data
+            expense.category = category_name
+            expense.category_id = category_id
+            expense.description = form.description.data
+            expense.amount = form.amount.data
+            expense.paid = form.paid.data
+            expense.updated_at = datetime.utcnow()
 
-        try:
-            db.session.commit()
-            flash("Expense updated successfully!")
-            return redirect(url_for("main.manage_expenses"))
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error updating expense: {str(e)}")
+            try:
+                db.session.commit()
+                flash("Expense instance updated successfully!")
+                return redirect(url_for("main.manage_expenses"))
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error updating expense instance: {str(e)}")
+
+        # Otherwise, update the recurring parent expense and its future instances
+        else:
+            # First, update the parent expense
+            old_recurring = expense.recurring
+
+            expense.date = form.date.data
+            expense.due_date = form.due_date.data
+            expense.start_date = form.start_date.data if form.recurring.data else None
+            expense.end_date = form.end_date.data if form.recurring.data else None
+            expense.category = category_name
+            expense.category_id = category_id
+            expense.description = form.description.data
+            expense.amount = form.amount.data
+            expense.paid = form.paid.data
+            expense.recurring = form.recurring.data
+            expense.frequency = frequency
+            expense.frequency_type = (
+                form.frequency_type.data if form.recurring.data else None
+            )
+            expense.frequency_value = (
+                form.frequency_value.data if form.recurring.data else None
+            )
+            expense.updated_at = datetime.utcnow()
+
+            try:
+                # Save the parent expense changes
+                db.session.flush()
+
+                # If switching from non-recurring to recurring, or if it's already recurring
+                materialized_count = 0
+                if form.recurring.data:
+                    # Handle future materialized instances
+                    today = date.today()
+
+                    # Option 1: Find and update any future instances that haven't been modified
+                    # This updates future instances to match new details (amount, category, etc.)
+                    future_instances = Expense.query.filter(
+                        Expense.parent_expense_id == expense.id,
+                        Expense.date >= today,
+                        Expense.updated_at
+                        == Expense.created_at,  # Not manually modified
+                    ).all()
+
+                    for instance in future_instances:
+                        instance.category = category_name
+                        instance.category_id = category_id
+                        instance.description = expense.description
+                        instance.amount = expense.amount
+
+                    # Option 2: Delete all future instances and rematerialize
+                    # This is safer but will lose any manual modifications
+                    # Uncomment if you prefer this approach:
+                    """
+                    # Delete future instances
+                    Expense.query.filter(
+                        Expense.parent_expense_id == expense.id,
+                        Expense.date >= today
+                    ).delete()
+                    """
+
+                    # Materialize new instances
+                    materialized_expenses = materialize_expense(expense)
+                    materialized_count = len(materialized_expenses)
+
+                # If switching from recurring to non-recurring, handle cleanup
+                elif old_recurring and not form.recurring.data:
+                    # Option: Delete future instances
+                    today = date.today()
+                    deleted_count = Expense.query.filter(
+                        Expense.parent_expense_id == expense.id, Expense.date >= today
+                    ).delete()
+
+                    if deleted_count > 0:
+                        flash(
+                            f"{deleted_count} future recurring instances were removed."
+                        )
+
+                # Commit all changes
+                db.session.commit()
+
+                # Success message
+                if materialized_count > 0:
+                    flash(
+                        f"Expense updated successfully with {materialized_count} new materialized instances!"
+                    )
+                else:
+                    flash("Expense updated successfully!")
+
+                return redirect(url_for("main.manage_expenses"))
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error updating expense: {str(e)}")
 
     return render_template(
         "finance/expense_form.html",
-        title="Edit Expense",
+        title="Edit Expense" if not is_materialized else "Edit Expense Instance",
         form=form,
         expense=expense,
+        is_materialized=is_materialized,
     )
 
 

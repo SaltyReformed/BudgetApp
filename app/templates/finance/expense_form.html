@@ -6,8 +6,37 @@
     <div class="bg-white shadow-sm rounded-lg">
         <div class="px-4 py-5 sm:p-6">
             <h1 class="text-2xl font-bold text-gray-900 mb-4">
-                {% if expense %}Edit Expense{% else %}Add Expense{% endif %}
+                {% if expense %}
+                {% if is_materialized %}
+                Edit Expense Instance
+                {% else %}
+                Edit Expense
+                {% endif %}
+                {% else %}
+                Add Expense
+                {% endif %}
             </h1>
+
+            {% if is_materialized %}
+            <div class="mb-6 bg-purple-50 border-l-4 border-purple-400 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-purple-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-purple-700">
+                            You're editing a materialized instance of a recurring expense. Changes made here will only
+                            affect this specific instance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <form method="POST" class="space-y-6">
                 {{ form.hidden_tag() }}
@@ -91,36 +120,91 @@
                     <label for="paid" class="ml-2 block text-sm text-gray-900">Mark as paid</label>
                 </div>
 
-                <div class="space-y-4">
+                {% if not is_materialized %}
+                <div class="space-y-4 pt-4 border-t border-gray-200">
                     <div class="flex items-center">
                         {{ form.recurring(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
-                        onclick="toggleFrequencyFields()") }}
+                        onclick="toggleRecurringFields()") }}
                         <label for="recurring" class="ml-2 block text-sm text-gray-900">Recurring Expense</label>
                     </div>
 
-                    <div id="frequency-fields" style="display: none;">
-                        <div class="flex items-end space-x-2">
-                            <div>
-                                <label for="frequency_value"
-                                    class="block text-sm font-medium text-gray-700">Every</label>
-                                <div class="mt-1">
-                                    {{ form.frequency_value(class="shadow-sm focus:ring-blue-500 focus:border-blue-500
-                                    block w-full sm:text-sm border-gray-300 rounded-md", min="1", type="number") }}
+                    <div id="recurring-fields" class="{% if not form.recurring.data %}hidden{% endif %} space-y-4">
+                        <!-- Frequency Fields -->
+                        <div id="frequency-fields">
+                            <div class="flex items-end space-x-2">
+                                <div>
+                                    <label for="frequency_value"
+                                        class="block text-sm font-medium text-gray-700">Every</label>
+                                    <div class="mt-1">
+                                        {{ form.frequency_value(class="shadow-sm focus:ring-blue-500
+                                        focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+                                        min="1", type="number") }}
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <label for="frequency_type"
+                                        class="block text-sm font-medium text-gray-700">Period</label>
+                                    <div class="mt-1">
+                                        {{ form.frequency_type(class="shadow-sm focus:ring-blue-500
+                                        focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex-grow">
-                                <label for="frequency_type"
-                                    class="block text-sm font-medium text-gray-700">Period</label>
+                        </div>
+
+                        <!-- Start and End Date Fields -->
+                        <div id="recurring-date-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700">Start
+                                    Date</label>
                                 <div class="mt-1">
-                                    {{ form.frequency_type(class="shadow-sm focus:ring-blue-500 focus:border-blue-500
-                                    block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                    {{ form.start_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block
+                                    w-full sm:text-sm border-gray-300 rounded-md", type="date") }}
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">When the expense begins (leave blank for immediate
+                                    start)</p>
+                                {% for error in form.start_date.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                                <div class="mt-1">
+                                    {{ form.end_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block
+                                    w-full sm:text-sm border-gray-300 rounded-md", type="date") }}
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">When the expense ends (leave blank for indefinite
+                                    recurring)</p>
+                                {% for error in form.end_date.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700">
+                                        This recurring expense will automatically be materialized for the next 6 months,
+                                        creating individual expense records that you can edit separately.
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                {% endif %}
 
-                <div class="flex justify-end space-x-3">
+                <div class="flex justify-end space-x-3 pt-4">
                     <a href="{{ url_for('main.manage_expenses') }}"
                         class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         Cancel
@@ -136,15 +220,15 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        toggleFrequencyFields();
+        toggleRecurringFields();
     });
 
-    function toggleFrequencyFields() {
+    function toggleRecurringFields() {
         const recurringCheckbox = document.getElementById('recurring');
-        const frequencyFields = document.getElementById('frequency-fields');
+        const recurringFields = document.getElementById('recurring-fields');
 
-        if (recurringCheckbox && frequencyFields) {
-            frequencyFields.style.display = recurringCheckbox.checked ? 'block' : 'none';
+        if (recurringCheckbox && recurringFields) {
+            recurringFields.style.display = recurringCheckbox.checked ? 'block' : 'none';
         }
     }
 </script>

@@ -4,9 +4,12 @@
 {% block content %}
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
+        <!-- ========== HEADER SECTION ========== -->
+        <!-- Title and action buttons -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Manage Expenses</h1>
             <div class="flex space-x-3">
+                <!-- Add Expense button -->
                 <a href="{{ url_for('main.add_expense') }}"
                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                     <svg class="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -16,6 +19,7 @@
                     </svg>
                     Add Expense
                 </a>
+                <!-- Manage Categories button -->
                 <a href="{{ url_for('main.manage_categories') }}"
                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
                     <svg class="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -28,28 +32,30 @@
             </div>
         </div>
 
-
-
-        <!-- Summary Cards -->
+        <!-- ========== SUMMARY CARDS SECTION ========== -->
+        <!-- Financial summary metrics -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Total Expenses Card -->
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Total Expenses</h3>
                 <p class="text-2xl font-bold text-gray-900" id="total-amount">${{ "%.2f"|format(total_amount) }}</p>
             </div>
 
+            <!-- Unpaid Expenses Card -->
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Unpaid Expenses</h3>
                 <p class="text-2xl font-bold text-yellow-600" id="unpaid-amount">${{ "%.2f"|format(unpaid_amount) }}</p>
             </div>
 
+            <!-- Overdue Expenses Card -->
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Overdue Expenses</h3>
                 <p class="text-2xl font-bold text-red-600" id="overdue-amount">${{ "%.2f"|format(overdue_amount) }}</p>
             </div>
         </div>
 
-
-        <!-- Expenses Table -->
+        <!-- ========== FILTER SECTION ========== -->
+        <!-- Expenses Table with filters -->
         <div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
             <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
@@ -57,10 +63,10 @@
                         <h2 class="text-lg font-medium text-gray-900">All Expenses</h2>
                         {% if expenses %}
                         <p class="mt-1 text-sm text-gray-500">Showing {{ expenses|length }} expense{% if expenses|length
-                            != 1
-                            %}s{% endif %}</p>
+                            != 1 %}s{% endif %}</p>
                         {% endif %}
                     </div>
+                    <!-- Date Range Filters -->
                     <div class="flex space-x-4 items-end">
                         <div>
                             <label for="min-date" class="block text-sm font-medium text-gray-700">Min Date</label>
@@ -74,19 +80,51 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Materialized Expenses Filter Toggle -->
+                <div class="flex items-center mt-4">
+                    <input type="checkbox" id="show-materialized" name="show_materialized" {% if show_materialized
+                        %}checked{% endif %} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="show-materialized" class="ml-2 text-sm text-gray-700">
+                        Show materialized instances
+                        {% if not show_materialized and materialized_count %}
+                        <span class="text-xs text-gray-500">({{ materialized_count }} hidden)</span>
+                        {% endif %}
+                    </label>
+                </div>
+
+                <!-- Display filter or breadcrumb if filtering by parent expense -->
+                {% if request.args.get('parent_expense_id') %}
+                <div class="mt-4 flex items-center">
+                    <span class="text-sm text-gray-700">Showing materialized instances for expense #{{
+                        request.args.get('parent_expense_id') }}</span>
+                    <a href="{{ url_for('main.manage_expenses') }}"
+                        class="ml-2 text-sm text-blue-600 hover:text-blue-800">
+                        Clear filter
+                    </a>
+                </div>
+                {% endif %}
             </div>
 
+            <!-- ========== EXPENSES TABLE SECTION ========== -->
             {% if expenses %}
             <div class="p-4">
                 <table id="expenses-table" class="display w-full">
                     <thead>
                         <tr>
+                            <!-- Column: Date -->
                             <th>Date</th>
+                            <!-- Column: Due Date -->
                             <th>Due Date</th>
+                            <!-- Column: Category -->
                             <th>Category</th>
+                            <!-- Column: Description -->
                             <th>Description</th>
+                            <!-- Column: Amount -->
                             <th>Amount</th>
+                            <!-- Column: Payment Status -->
                             <th>Status</th>
+                            <!-- Column: Actions -->
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -94,7 +132,28 @@
                         {% for expense in expenses %}
                         {% set status = expense.status() %}
                         <tr>
-                            <td>{{ expense.date.strftime('%m/%d/%Y') }}</td>
+                            <!-- Column: Date with Recurring/Materialized indicators -->
+                            <td>
+                                <div class="flex flex-col">
+                                    {{ expense.date.strftime('%m/%d/%Y') }}
+
+                                    {% if expense.recurring %}
+                                    <span
+                                        class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        Recurring
+                                    </span>
+                                    {% endif %}
+
+                                    {% if expense.parent_expense_id %}
+                                    <span
+                                        class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        Materialized
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Column: Due Date with indicator for overdue/upcoming -->
                             <td>
                                 {% if expense.due_date %}
                                 {{ expense.due_date.strftime('%m/%d/%Y') }}
@@ -107,6 +166,8 @@
                                 -
                                 {% endif %}
                             </td>
+
+                            <!-- Column: Category with colored tag -->
                             <td>
                                 {% if expense.category_id and categories %}
                                 {% for cat in categories %}
@@ -121,8 +182,14 @@
                                 {{ expense.category }}
                                 {% endif %}
                             </td>
+
+                            <!-- Column: Description -->
                             <td>{{ expense.description or "-" }}</td>
+
+                            <!-- Column: Amount -->
                             <td>${{ "%.2f"|format(expense.amount) }}</td>
+
+                            <!-- Column: Payment Status badge -->
                             <td>
                                 {% if expense.paid %}
                                 <span
@@ -148,8 +215,36 @@
                                 {% endif %}
                                 {% endif %}
                             </td>
+
+                            <!-- Column: Actions (Edit/Delete/Toggle Paid/View) -->
                             <td class="text-right">
                                 <div class="flex justify-end space-x-3">
+                                    <!-- For recurring expenses, add a view instances button -->
+                                    {% if expense.recurring %}
+                                    <a href="{{ url_for('main.manage_expenses', parent_expense_id=expense.id) }}"
+                                        class="text-purple-600 hover:text-purple-900"
+                                        title="View materialized instances">
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+
+                                    <!-- For materialized instances, add a view parent button -->
+                                    {% if expense.parent_expense_id %}
+                                    <a href="{{ url_for('main.edit_expense', id=expense.parent_expense_id) }}"
+                                        class="text-blue-600 hover:text-blue-900" title="View parent expense">
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+
+                                    <!-- Toggle paid status button -->
                                     <form method="POST"
                                         action="{{ url_for('main.toggle_expense_paid', id=expense.id) }}"
                                         class="inline pay-toggle-form">
@@ -171,6 +266,8 @@
                                             {% endif %}
                                         </button>
                                     </form>
+
+                                    <!-- Edit button -->
                                     <a href="{{ url_for('main.edit_expense', id=expense.id) }}"
                                         class="text-blue-600 hover:text-blue-900" title="Edit">
                                         <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -179,10 +276,12 @@
                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </a>
+
+                                    <!-- Delete button -->
                                     <form method="POST" action="{{ url_for('main.delete_expense', id=expense.id) }}"
                                         class="inline delete-expense-form">
                                         <button type="submit" class="text-red-600 hover:text-red-900" title="Delete"
-                                            onclick="return confirm('Are you sure you want to delete this expense?')">
+                                            onclick="return confirm('Are you sure you want to delete this expense?{% if expense.recurring and not expense.parent_expense_id %} This will also delete all future materialized instances.{% endif %}')">
                                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -198,6 +297,7 @@
                 </table>
             </div>
             {% else %}
+            <!-- Empty state when no expenses exist -->
             <div class="px-4 py-6 sm:px-6 text-center">
                 <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
@@ -221,168 +321,188 @@
             {% endif %}
         </div>
     </div>
-    {% endblock %}
-    {% block scripts %}
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-    <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
+<!-- ========== JAVASCRIPT SECTION ========== -->
+{% block scripts %}
+<!-- DataTables and related libraries -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-    <script>
-        function updateSummaryCards(table) {
-            let totalAmount = 0;
-            let unpaidAmount = 0;
-            let overdueAmount = 0;
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 
-            // Get all visible rows after filtering
-            table.rows({ search: 'applied' }).every(function () {
-                const data = this.data();
-                const amount = parseFloat(data[4].replace('$', '').replace(',', '')); // Amount column
-                const status = data[5]; // Status column
+<script>
+    // Helper function to update summary cards based on visible expenses
+    function updateSummaryCards(table) {
+        let totalAmount = 0;
+        let unpaidAmount = 0;
+        let overdueAmount = 0;
 
-                totalAmount += amount;
+        // Get all visible rows after filtering
+        table.rows({ search: 'applied' }).every(function () {
+            const data = this.data();
+            const amount = parseFloat(data[4].replace('$', '').replace(',', '')); // Amount column
+            const status = data[5]; // Status column
 
-                if (!status.includes('Paid')) {
-                    unpaidAmount += amount;
-                    if (status.includes('Overdue')) {
-                        overdueAmount += amount;
-                    }
+            totalAmount += amount;
+
+            if (!status.includes('Paid')) {
+                unpaidAmount += amount;
+                if (status.includes('Overdue')) {
+                    overdueAmount += amount;
                 }
-            });
+            }
+        });
 
-            // Update summary cards with formatted numbers
-            $('#total-amount').text('$' + totalAmount.toFixed(2));
-            $('#unpaid-amount').text('$' + unpaidAmount.toFixed(2));
-            $('#overdue-amount').text('$' + overdueAmount.toFixed(2));
-        }
-        $(document).ready(function () {
-            // Custom date range filter
-            $.fn.dataTable.ext.search.push(
-                function (settings, data, dataIndex) {
-                    const minDate = $('#min-date').val() ? new Date($('#min-date').val()) : null;
-                    const maxDate = $('#max-date').val() ? new Date($('#max-date').val()) : null;
-                    const dateString = data[0]; // Date column
-                    const date = new Date(dateString);
+        // Update summary cards with formatted numbers
+        $('#total-amount').text('$' + totalAmount.toFixed(2));
+        $('#unpaid-amount').text('$' + unpaidAmount.toFixed(2));
+        $('#overdue-amount').text('$' + overdueAmount.toFixed(2));
+    }
 
-                    if (
-                        (minDate === null && maxDate === null) ||
-                        (minDate === null && date <= maxDate) ||
-                        (minDate <= date && maxDate === null) ||
-                        (minDate <= date && date <= maxDate)
-                    ) {
-                        return true;
-                    }
-                    return false;
+    $(document).ready(function () {
+        // Custom date range filter
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                const minDate = $('#min-date').val() ? new Date($('#min-date').val()) : null;
+                const maxDate = $('#max-date').val() ? new Date($('#max-date').val()) : null;
+                const dateString = data[0]; // Date column
+                const date = new Date(dateString);
+
+                if (
+                    (minDate === null && maxDate === null) ||
+                    (minDate === null && date <= maxDate) ||
+                    (minDate <= date && maxDate === null) ||
+                    (minDate <= date && date <= maxDate)
+                ) {
+                    return true;
                 }
-            );
+                return false;
+            }
+        );
 
-            // Initialize DataTable
-            const table = $('#expenses-table').DataTable({
-                dom: 'lBfrtip',
-                responsive: true,
-                pageLength: 25,  // This will show 25 rows per page
-                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]], // Gives user option to select number of rows
-                order: [[0, 'asc']],
-                columnDefs: [
-                    {
-                        targets: 5, // Status column
-                        render: function (data, type, row) {
-                            if (type === 'display') {
-                                if (data.includes('Paid')) {
-                                    return '<span class="badge badge-success">Paid</span>';
-                                } else if (data.includes('Overdue')) {
-                                    return '<span class="badge badge-error">Overdue</span>';
-                                } else if (data.includes('Due Soon')) {
-                                    return '<span class="badge badge-warning">Due Soon</span>';
-                                }
+        // Initialize DataTable
+        const table = $('#expenses-table').DataTable({
+            dom: 'lBfrtip',
+            responsive: true,
+            pageLength: 25,  // This will show 25 rows per page
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]], // Gives user option to select number of rows
+            order: [[0, 'asc']], // Default sort by date
+            columnDefs: [
+                {
+                    targets: 5, // Status column
+                    render: function (data, type, row) {
+                        if (type === 'display') {
+                            if (data.includes('Paid')) {
+                                return '<span class="badge badge-success">Paid</span>';
+                            } else if (data.includes('Overdue')) {
+                                return '<span class="badge badge-error">Overdue</span>';
+                            } else if (data.includes('Due Soon')) {
+                                return '<span class="badge badge-warning">Due Soon</span>';
                             }
-                            return data;
                         }
-                    },
-                    {
-                        targets: 6, // Actions column
-                        orderable: false
+                        return data;
                     }
-                ],
-                buttons: [
-                    {
-                        extend: 'copyHtml5',
-                        text: '<i class="fas fa-copy"></i> Copy',
-                        titleAttr: 'Copy to clipboard'
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        text: '<i class="fas fa-file-excel"></i> Excel',
-                        titleAttr: 'Export to Excel'
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: '<i class="fas fa-file-pdf"></i> PDF',
-                        titleAttr: 'Export to PDF'
-                    },
-                    {
-                        extend: 'print',
-                        text: '<i class="fas fa-print"></i> Print',
-                        titleAttr: 'Print Table'
-                    }
-                ],
-                language: {
-                    searchPlaceholder: "Search expenses...",
-                    lengthMenu: "Show _MENU_ entries",
-                    zeroRecords: "No matching expenses found",
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    infoEmpty: "No entries to show",
-                    infoFiltered: "(filtered from _MAX_ total entries)"
                 },
-                drawCallback: function () {
-                    updateSummaryCards(this.api());
+                {
+                    targets: 6, // Actions column
+                    orderable: false
                 }
-            });
+            ],
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy"></i> Copy',
+                    titleAttr: 'Copy to clipboard'
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    titleAttr: 'Export to Excel'
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf"></i> PDF',
+                    titleAttr: 'Export to PDF'
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print"></i> Print',
+                    titleAttr: 'Print Table'
+                }
+            ],
+            language: {
+                searchPlaceholder: "Search expenses...",
+                lengthMenu: "Show _MENU_ entries",
+                zeroRecords: "No matching expenses found",
+                info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                infoEmpty: "No entries to show",
+                infoFiltered: "(filtered from _MAX_ total entries)"
+            },
+            drawCallback: function () {
+                updateSummaryCards(this.api());
+            }
+        });
 
-            // Date range filter
-            $('#min-date, #max-date').on('change', function () {
-                table.draw();
-                // updateSummaryCards will be called automatically through drawCallback
-            });
+        // Date range filter
+        $('#min-date, #max-date').on('change', function () {
+            table.draw();
+            // updateSummaryCards will be called automatically through drawCallback
+        });
 
-            // AJAX for toggle paid status
-            $(document).on('submit', '.pay-toggle-form', function (e) {
-                e.preventDefault();
-                const form = $(this);
+        // AJAX for toggle paid status
+        $(document).on('submit', '.pay-toggle-form', function (e) {
+            e.preventDefault();
+            const form = $(this);
 
-                $.ajax({
-                    type: 'POST',
-                    url: form.attr('action'),
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    success: function (response) {
-                        // Reload the page to reflect changes
-                        location.reload();
-                    },
-                    error: function (xhr) {
-                        alert('Error: ' + xhr.responseJSON.message);
-                    }
-                });
-            });
-
-            // Confirmation for delete
-            $(document).on('submit', '.delete-expense-form', function (e) {
-                if (!confirm('Are you sure you want to delete this expense?')) {
-                    e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    // Reload the page to reflect changes
+                    location.reload();
+                },
+                error: function (xhr) {
+                    alert('Error: ' + xhr.responseJSON.message);
                 }
             });
         });
-    </script>
 
-    {% endblock %}
+        // Confirmation for delete
+        $(document).on('submit', '.delete-expense-form', function (e) {
+            if (!confirm('Are you sure you want to delete this expense?')) {
+                e.preventDefault();
+            }
+        });
+
+        // Materialized expenses filter
+        const showMaterializedCheckbox = document.getElementById('show-materialized');
+        if (showMaterializedCheckbox) {
+            showMaterializedCheckbox.addEventListener('change', function () {
+                // Get current URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+
+                // Update the show_materialized parameter
+                urlParams.set('show_materialized', this.checked ? 'true' : 'false');
+
+                // Reload the page with the updated parameters
+                window.location.search = urlParams.toString();
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}
