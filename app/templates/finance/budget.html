@@ -394,6 +394,88 @@
 {% endblock %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+            // Debug the initial period data from server
+            console.log('Period data from server:', JSON.parse('{{ period_data_json|safe }}'));
+
+            // Check for any JavaScript functions that might be modifying the balance values
+            console.log('Checking for balance-modifying functions...');
+
+            // Function to observe changes to the table cells
+            function observeTableChanges() {
+                // Find the budget summary table
+                const summaryTable = document.querySelector('.max-w-7xl .bg-white.rounded-lg.shadow.p-6.mb-6 table');
+                if (!summaryTable) {
+                    console.error('Budget summary table not found');
+                    return;
+                }
+
+                // Observe changes to the table
+                const observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
+                        if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                            console.log('Table was modified by JavaScript!', mutation);
+
+                            // Check the current values after modification
+                            const rows = summaryTable.querySelectorAll('tbody tr');
+                            if (rows.length >= 5) { // We expect at least 5 rows
+                                const balanceRow = rows[4]; // Projected End Balance row
+                                const balances = Array.from(balanceRow.querySelectorAll('td')).map(td => td.textContent);
+                                console.log('Current balance values after modification:', balances);
+                            }
+                        }
+                    });
+                });
+
+                // Configure and start the observer
+                observer.observe(summaryTable, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true,
+                    characterDataOldValue: true
+                });
+
+                console.log('Now observing budget table for changes');
+            }
+
+            // Start observing the table
+            setTimeout(observeTableChanges, 1000); // Delay slightly to let any initial scripts run
+
+            // Create a backup of the original updateBudgetSummary function if it exists
+            if (window.updateBudgetSummary) {
+                console.log('Found updateBudgetSummary function - creating backup');
+                window._originalUpdateBudgetSummary = window.updateBudgetSummary;
+
+                // Replace with a version that logs what it's doing
+                window.updateBudgetSummary = function (totalExpenses, periodTotals) {
+                    console.log('updateBudgetSummary called with:', { totalExpenses, periodTotals });
+
+                    // Log table state before update
+                    const summaryTable = document.querySelector('.max-w-7xl .bg-white.rounded-lg.shadow.p-6.mb-6 table');
+                    if (summaryTable) {
+                        const rows = summaryTable.querySelectorAll('tbody tr');
+                        console.log('Table state before update:');
+                        Array.from(rows).forEach((row, i) => {
+                            const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent);
+                            console.log(`Row ${i}:`, cells);
+                        });
+                    }
+
+                    // Call the original function
+                    window._originalUpdateBudgetSummary(totalExpenses, periodTotals);
+
+                    // Log table state after update
+                    if (summaryTable) {
+                        const rows = summaryTable.querySelectorAll('tbody tr');
+                        console.log('Table state after update:');
+                        Array.from(rows).forEach((row, i) => {
+                            const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent);
+                            console.log(`Row ${i}:`, cells);
+                        });
+                    }
+                };
+            }
+        });
+    document.addEventListener('DOMContentLoaded', function () {
             // Get the starting balance input field
             const startingBalanceInput = document.getElementById('starting_balance');
 
