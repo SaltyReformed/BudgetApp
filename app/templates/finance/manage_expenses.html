@@ -400,7 +400,7 @@
         const table = $('#expenses-table').DataTable({
             dom: 'lBfrtip',
             responsive: true,
-            pageLength: -1,  // This will show 25 rows per page
+            pageLength: 25,  // This will show 25 rows per page
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]], // Gives user option to select number of rows
             order: [[0, 'asc']], // Default sort by date
             columnDefs: [

@@ -1244,28 +1244,35 @@ def delete_expense(id):
 @main.route("/expenses/toggle-paid/<int:id>", methods=["POST"])
 @login_required
 def toggle_expense_paid(id):
-    """Toggle the paid status of an expense"""
+    """Toggle the paid status of an expense with improved AJAX support"""
     expense = Expense.query.filter_by(id=id, user_id=current_user.id).first_or_404()
 
     try:
+        # Toggle the paid status
         expense.paid = not expense.paid
         expense.updated_at = datetime.utcnow()
         db.session.commit()
 
+        # Respond appropriately based on request type
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify(
                 {
                     "success": True,
                     "paid": expense.paid,
                     "message": f"Expense marked as {'paid' if expense.paid else 'unpaid'}.",
+                    "expense_id": expense.id,
                 }
             )
 
+        # Regular form submission response with redirect
         flash(f"Expense marked as {'paid' if expense.paid else 'unpaid'}.")
     except Exception as e:
         db.session.rollback()
+
+        # Handle errors appropriately
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return jsonify({"success": False, "message": str(e)})
+            return jsonify({"success": False, "message": str(e)}), 500
+
         flash(f"Error updating expense: {str(e)}")
 
     return redirect(url_for("main.manage_expenses"))

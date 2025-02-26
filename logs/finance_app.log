@@ -1,42 +1,45 @@
-2025-02-25 14:39:04,342 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:39:05,120 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:46:32,935 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:46:33,663 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:50:25,930 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:50:26,642 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:55:43,161 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:55:43,862 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:56:23,390 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 14:56:24,182 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:00:33,923 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:00:34,786 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:05:28,378 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:05:29,125 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:07:09,072 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:07:09,743 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:08:48,339 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:08:49,025 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:14:22,660 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:14:23,341 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:18:42,991 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:18:43,754 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:24:30,489 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:24:31,262 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:28:51,621 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:28:53,491 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:29:43,078 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:29:43,809 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:36:41,417 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:49:19,214 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:51:56,650 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 15:51:57,423 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 16:01:35,146 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 16:01:35,973 INFO: Finance app startup [in c:\Users\jgrubb\OneDrive - Town of Clayton, NC\Documents\GitHub\BudgetApp\app\__init__.py:50]
-2025-02-25 16:32:56,837 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-25 16:32:57,506 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-25 16:47:36,201 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-25 16:47:36,816 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-25 20:13:11,905 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-25 20:13:12,557 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-25 20:15:30,091 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
-2025-02-25 20:15:30,761 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-25 21:11:16,725 ERROR: Server Error: TemplateAssertionError - block 'scripts' defined twice
+Traceback: Traceback (most recent call last):
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/app/routes.py", line 400, in budget
+    return render_template(
+        "finance/budget.html",
+    ...<13 lines>...
+        expenses_json=expenses_json,
+    )
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/flask/templating.py", line 151, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/josh/BudgetApp/venv/lib/python3.13/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/josh/BudgetApp/app/templates/finance/budget.html", line 363, in template
+    {% block scripts %}
+jinja2.exceptions.TemplateAssertionError: block 'scripts' defined twice
+ [in /home/josh/BudgetApp/app/errors.py:121]
+2025-02-25 21:12:02,204 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-25 21:12:02,882 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-25 21:16:40,203 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-25 21:16:40,802 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-25 21:28:16,841 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-25 21:28:17,452 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-25 21:34:02,219 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
+2025-02-25 21:34:02,832 INFO: Finance app startup [in /home/josh/BudgetApp/app/__init__.py:50]
