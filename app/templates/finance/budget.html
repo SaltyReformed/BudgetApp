@@ -360,7 +360,36 @@
     // Make the periods and expenses data available to our JavaScript
     window.periodsData = {{ periods_json | safe }};
     window.expensesData = {{ expenses_json | safe }};
+
+    // Starting balance persistence script
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the starting balance input field
+        const startingBalanceInput = document.getElementById('starting_balance');
+
+        // When the page loads, check if we have a stored value
+        if (startingBalanceInput) {
+            const storedValue = localStorage.getItem('budgetStartingBalance');
+
+            // If there's no starting balance in the URL and we have a stored value, use it
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.has('starting_balance') && storedValue !== null) {
+                startingBalanceInput.value = storedValue;
+            }
+
+            // Store the current value whenever it changes
+            startingBalanceInput.addEventListener('change', function () {
+                localStorage.setItem('budgetStartingBalance', this.value);
+            });
+
+            // Also store the value when the form is submitted
+            startingBalanceInput.closest('form').addEventListener('submit', function () {
+                localStorage.setItem('budgetStartingBalance', startingBalanceInput.value);
+            });
+        }
+    });
 </script>
+<!-- Load the starting balance persistence script -->
+<script src="{{ url_for('static', filename='js/starting-balance-persistence.js') }}"></script>
 <!-- Load the DetailedExpenseTable component first -->
 <script src="{{ url_for('static', filename='js/components/detailed-expense-table.js') }}"></script>
 <!-- Then load the integration script that uses it -->
@@ -368,6 +397,31 @@
 <script src="{{ url_for('static', filename='js/update-budget-summary.js') }}"></script>
 {% endblock %}
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+            // Get the starting balance input field
+            const startingBalanceInput = document.getElementById('starting_balance');
+
+            // When the page loads, check if we have a stored value
+            if (startingBalanceInput) {
+                const storedValue = localStorage.getItem('budgetStartingBalance');
+
+                // If there's no starting balance in the URL and we have a stored value, use it
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.has('starting_balance') && storedValue !== null) {
+                    startingBalanceInput.value = storedValue;
+                }
+
+                // Store the current value whenever it changes
+                startingBalanceInput.addEventListener('change', function () {
+                    localStorage.setItem('budgetStartingBalance', this.value);
+                });
+
+                // Also store the value when the form is submitted
+                startingBalanceInput.closest('form').addEventListener('submit', function () {
+                    localStorage.setItem('budgetStartingBalance', startingBalanceInput.value);
+                });
+            }
+        });
     document.addEventListener('DOMContentLoaded', function () {
         // Create modal overlay
         const createModalOverlay = () => {

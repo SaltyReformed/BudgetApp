@@ -167,7 +167,8 @@ def budget():
         or default_end_date.strftime("%Y-%m-%d")
     )
 
-    # Get starting balance (optional)
+    # Get starting balance (optional) - We'll use 0 as the default
+    # The JavaScript will handle persistence through localStorage
     starting_balance = (
         request.args.get("starting_balance")
         or request.form.get("starting_balance")
