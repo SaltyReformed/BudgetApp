@@ -274,15 +274,12 @@ def budget():
         period["start_date"] = period_start
         period["end_date"] = period_end
 
-    # Process data for each period
-    period_data = {}
     running_balance = starting_balance  # Start with the initial balance
-    
-    # First create all period data
+
+    # Initialize period_data structure
+    period_data = {}
     for i, period in enumerate(periods):
         period_id = period["id"]
-        
-        # Create base structure for each period
         period_data[period_id] = {
             "income": {
                 "salary": 0,
@@ -293,12 +290,15 @@ def budget():
                 "total": 0,
             },
             "expenses": {},
-            "startingBalance": 0,  # Will be set correctly in a second pass
+            "total_expenses": 0,  # Pre-calculated expense total
+            "startingBalance": 0,
             "net": 0,
             "endingBalance": 0,
         }
-    
-        # Count income for each period
+
+    # Process all paychecks and assign to periods
+    for period in periods:
+        period_id = period["id"]
         for paycheck in period["paychecks"]:
             income_type = "salary"
             if paycheck.pay_type == "Phone Stipend":
@@ -309,60 +309,77 @@ def budget():
                 income_type = "taxReturn"
             elif paycheck.pay_type == "Transfer":
                 income_type = "transfer"
-    
-            period_data[period_id]["income"][income_type] += float(paycheck.    net_amount)
-            period_data[period_id]["income"]["total"] += float(paycheck.    net_amount)
-    
-        # Count expenses for each period
-        for expense in expenses:
-            expense_date = expense.date
+
+            period_data[period_id]["income"][income_type] += float(paycheck.net_amount)
+            period_data[period_id]["income"]["total"] += float(paycheck.net_amount)
+
+    # Process all expenses and assign them to periods based on date ranges
+    expense_assignments = {period["id"]: [] for period in periods}
+
+    for expense in expenses:
+        expense_date = expense.date
+        assigned = False
+
+        for period in periods:
             if period["start_date"] <= expense_date <= period["end_date"]:
+                period_id = period["id"]
+
+                # Add expense to this period's list of expenses
+                expense_assignments[period_id].append(expense)
+
+                # Add to expense categories for this period
                 category = expense.category.lower()
                 if category not in period_data[period_id]["expenses"]:
                     period_data[period_id]["expenses"][category] = 0
-                period_data[period_id]["expenses"][category] += float   (expense.amount)
-    
-        # Calculate net for this period
-        period_total_income = period_data[period_id]["income"]["total"]
-        period_total_expenses = sum(period_data[period_id]["expenses"]. values())
-        period_data[period_id]["net"] = period_total_income -   period_total_expenses
-    
-    # Now do a second pass to calculate the running balance
+                period_data[period_id]["expenses"][category] += float(expense.amount)
+
+                # Add to total expenses for the period
+                period_data[period_id]["total_expenses"] += float(expense.amount)
+
+                assigned = True
+                break
+
+        if not assigned:
+            print(
+                f"Warning: Expense {expense.id} on {expense_date} couldn't be assigned to any period"
+            )
+
+    # Calculate running balance and net values
     running_balance = starting_balance
-    for i, period in enumerate(periods):
-        period_id = period["id"]
-        
-        # Set the starting balance
-        period_data[period_id]["startingBalance"] = running_balance
-        
-        # Calculate ending balance using the net we already computed
-        period_data[period_id]["endingBalance"] = running_balance +     period_data[period_id]["net"]
-        
-        # Update running balance for next period
-        running_balance = period_data[period_id]["endingBalance"]
-    
-    # Print debug info to the console
-    print("\n=== PERIOD BALANCE DEBUG INFO ===")
+
     for period in periods:
         period_id = period["id"]
-        period_date = period["date"]
-        start_balance = period_data[period_id]["startingBalance"]
-        net = period_data[period_id]["net"]
-        end_balance = period_data[period_id]["endingBalance"]
-        print(f"Period {period_id} ({period_date}): Starting=$  {start_balance:.2f}, Net=${net:.2f}, Ending=${end_balance:.2f}")
-    print("================================\n")
-    
-    # Update summary to use the last period's ending balance
-    total_income = sum(period_data[p["id"]]["income"]["total"] for p in     periods)
-    total_expenses = sum(sum(period_data[p["id"]]["expenses"].values()) for     p in periods)
-    net = total_income - total_expenses
-    projected_balance = period_data[periods[-1]["id"]]["endingBalance"] if  periods else starting_balance
-    
-    # Update summary dict
+
+        # Income and expense totals already calculated
+        income_total = period_data[period_id]["income"]["total"]
+        expense_total = period_data[period_id]["total_expenses"]
+
+        # Set starting balance for this period
+        period_data[period_id]["startingBalance"] = running_balance
+
+        # Calculate net for this period
+        period_data[period_id]["net"] = income_total - expense_total
+
+        # Calculate ending balance
+        period_data[period_id]["endingBalance"] = (
+            running_balance + period_data[period_id]["net"]
+        )
+
+        # Update running balance for next period
+        running_balance = period_data[period_id]["endingBalance"]
+
+    # Calculate summary totals
+    total_income = sum(period_data[p["id"]]["income"]["total"] for p in periods)
+    total_expenses = sum(period_data[p["id"]]["total_expenses"] for p in periods)
+    net_amount = running_balance + total_income - total_expenses
+    projected_balance = (
+        running_balance  # This is the final running balance after all periods
+    )
+
     summary = {
         "totalIncome": float(total_income),
         "totalExpenses": float(total_expenses),
-        "net": float(net),
+        "net": float(net_amount),
         "startingBalance": float(starting_balance),
         "projectedBalance": float(projected_balance),
     }
@@ -409,7 +426,6 @@ def budget():
     # Convert to JSON for the template
     periods_json = json.dumps(serialized_periods)
     expenses_json = json.dumps(serialized_expenses)
-    
 
     return render_template(
         "finance/budget.html",

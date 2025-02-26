@@ -1,20 +1,22 @@
 // app/static/js/consolidated-expense-table.js
 
 // Immediately-invoked function expression (IIFE) to avoid variable name conflicts
-(function() {
+(function () {
   // Wait for DOM to be fully loaded
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener("DOMContentLoaded", function () {
     // Find the mount point for the expense table
-    const mountPoint = document.getElementById('detailed-expense-table');
-    
+    const mountPoint = document.getElementById("detailed-expense-table");
+
     if (!mountPoint) {
-      console.warn('Mount point #detailed-expense-table not found');
+      console.warn("Mount point #detailed-expense-table not found");
       return;
     }
-    
+
     // Check if we have the necessary data
     if (!window.periodsData || !window.expensesData) {
-      console.error('Required data is missing. Make sure periodsData and expensesData are defined.');
+      console.error(
+        "Required data is missing. Make sure periodsData and expensesData are defined."
+      );
       mountPoint.innerHTML = `
         <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
           <p>Required data is missing. Please refresh the page or contact support.</p>
@@ -22,7 +24,7 @@
       `;
       return;
     }
-    
+
     // Define the ResizableTable component
     const ResizableTable = (props) => {
       // State management for data
@@ -31,14 +33,14 @@
       const [periodTotals, setPeriodTotals] = React.useState({});
       const [totalAmount, setTotalAmount] = React.useState(0);
       const [isLoaded, setIsLoaded] = React.useState(false);
-      
+
       // State for interactive features
-      const [sortField, setSortField] = React.useState('category');
-      const [sortDirection, setSortDirection] = React.useState('asc');
-      const [searchTerm, setSearchTerm] = React.useState('');
-      const [filterCategory, setFilterCategory] = React.useState('all');
+      const [sortField, setSortField] = React.useState("category");
+      const [sortDirection, setSortDirection] = React.useState("asc");
+      const [searchTerm, setSearchTerm] = React.useState("");
+      const [filterCategory, setFilterCategory] = React.useState("all");
       const [categories, setCategories] = React.useState([]);
-      
+
       // State for column widths
       const [columnWidths, setColumnWidths] = React.useState({
         category: 150,
@@ -47,7 +49,7 @@
       const [resizingColumn, setResizingColumn] = React.useState(null);
       const [resizeStartX, setResizeStartX] = React.useState(0);
       const [initialWidth, setInitialWidth] = React.useState(0);
-      
+
       // Format currency helper
       const formatCurrency = (amount) => {
         if (!amount || amount === 0) return "$0.00";
@@ -87,8 +89,22 @@
             grandTotal += amount;
 
             // Find which period this expense belongs to
-            const periodId = getExpensePeriod(expense);
-            if (periodId && perTotals[periodId] !== undefined) {
+            const expenseDate = new Date(expense.date);
+            let periodId = null;
+
+            for (const period of props.periods) {
+              const startDate = new Date(period.start_date);
+              const endDate = new Date(period.end_date);
+
+              // Match expense to period based on date range
+              if (expenseDate >= startDate && expenseDate <= endDate) {
+                periodId = period.id;
+                break;
+              }
+            }
+
+            // Add to period totals if we found a matching period
+            if (periodId !== null && perTotals[periodId] !== undefined) {
               perTotals[periodId] += amount;
             }
 
@@ -108,7 +124,7 @@
                 id: expense.id, // Store ID for edit functionality
                 paid: expense.paid,
                 date: expense.date,
-                allExpenses: [] // To store all expense IDs for this category/description
+                allExpenses: [], // To store all expense IDs for this category/description
               };
             }
 
@@ -131,43 +147,21 @@
           setCategories(Array.from(uniqueCategories).sort());
           setIsLoaded(true);
 
-          // Update the Budget Summary table with our calculated totals
-          setTimeout(() => {
-            if (window.updateBudgetSummary) {
-              window.updateBudgetSummary(grandTotal, perTotals);
-            }
-          }, 500);
+          // IMPORTANT: We no longer update the Budget Summary table from JavaScript
+          // This has been removed to use server-side calculations only
         } catch (error) {
           console.error("Error processing expenses:", error);
           setIsLoaded(true);
         }
       }, [props.periods, props.expenses]);
 
-      // Determine which period an expense belongs to
-      function getExpensePeriod(expense) {
-        if (!props.periods || props.periods.length === 0) return null;
-
-        const expenseDate = new Date(expense.date);
-
-        for (const period of props.periods) {
-          const startDate = new Date(period.start_date);
-          const endDate = new Date(period.end_date);
-
-          if (expenseDate >= startDate && expenseDate <= endDate) {
-            return period.id;
-          }
-        }
-
-        return null;
-      }
-
       // Handle sort change
       const handleSortChange = (field) => {
         if (sortField === field) {
-          setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+          setSortDirection(sortDirection === "asc" ? "desc" : "asc");
         } else {
           setSortField(field);
-          setSortDirection('asc');
+          setSortDirection("asc");
         }
       };
 
@@ -185,27 +179,27 @@
       const handleTogglePaid = async (expenseId) => {
         try {
           const response = await fetch(`/expenses/toggle-paid/${expenseId}`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'Content-Type': 'application/json'
-            }
+              "X-Requested-With": "XMLHttpRequest",
+              "Content-Type": "application/json",
+            },
           });
-          
+
           if (!response.ok) {
-            throw new Error('Failed to toggle expense status');
+            throw new Error("Failed to toggle expense status");
           }
-          
+
           const result = await response.json();
-          
+
           if (result.success) {
             window.location.reload();
           } else {
-            throw new Error(result.message || 'Unknown error');
+            throw new Error(result.message || "Unknown error");
           }
         } catch (error) {
-          console.error('Error toggling expense:', error);
-          alert('Error toggling expense status. Please try again.');
+          console.error("Error toggling expense:", error);
+          alert("Error toggling expense status. Please try again.");
         }
       };
 
@@ -214,44 +208,47 @@
         setResizingColumn(column);
         setResizeStartX(e.clientX);
         setInitialWidth(columnWidths[column] || 150);
-        document.addEventListener('mousemove', handleResizeMove);
-        document.addEventListener('mouseup', handleResizeEnd);
-        document.body.classList.add('column-resizing');
+        document.addEventListener("mousemove", handleResizeMove);
+        document.addEventListener("mouseup", handleResizeEnd);
+        document.body.classList.add("column-resizing");
         e.preventDefault();
       };
 
       const handleResizeMove = (e) => {
         if (!resizingColumn) return;
-        
+
         const width = initialWidth + (e.clientX - resizeStartX);
         // Ensure minimum width
         const newWidth = Math.max(50, width);
-        
-        setColumnWidths(prev => ({
+
+        setColumnWidths((prev) => ({
           ...prev,
-          [resizingColumn]: newWidth
+          [resizingColumn]: newWidth,
         }));
       };
 
       const handleResizeEnd = () => {
         setResizingColumn(null);
-        document.removeEventListener('mousemove', handleResizeMove);
-        document.removeEventListener('mouseup', handleResizeEnd);
-        document.body.classList.remove('column-resizing');
-        
+        document.removeEventListener("mousemove", handleResizeMove);
+        document.removeEventListener("mouseup", handleResizeEnd);
+        document.body.classList.remove("column-resizing");
+
         // Save column widths to localStorage for persistence
-        localStorage.setItem('expenseTableColumnWidths', JSON.stringify(columnWidths));
+        localStorage.setItem(
+          "expenseTableColumnWidths",
+          JSON.stringify(columnWidths)
+        );
       };
 
       // Load saved column widths on initial render
       React.useEffect(() => {
         try {
-          const savedWidths = localStorage.getItem('expenseTableColumnWidths');
+          const savedWidths = localStorage.getItem("expenseTableColumnWidths");
           if (savedWidths) {
             setColumnWidths(JSON.parse(savedWidths));
           }
         } catch (err) {
-          console.error('Error loading saved column widths:', err);
+          console.error("Error loading saved column widths:", err);
         }
       }, []);
 
@@ -261,7 +258,8 @@
           "div",
           { className: "p-4 text-center" },
           React.createElement("div", {
-            className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto",
+            className:
+              "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto",
           }),
           React.createElement(
             "p",
@@ -285,7 +283,8 @@
             "a",
             {
               href: "/expense/add",
-              className: "inline-block mt-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm",
+              className:
+                "inline-block mt-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm",
             },
             "Add Expense"
           )
@@ -295,28 +294,27 @@
       // Filter and sort the expense items
       const filteredAndSortedItems = Object.entries(expensesByCategory)
         .filter(([key, item]) => {
-          const matchesSearch = 
-            item.category.includes(searchTerm) || 
+          const matchesSearch =
+            item.category.includes(searchTerm) ||
             item.description.toLowerCase().includes(searchTerm);
-          
-          const matchesCategory = 
-            filterCategory === 'all' || 
-            item.category === filterCategory;
-          
+
+          const matchesCategory =
+            filterCategory === "all" || item.category === filterCategory;
+
           return matchesSearch && matchesCategory;
         })
         .sort(([keyA, itemA], [keyB, itemB]) => {
           let comparison = 0;
-          
-          if (sortField === 'category') {
+
+          if (sortField === "category") {
             comparison = itemA.category.localeCompare(itemB.category);
-          } else if (sortField === 'description') {
+          } else if (sortField === "description") {
             comparison = itemA.description.localeCompare(itemB.description);
-          } else if (sortField === 'total') {
+          } else if (sortField === "total") {
             comparison = itemA.total - itemB.total;
           }
-          
-          return sortDirection === 'asc' ? comparison : -comparison;
+
+          return sortDirection === "asc" ? comparison : -comparison;
         });
 
       // Create controls for filtering, sorting, and searching
@@ -329,16 +327,20 @@
           { className: "flex items-center" },
           React.createElement(
             "label",
-            { htmlFor: "search", className: "mr-2 text-sm font-medium text-gray-700" },
+            {
+              htmlFor: "search",
+              className: "mr-2 text-sm font-medium text-gray-700",
+            },
             "Search:"
           ),
           React.createElement("input", {
             type: "text",
             id: "search",
             placeholder: "Search expenses...",
-            className: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block sm:text-sm border-gray-300 rounded-md",
+            className:
+              "shadow-sm focus:ring-blue-500 focus:border-blue-500 block sm:text-sm border-gray-300 rounded-md",
             value: searchTerm,
-            onChange: handleSearchChange
+            onChange: handleSearchChange,
           })
         ),
         // Category filter
@@ -347,20 +349,26 @@
           { className: "flex items-center" },
           React.createElement(
             "label",
-            { htmlFor: "category-filter", className: "mr-2 text-sm font-medium text-gray-700" },
+            {
+              htmlFor: "category-filter",
+              className: "mr-2 text-sm font-medium text-gray-700",
+            },
             "Category:"
           ),
           React.createElement(
             "select",
             {
               id: "category-filter",
-              className: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block sm:text-sm border-gray-300 rounded-md",
+              className:
+                "shadow-sm focus:ring-blue-500 focus:border-blue-500 block sm:text-sm border-gray-300 rounded-md",
               value: filterCategory,
-              onChange: handleCategoryFilterChange
+              onChange: handleCategoryFilterChange,
             },
             React.createElement("option", { value: "all" }, "All Categories"),
-            categories.map(category => 
-              React.createElement("option", { key: category, value: category }, 
+            categories.map((category) =>
+              React.createElement(
+                "option",
+                { key: category, value: category },
                 category.charAt(0).toUpperCase() + category.slice(1)
               )
             )
@@ -372,42 +380,53 @@
           { className: "flex items-center" },
           React.createElement(
             "label",
-            { htmlFor: "sort-by", className: "mr-2 text-sm font-medium text-gray-700" },
+            {
+              htmlFor: "sort-by",
+              className: "mr-2 text-sm font-medium text-gray-700",
+            },
             "Sort by:"
           ),
           React.createElement(
             "select",
             {
               id: "sort-by",
-              className: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block sm:text-sm border-gray-300 rounded-md mr-2",
+              className:
+                "shadow-sm focus:ring-blue-500 focus:border-blue-500 block sm:text-sm border-gray-300 rounded-md mr-2",
               value: sortField,
-              onChange: e => setSortField(e.target.value)
+              onChange: (e) => setSortField(e.target.value),
             },
             React.createElement("option", { value: "category" }, "Category"),
-            React.createElement("option", { value: "description" }, "Description"),
+            React.createElement(
+              "option",
+              { value: "description" },
+              "Description"
+            ),
             React.createElement("option", { value: "total" }, "Amount")
           ),
           React.createElement(
             "button",
             {
-              className: "inline-flex items-center px-2 py-1 border border-gray-300 text-sm leading-4 font-medium rounded text-gray-700 bg-white hover:bg-gray-50",
-              onClick: () => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+              className:
+                "inline-flex items-center px-2 py-1 border border-gray-300 text-sm leading-4 font-medium rounded text-gray-700 bg-white hover:bg-gray-50",
+              onClick: () =>
+                setSortDirection(sortDirection === "asc" ? "desc" : "asc"),
             },
-            sortDirection === 'asc' ? '↑ Asc' : '↓ Desc'
+            sortDirection === "asc" ? "↑ Asc" : "↓ Desc"
           )
         ),
         // Reset table sizing button
         React.createElement(
           "button",
           {
-            className: "ml-auto inline-flex items-center px-2 py-1 border border-gray-300 text-sm leading-4 font-medium rounded text-gray-700 bg-white hover:bg-gray-50",
+            className:
+              "ml-auto inline-flex items-center px-2 py-1 border border-gray-300 text-sm leading-4 font-medium rounded text-gray-700 bg-white hover:bg-gray-50",
             onClick: () => {
               setColumnWidths({
                 category: 150,
                 description: 300,
               });
-              localStorage.removeItem('expenseTableColumnWidths');
-            }
+              localStorage.removeItem("expenseTableColumnWidths");
+            },
           },
           "Reset Column Sizes"
         )
@@ -416,17 +435,16 @@
       // Create the resize handle component
       const ResizeHandle = (column) => {
         return React.createElement(
-          "div", 
+          "div",
           {
-            className: "absolute top-0 right-0 h-full w-2 cursor-col-resize group",
+            className:
+              "absolute top-0 right-0 h-full w-2 cursor-col-resize group",
             onMouseDown: (e) => handleResizeStart(e, column),
           },
-          React.createElement(
-            "div",
-            {
-              className: "opacity-0 group-hover:opacity-100 absolute top-0 right-0 h-full w-1 bg-blue-500"
-            }
-          )
+          React.createElement("div", {
+            className:
+              "opacity-0 group-hover:opacity-100 absolute top-0 right-0 h-full w-1 bg-blue-500",
+          })
         );
       };
 
@@ -437,15 +455,15 @@
         tableControls,
         React.createElement(
           "div",
-          { 
+          {
             className: "overflow-x-auto bg-white rounded-lg shadow",
-            style: { position: "relative" }
+            style: { position: "relative" },
           },
           React.createElement(
             "table",
-            { 
+            {
               className: "min-w-full table-fixed resizable-table",
-              style: { tableLayout: "fixed" }
+              style: { tableLayout: "fixed" },
             },
             // Table header
             React.createElement(
@@ -457,26 +475,30 @@
                 // Category column with resize handle
                 React.createElement(
                   "th",
-                  { 
-                    className: "text-left py-3 px-4 cursor-pointer hover:bg-gray-100 relative",
-                    onClick: () => handleSortChange('category'),
-                    style: { width: `${columnWidths.category}px` }
+                  {
+                    className:
+                      "text-left py-3 px-4 cursor-pointer hover:bg-gray-100 relative",
+                    onClick: () => handleSortChange("category"),
+                    style: { width: `${columnWidths.category}px` },
                   },
                   "Category ",
-                  sortField === 'category' && (sortDirection === 'asc' ? '↑' : '↓'),
-                  ResizeHandle('category')
+                  sortField === "category" &&
+                    (sortDirection === "asc" ? "↑" : "↓"),
+                  ResizeHandle("category")
                 ),
                 // Description column with resize handle
                 React.createElement(
                   "th",
-                  { 
-                    className: "text-left py-3 px-4 cursor-pointer hover:bg-gray-100 relative",
-                    onClick: () => handleSortChange('description'),
-                    style: { width: `${columnWidths.description}px` }
+                  {
+                    className:
+                      "text-left py-3 px-4 cursor-pointer hover:bg-gray-100 relative",
+                    onClick: () => handleSortChange("description"),
+                    style: { width: `${columnWidths.description}px` },
                   },
                   "Description ",
-                  sortField === 'description' && (sortDirection === 'asc' ? '↑' : '↓'),
-                  ResizeHandle('description')
+                  sortField === "description" &&
+                    (sortDirection === "asc" ? "↑" : "↓"),
+                  ResizeHandle("description")
                 ),
                 // Period columns
                 props.periods.map((period) =>
@@ -485,7 +507,7 @@
                     {
                       key: `period-${period.id}`,
                       className: "text-right py-3 px-4 relative",
-                      style: { width: "100px" }
+                      style: { width: "100px" },
                     },
                     period.date,
                     ResizeHandle(`period-${period.id}`)
@@ -494,24 +516,26 @@
                 // Total column
                 React.createElement(
                   "th",
-                  { 
-                    className: "text-right py-3 px-4 bg-gray-100 cursor-pointer hover:bg-gray-200 relative",
-                    onClick: () => handleSortChange('total'),
-                    style: { width: "100px" }
+                  {
+                    className:
+                      "text-right py-3 px-4 bg-gray-100 cursor-pointer hover:bg-gray-200 relative",
+                    onClick: () => handleSortChange("total"),
+                    style: { width: "100px" },
                   },
                   "Total ",
-                  sortField === 'total' && (sortDirection === 'asc' ? '↑' : '↓'),
-                  ResizeHandle('total')
+                  sortField === "total" &&
+                    (sortDirection === "asc" ? "↑" : "↓"),
+                  ResizeHandle("total")
                 ),
                 // Actions column
                 React.createElement(
                   "th",
-                  { 
+                  {
                     className: "text-right py-3 px-4 relative",
-                    style: { width: "80px" }
+                    style: { width: "80px" },
                   },
                   "Actions",
-                  ResizeHandle('actions')
+                  ResizeHandle("actions")
                 )
               )
             ),
@@ -519,112 +543,86 @@
             React.createElement(
               "tbody",
               null,
-              filteredAndSortedItems.length === 0 ? (
-                // No results row
-                React.createElement(
-                  "tr",
-                  null,
+              filteredAndSortedItems.length === 0
+                ? // No results row
                   React.createElement(
-                    "td",
-                    { 
-                      colSpan: props.periods.length + 4,
-                      className: "py-4 px-4 text-center text-gray-500"
-                    },
-                    "No expenses match your search criteria."
-                  )
-                )
-              ) : (
-                // Map filtered and sorted items
-                filteredAndSortedItems.map(([key, item], index) => {
-                  return React.createElement(
                     "tr",
-                    {
-                      key: `expense-${key}`,
-                      className: `border-t hover:bg-gray-50 ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      }`,
-                    },
-                    // Category cell
+                    null,
                     React.createElement(
                       "td",
-                      { 
-                        className: "py-3 px-4 capitalize overflow-hidden text-ellipsis",
-                        style: { maxWidth: `${columnWidths.category}px` }
+                      {
+                        colSpan: props.periods.length + 4,
+                        className: "py-4 px-4 text-center text-gray-500",
                       },
-                      item.category
-                    ),
-                    // Description cell with word-wrap support
-                    React.createElement(
-                      "td",
-                      { 
-                        className: "py-3 px-4 overflow-hidden",
-                        style: { 
-                          maxWidth: `${columnWidths.description}px`,
-                          whiteSpace: "normal",
-                          wordBreak: "break-word"
-                        }
+                      "No expenses match your search criteria."
+                    )
+                  )
+                : // Map filtered and sorted items
+                  filteredAndSortedItems.map(([key, item], index) => {
+                    return React.createElement(
+                      "tr",
+                      {
+                        key: `expense-${key}`,
+                        className: `border-t hover:bg-gray-50 ${
+                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        }`,
                       },
-                      item.description
-                    ),
-                    // Amount for each period
-                    props.periods.map((period) => {
-                      const amount = item.periods[period.id] || 0;
-
-                      return React.createElement(
+                      // Category cell
+                      React.createElement(
                         "td",
                         {
-                          key: `amount-${key}-${period.id}`,
-                          className: "text-right py-3 px-4",
+                          className:
+                            "py-3 px-4 capitalize overflow-hidden text-ellipsis",
+                          style: { maxWidth: `${columnWidths.category}px` },
                         },
-                        amount > 0 ? formatCurrency(amount) : ""
-                      );
-                    }),
-                    // Row total
-                    React.createElement(
-                      "td",
-                      { className: "text-right py-3 px-4 font-medium" },
-                      formatCurrency(item.total)
-                    ),
-                    // Actions
-                    React.createElement(
-                      "td",
-                      { className: "text-right py-3 px-4" },
+                        item.category
+                      ),
+                      // Description cell with word-wrap support
                       React.createElement(
-                        "div",
-                        { className: "flex justify-end space-x-2" },
-                        // Edit button
-                        React.createElement(
-                          "a",
-                          {
-                            href: `/expenses/edit/${item.id}`,
-                            className: "text-blue-600 hover:text-blue-900",
-                            title: "Edit"
+                        "td",
+                        {
+                          className: "py-3 px-4 overflow-hidden",
+                          style: {
+                            maxWidth: `${columnWidths.description}px`,
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
                           },
+                        },
+                        item.description
+                      ),
+                      // Amount for each period
+                      props.periods.map((period) => {
+                        const amount = item.periods[period.id] || 0;
+
+                        return React.createElement(
+                          "td",
+                          {
+                            key: `amount-${key}-${period.id}`,
+                            className: "text-right py-3 px-4",
+                          },
+                          amount > 0 ? formatCurrency(amount) : ""
+                        );
+                      }),
+                      // Row total
+                      React.createElement(
+                        "td",
+                        { className: "text-right py-3 px-4 font-medium" },
+                        formatCurrency(item.total)
+                      ),
+                      // Actions
+                      React.createElement(
+                        "td",
+                        { className: "text-right py-3 px-4" },
+                        React.createElement(
+                          "div",
+                          { className: "flex justify-end space-x-2" },
+                          // Edit button
                           React.createElement(
-                            "svg",
+                            "a",
                             {
-                              className: "h-5 w-5",
-                              xmlns: "http://www.w3.org/2000/svg",
-                              fill: "none",
-                              viewBox: "0 0 24 24",
-                              stroke: "currentColor"
-                            },
-                            React.createElement("path", {
-                              strokeLinecap: "round",
-                              strokeLinejoin: "round",
-                              strokeWidth: "2",
-                              d: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            })
-                          )
-                        ),
-                        // Toggle paid button
-                        item.allExpenses && item.allExpenses.length > 0 && (
-                          React.createElement(
-                            "button",
-                            {
-                              className: `text-${item.allExpenses[0].paid ? 'gray' : 'green'}-600 hover:text-${item.allExpenses[0].paid ? 'gray' : 'green'}-900`,
-                              title: item.allExpenses[0].paid ? "Mark as unpaid" : "Mark as paid",
-                              onClick: () => handleTogglePaid(item.allExpenses[0].id)
+                              href: `/expenses/edit/${item.id}`,
+                              className: "text-blue-600 hover:text-blue-900",
+                              title: "Edit",
                             },
                             React.createElement(
                               "svg",
@@ -633,22 +631,54 @@
                                 xmlns: "http://www.w3.org/2000/svg",
                                 fill: "none",
                                 viewBox: "0 0 24 24",
-                                stroke: "currentColor"
+                                stroke: "currentColor",
                               },
                               React.createElement("path", {
                                 strokeLinecap: "round",
                                 strokeLinejoin: "round",
                                 strokeWidth: "2",
-                                d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                d: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z",
                               })
                             )
-                          )
+                          ),
+                          // Toggle paid button
+                          item.allExpenses &&
+                            item.allExpenses.length > 0 &&
+                            React.createElement(
+                              "button",
+                              {
+                                className: `text-${
+                                  item.allExpenses[0].paid ? "gray" : "green"
+                                }-600 hover:text-${
+                                  item.allExpenses[0].paid ? "gray" : "green"
+                                }-900`,
+                                title: item.allExpenses[0].paid
+                                  ? "Mark as unpaid"
+                                  : "Mark as paid",
+                                onClick: () =>
+                                  handleTogglePaid(item.allExpenses[0].id),
+                              },
+                              React.createElement(
+                                "svg",
+                                {
+                                  className: "h-5 w-5",
+                                  xmlns: "http://www.w3.org/2000/svg",
+                                  fill: "none",
+                                  viewBox: "0 0 24 24",
+                                  stroke: "currentColor",
+                                },
+                                React.createElement("path", {
+                                  strokeLinecap: "round",
+                                  strokeLinejoin: "round",
+                                  strokeWidth: "2",
+                                  d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+                                })
+                              )
+                            )
                         )
                       )
-                    )
-                  );
-                })
-              )
+                    );
+                  })
             ),
             // Footer row with totals
             React.createElement(
@@ -688,185 +718,16 @@
       );
     };
 
-    // Improved Budget Summary Calculation with Detailed Expenses
-const updateBudgetSummary = (totalExpenses, periodTotals) => {
-  // Find the Budget Summary table
-  const summaryTable = document.querySelector(
-    ".max-w-7xl .bg-white.rounded-lg.shadow.p-6.mb-6 table"
-  );
-  if (!summaryTable) {
-    console.error("Budget Summary table not found");
-    return;
-  }
-
-  // Format currency helper
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
-
-  // Helper to extract numeric amount from a cell's text
-  const getCellAmount = (cell) => {
-    if (!cell || !cell.textContent) return 0;
-    return parseFloat(cell.textContent.replace(/[$,]/g, "")) || 0;
-  };
-
-  try {
-    // Find all rows in the summary table
-    const rows = summaryTable.querySelectorAll("tbody tr");
-    if (rows.length < 5) {
-      console.error("Not enough rows in the summary table");
-      return;
-    }
-
-    // Identify key rows
-    const startingBalanceRow = rows[0];
-    const incomeRow = rows[1];
-    const expensesRow = rows[2];
-    const netRow = rows[3];
-    const balanceRow = rows[4];
-
-    // Get the initial starting balance (first period)
-    let runningBalance = getCellAmount(startingBalanceRow.cells[1]);
-
-    // Debugging: Log initial values
-    console.log("Initial Starting Balance:", runningBalance);
-    console.log("Income Amounts:", 
-      Array.from(incomeRow.cells)
-        .map(cell => getCellAmount(cell))
-    );
-
-    // Log detailed expenses from the Detailed Expenses table
-    const detailedExpensesTable = document.querySelector('#detailed-expense-table table');
-    if (!detailedExpensesTable) {
-      console.error("Detailed Expenses table not found");
-      return;
-    }
-
-    const detailedExpenseRows = detailedExpensesTable.querySelectorAll('tbody tr');
-    const periodExpenses = {};
-
-    // Calculate expenses for each period
-    detailedExpenseRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length > 1) {
-        // Skip the footer row
-        const categoryCell = cells[0];
-        const periodCells = Array.from(cells).slice(1, -1); // Exclude first (category) and last (total) cells
-
-        periodCells.forEach((periodCell, index) => {
-          const amount = parseFloat(periodCell.textContent.replace(/[$,]/g, '')) || 0;
-          periodExpenses[index + 1] = (periodExpenses[index + 1] || 0) + amount;
-        });
-      }
-    });
-
-    console.log("Calculated Period Expenses:", periodExpenses);
-
-    // Process each period column (skipping first and last columns)
-    for (let i = 1; i < startingBalanceRow.cells.length - 1; i++) {
-      // Update starting balance cell for current period
-      startingBalanceRow.cells[i].textContent = formatCurrency(runningBalance);
-      startingBalanceRow.cells[i].className = runningBalance >= 0
-        ? "text-right py-2 px-4 text-green-600"
-        : "text-right py-2 px-4 text-red-600";
-
-      // Get income and expense for the current period
-      const income = getCellAmount(incomeRow.cells[i]);
-      const expense = periodExpenses[i] || 0;
-      
-      // Update expenses row with calculated expenses
-      expensesRow.cells[i].textContent = formatCurrency(expense);
-      expensesRow.cells[i].className = "text-right py-2 px-4 text-red-600";
-      
-      // Calculate net for the period
-      const periodNet = income - expense;
-
-      // Update net row
-      netRow.cells[i].textContent = formatCurrency(periodNet);
-      netRow.cells[i].className = periodNet >= 0 
-        ? "text-right py-2 px-4 text-green-600" 
-        : "text-right py-2 px-4 text-red-600";
-
-      // Calculate new balance
-      runningBalance += periodNet;
-
-      // Update balance row
-      balanceRow.cells[i].textContent = formatCurrency(runningBalance);
-      balanceRow.cells[i].className = runningBalance >= 0
-        ? "text-right py-2 px-4 text-green-600"
-        : "text-right py-2 px-4 text-red-600";
-    }
-
-    // Calculate and update total column
-    const totalIncome = getCellAmount(incomeRow.cells[incomeRow.cells.length - 1]);
-    const totalExpense = Object.values(periodExpenses).reduce((a, b) => a + b, 0);
-    const totalNet = totalIncome - totalExpense;
-
-    // Recalculate starting balance for the total column (first period's starting balance)
-    const initialStartingBalance = getCellAmount(startingBalanceRow.cells[1]);
-
-    // Update total column starting balance
-    startingBalanceRow.cells[startingBalanceRow.cells.length - 1].textContent = 
-      formatCurrency(initialStartingBalance);
-    startingBalanceRow.cells[startingBalanceRow.cells.length - 1].className = 
-      initialStartingBalance >= 0
-        ? "text-right py-2 px-4 text-green-600 bg-gray-100"
-        : "text-right py-2 px-4 text-red-600 bg-gray-100";
-
-    // Update total expenses
-    expensesRow.cells[expensesRow.cells.length - 1].textContent = formatCurrency(totalExpense);
-    expensesRow.cells[expensesRow.cells.length - 1].className = 
-      "text-right py-2 px-4 font-bold text-red-600 bg-gray-100";
-
-    // Update net total
-    netRow.cells[netRow.cells.length - 1].textContent = formatCurrency(totalNet);
-    netRow.cells[netRow.cells.length - 1].className = totalNet >= 0
-      ? "text-right py-2 px-4 text-green-600 bg-gray-100"
-      : "text-right py-2 px-4 text-red-600 bg-gray-100";
-
-    // Calculate final balance
-    const finalBalance = initialStartingBalance + totalNet;
-
-    // Update final balance
-    balanceRow.cells[balanceRow.cells.length - 1].textContent = formatCurrency(finalBalance);
-    balanceRow.cells[balanceRow.cells.length - 1].className = finalBalance >= 0
-      ? "text-right py-2 px-4 text-green-600 bg-gray-100"
-      : "text-right py-2 px-4 text-red-600 bg-gray-100";
-
-    // Detailed logging for verification
-    console.log("Calculation Results:");
-    console.log("Initial Starting Balance:", initialStartingBalance);
-    console.log("Total Income:", totalIncome);
-    console.log("Total Expenses:", totalExpense);
-    console.log("Total Net:", totalNet);
-    console.log("Final Balance:", finalBalance);
-
-  } catch (error) {
-    console.error("Error updating Budget Summary:", error);
-  }
-};
-
-    // Helper to extract numeric amount from a cell's text
-    const getCellAmount = (cell) => {
-      if (!cell || !cell.textContent) return 0;
-
-      // Remove currency symbol and commas, then parse
-      return parseFloat(cell.textContent.replace(/[$,]/g, "")) || 0;
-    };
-
-    // CSS for resizable columns 
+    // CSS for resizable columns
     const addResizableTableStyles = () => {
       // Check if styles already exist
-      if (document.getElementById('resizable-table-styles')) {
+      if (document.getElementById("resizable-table-styles")) {
         return;
       }
-      
+
       // Create style element
-      const style = document.createElement('style');
-      style.id = 'resizable-table-styles';
+      const style = document.createElement("style");
+      style.id = "resizable-table-styles";
       style.textContent = `
         /* Base table styles */
         .resizable-table-container {
@@ -918,7 +779,7 @@ const updateBudgetSummary = (totalExpenses, periodTotals) => {
           text-overflow: ellipsis;
         }
       `;
-      
+
       // Add to document
       document.head.appendChild(style);
     };
@@ -926,18 +787,19 @@ const updateBudgetSummary = (totalExpenses, periodTotals) => {
     // Add the CSS styles
     addResizableTableStyles();
 
-    // Make the updateBudgetSummary function available globally
-    window.updateBudgetSummary = updateBudgetSummary;
+    // IMPORTANT: The updateBudgetSummary function has been REMOVED
+    // We are no longer updating the Budget Summary from JavaScript
+    // Budget Summary now relies entirely on server-side calculations
 
     // Render the component
     try {
-      if (typeof ReactDOM.createRoot === 'function') {
+      if (typeof ReactDOM.createRoot === "function") {
         // React 18+ method
         const root = ReactDOM.createRoot(mountPoint);
         root.render(
           React.createElement(ResizableTable, {
             periods: window.periodsData,
-            expenses: window.expensesData
+            expenses: window.expensesData,
           })
         );
       } else {
@@ -945,19 +807,19 @@ const updateBudgetSummary = (totalExpenses, periodTotals) => {
         ReactDOM.render(
           React.createElement(ResizableTable, {
             periods: window.periodsData,
-            expenses: window.expensesData
+            expenses: window.expensesData,
           }),
           mountPoint
         );
       }
-      
-      console.log('Resizable expense table initialized successfully');
+
+      console.log("Resizable expense table initialized successfully");
     } catch (error) {
-      console.error('Error initializing resizable expense table:', error);
+      console.error("Error initializing resizable expense table:", error);
       mountPoint.innerHTML = `
         <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
           <p>Error loading expense table: ${error.message}</p>
-          <pre class="mt-2 text-xs overflow-auto">${error.stack || ''}</pre>
+          <pre class="mt-2 text-xs overflow-auto">${error.stack || ""}</pre>
         </div>
       `;
     }

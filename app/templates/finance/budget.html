@@ -39,10 +39,11 @@
             </form>
         </div>
 
-        <!-- Budget Summary with Period Columns -->
+        <!-- Modified Budget Summary section for budget.html -->
+        <!-- This relies entirely on pre-calculated values from server -->
         <div class="bg-white rounded-lg shadow p-6 mb-6">
             <h2 class="text-xl font-bold mb-4">Budget Summary</h2>
-
+        
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
@@ -69,7 +70,7 @@
                                 ${{ "%.2f"|format(summary.startingBalance) }}
                             </td>
                         </tr>
-
+        
                         <!-- Income Row -->
                         <tr class="border-b hover:bg-gray-50">
                             <td class="py-2 px-4 font-medium">Income</td>
@@ -82,31 +83,27 @@
                                 ${{ "%.2f"|format(summary.totalIncome) }}
                             </td>
                         </tr>
-
-                        <!-- Expenses Row -->
+        
+                        <!-- Expenses Row - Uses pre-calculated total_expenses -->
                         <tr class="border-b hover:bg-gray-50">
                             <td class="py-2 px-4 font-medium">Expenses</td>
                             {% for period in periods %}
-                            {% set total_expenses = period_data[period.id].expenses.values()|sum %}
                             <td class="text-right py-2 px-4 text-red-600">
-                                ${{ "%.2f"|format(total_expenses) }}
+                                ${{ "%.2f"|format(period_data[period.id].total_expenses) }}
                             </td>
                             {% endfor %}
                             <td class="text-right py-2 px-4 font-bold text-red-600 bg-gray-100">
                                 ${{ "%.2f"|format(summary.totalExpenses) }}
                             </td>
                         </tr>
-
-                        <!-- Net Row -->
+        
+                        <!-- Net Row - Uses pre-calculated net -->
                         <tr class="border-b hover:bg-gray-50">
                             <td class="py-2 px-4 font-medium">Net</td>
                             {% for period in periods %}
-                            {% set period_income = period_data[period.id].income.total %}
-                            {% set period_expenses = period_data[period.id].expenses.values()|sum %}
-                            {% set period_net = period_income - period_expenses %}
                             <td
-                                class="text-right py-2 px-4 {% if period_net >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
-                                ${{ "%.2f"|format(period_net) }}
+                                class="text-right py-2 px-4 {% if period_data[period.id].net >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                ${{ "%.2f"|format(period_data[period.id].net) }}
                             </td>
                             {% endfor %}
                             <td
@@ -114,10 +111,10 @@
                                 ${{ "%.2f"|format(summary.net) }}
                             </td>
                         </tr>
-
-                        <!-- Projected End Balance Row - Running total accumulated across periods -->
+        
+                        <!-- Projected End Balance Row - Uses pre-calculated endingBalance -->
                         <tr class="bg-gray-50 font-bold">
-                            <td class="py-2 px-4">Projected End Balance</td>
+                            <td class="py-2 px-4">End Balance</td>
                             {% for period in periods %}
                             <td
                                 class="text-right py-2 px-4 {% if period_data[period.id].endingBalance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
@@ -133,7 +130,6 @@
                 </table>
             </div>
         </div>
-
         <!-- Income Section -->
         <div class="bg-white rounded-lg shadow p-6 mb-6">
             <div class="flex justify-between items-center mb-4">
