@@ -1,55 +1,146 @@
-<!-- {# templates/finance/add_paycheck.html #} -->
 {% extends "base.html" %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="bg-white shadow-sm rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <h1 class="text-2xl font-bold text-gray-900 mb-4">Add Paycheck</h1>
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">Add Income</h1>
+
             <form method="POST" class="space-y-6">
                 {{ form.hidden_tag() }}
 
-                <div>
-                    <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
-                    <div class="mt-1">
-                        {{ form.date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm
-                        border-gray-300 rounded-md", type="date") }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                        <div class="mt-1">
+                            {{ form.date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                            sm:text-sm border-gray-300 rounded-md", type="date") }}
+                        </div>
+                        {% for error in form.date.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
                     </div>
-                    {% for error in form.date.errors %}
-                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
-                    {% endfor %}
-                </div>
 
-                <div>
-                    <label for="pay_type" class="block text-sm font-medium text-gray-700">Pay Type</label>
-                    <div class="mt-1">
-                        {{ form.pay_type(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
-                        sm:text-sm border-gray-300 rounded-md") }}
-                    </div>
-                </div>
-
-                <div>
-                    <label for="gross_amount" class="block text-sm font-medium text-gray-700">Gross Amount</label>
-                    <div class="mt-1">
-                        {{ form.gross_amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
-                        sm:text-sm border-gray-300 rounded-md") }}
+                    <div>
+                        <label for="pay_type" class="block text-sm font-medium text-gray-700">Income Type</label>
+                        <div class="mt-1">
+                            {{ form.pay_type(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                            sm:text-sm border-gray-300 rounded-md") }}
+                        </div>
+                        {% for error in form.pay_type.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <div>
-                    <label for="taxable_amount" class="block text-sm font-medium text-gray-700">Taxable Amount</label>
-                    <div class="mt-1">
-                        {{ form.taxable_amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
-                        sm:text-sm border-gray-300 rounded-md") }}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="gross_amount" class="block text-sm font-medium text-gray-700">Gross Amount</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.gross_amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full
+                            pl-7 sm:text-sm border-gray-300 rounded-md", step="0.01", placeholder="0.00") }}
+                        </div>
+                        {% for error in form.gross_amount.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <label for="taxable_amount" class="block text-sm font-medium text-gray-700">Taxable
+                            Amount</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.taxable_amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block
+                            w-full pl-7 sm:text-sm border-gray-300 rounded-md", step="0.01", placeholder="0.00") }}
+                        </div>
+                        {% for error in form.taxable_amount.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <label for="non_taxable_amount" class="block text-sm font-medium text-gray-700">Non-taxable
+                            Amount</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.non_taxable_amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block
+                            w-full pl-7 sm:text-sm border-gray-300 rounded-md", step="0.01", placeholder="0.00") }}
+                        </div>
+                        {% for error in form.non_taxable_amount.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <div>
-                    <label for="non_taxable_amount" class="block text-sm font-medium text-gray-700">Non-taxable
-                        Amount</label>
-                    <div class="mt-1">
-                        {{ form.non_taxable_amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block
-                        w-full sm:text-sm border-gray-300 rounded-md") }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="net_amount" class="block text-sm font-medium text-gray-700">Net Amount</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.net_amount(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 sm:text-sm border-gray-300 rounded-md", step="0.01", placeholder="0.00") }}
+                        </div>
+                        {% for error in form.net_amount.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description (Optional)</label>
+                        <div class="mt-1">
+                            {{ form.description(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", placeholder="Additional notes") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-4 border-t border-gray-200">
+                    <div class="flex items-center">
+                        {{ form.recurring(class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded", onclick="toggleRecurringFields()") }}
+                        <label for="recurring" class="ml-2 block text-sm text-gray-900">Recurring Income</label>
+                    </div>
+
+                    <div id="recurring-fields" class="{% if not form.recurring.data %}hidden{% endif %} space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="frequency_type" class="block text-sm font-medium text-gray-700">Frequency</label>
+                                <div class="mt-1">
+                                    {{ form.frequency_type(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="frequency_value" class="block text-sm font-medium text-gray-700">Repeat Every</label>
+                                <div class="mt-1">
+                                    {{ form.frequency_value(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", min="1", type="number") }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                                <div class="mt-1">
+                                    {{ form.start_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", type="date") }}
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">When the recurring income begins</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="end_date" class="block text-sm font-medium text-gray-700">End Date (Optional)</label>
+                                <div class="mt-1">
+                                    {{ form.end_date(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", type="date") }}
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">Leave blank for indefinite recurring income</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -58,16 +149,56 @@
                     <label for="phone_stipend" class="ml-2 block text-sm text-gray-900">Phone Stipend</label>
                 </div>
 
-                <div class="flex justify-end">
-                    <a href="{{ url_for('main.dashboard') }}"
-                        class="mr-4 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <div class="flex justify-end space-x-3">
+                    <a href="{{ url_for('main.manage_paychecks') }}"
+                        class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         Cancel
                     </a>
-                    {{ form.submit(class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white
-                    bg-blue-600 hover:bg-blue-700") }}
+                    {{ form.submit(class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700") }}
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        toggleRecurringFields();
+    });
+
+    function toggleRecurringFields() {
+        const recurringCheckbox = document.getElementById('recurring');
+        const recurringFields = document.getElementById('recurring-fields');
+
+        if (recurringCheckbox && recurringFields) {
+            recurringFields.style.display = recurringCheckbox.checked ? 'block' : 'none';
+        }
+    }
+
+    // Optional: Add dynamic calculation of net amount
+    const grossInput = document.getElementById('gross_amount');
+    const taxableInput = document.getElementById('taxable_amount');
+    const nonTaxableInput = document.getElementById('non_taxable_amount');
+    const netInput = document.getElementById('net_amount');
+
+    function calculateNetAmount() {
+        const gross = parseFloat(grossInput.value) || 0;
+        const taxable = parseFloat(taxableInput.value) || 0;
+        const nonTaxable = parseFloat(nonTaxableInput.value) || 0;
+
+        // Simple tax calculation (this is a basic example)
+        const taxRate = 0.25; // 25% tax rate
+        const taxAmount = taxable * taxRate;
+        const net = gross - taxAmount + nonTaxable;
+
+        netInput.value = net.toFixed(2);
+    }
+
+    // Add event listeners for dynamic calculation
+    grossInput.addEventListener('input', calculateNetAmount);
+    taxableInput.addEventListener('input', calculateNetAmount);
+    nonTaxableInput.addEventListener('input', calculateNetAmount);
+</script>
+{% endblock %}
 {% endblock %}

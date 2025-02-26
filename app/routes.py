@@ -32,31 +32,71 @@ def index():
 @main.route("/paycheck/add", methods=["GET", "POST"])
 @login_required
 def add_paycheck():
+    """Add a new paycheck or recurring income"""
     form = PaycheckForm()
+
     if form.validate_on_submit():
+        # Determine if this is a recurring income or one-time
         paycheck = Paycheck(
             date=form.date.data,
             pay_type=form.pay_type.data,
             gross_amount=form.gross_amount.data,
             taxable_amount=form.taxable_amount.data,
             non_taxable_amount=form.non_taxable_amount.data,
+            net_amount=form.net_amount.data,
             phone_stipend=form.phone_stipend.data,
             user_id=current_user.id,
-            net_amount=form.gross_amount.data
-            - (form.taxable_amount.data * 0.25),  # Simplified tax calculation
         )
-        db.session.add(paycheck)
+
         try:
+            db.session.add(paycheck)
+
+            # Handle recurring income
+            if form.recurring.data:
+                recurring_income = SalaryProjection(
+                    start_date=form.start_date.data or form.date.data,
+                    end_date=form.end_date.data,
+                    annual_salary=form.gross_amount.data
+                    * (
+                        52
+                        if form.frequency_type.data == "weekly"
+                        else (
+                            26
+                            if form.frequency_type.data == "biweekly"
+                            else (
+                                12
+                                if form.frequency_type.data == "monthly"
+                                else (
+                                    4
+                                    if form.frequency_type.data == "quarterly"
+                                    else (
+                                        1
+                                        if form.frequency_type.data == "annually"
+                                        else 0
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    tax_rate=(
+                        (form.gross_amount.data - form.net_amount.data)
+                        / form.gross_amount.data
+                    )
+                    * 100,
+                    notes=form.description.data,
+                    is_current=False,  # Let user set as current if desired
+                    user_id=current_user.id,
+                )
+                db.session.add(recurring_income)
+
             db.session.commit()
-            flash("Paycheck added successfully!")
-            return redirect(url_for("main.dashboard"))
+            flash("Income added successfully!")
+            return redirect(url_for("main.manage_paychecks"))
         except Exception as e:
             db.session.rollback()
-            flash("Error adding paycheck. Please try again.")
-    return render_template("finance/add_paycheck.html", title="Add Paycheck", form=form)
+            flash(f"Error adding income: {str(e)}")
 
-
-# Update the dashboard route in app/routes.py
+    return render_template("finance/add_paycheck.html", title="Add Income", form=form)
 
 
 @main.route("/dashboard")
@@ -695,67 +735,103 @@ def manage_paychecks():
     )
 
 
-@main.route("/salary/edit-paycheck/<int:id>", methods=["GET", "POST"])
+@main.route("/paycheck/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_paycheck(id):
-    """Edit an individual paycheck"""
-
+    """Edit an existing paycheck"""
     paycheck = Paycheck.query.filter_by(id=id, user_id=current_user.id).first_or_404()
-
-    # Create a form and populate it with the paycheck data
-    form = PaycheckForm()
+    form = PaycheckForm(obj=paycheck)
 
     if form.validate_on_submit():
-        # Update paycheck data
-        paycheck.date = form.date.data
-        paycheck.pay_type = form.pay_type.data
-        paycheck.gross_amount = form.gross_amount.data
-        paycheck.taxable_amount = form.taxable_amount.data
-        paycheck.non_taxable_amount = form.non_taxable_amount.data
-        paycheck.phone_stipend = form.phone_stipend.data
-
-        # Calculate net amount
-        paycheck.net_amount = form.gross_amount.data - (form.taxable_amount.data * 0.25)
-
         try:
+            # Update paycheck details
+            paycheck.date = form.date.data
+            paycheck.pay_type = form.pay_type.data
+            paycheck.gross_amount = form.gross_amount.data
+            paycheck.taxable_amount = form.taxable_amount.data
+            paycheck.non_taxable_amount = form.non_taxable_amount.data
+            paycheck.net_amount = form.net_amount.data
+            paycheck.phone_stipend = form.phone_stipend.data
+
+            # If this was part of a recurring income projection, update that too
+            # First, find any related salary projection
+            related_projection = SalaryProjection.query.filter(
+                SalaryProjection.user_id == current_user.id,
+                SalaryProjection.start_date <= paycheck.date,
+                or_(
+                    SalaryProjection.end_date >= paycheck.date,
+                    SalaryProjection.end_date == None,
+                ),
+            ).first()
+
+            if related_projection:
+                # Update projection details
+                related_projection.annual_salary = form.gross_amount.data * (
+                    52
+                    if related_projection.start_date.month == paycheck.date.month
+                    else 26
+                )
+                related_projection.tax_rate = (
+                    (form.gross_amount.data - form.net_amount.data)
+                    / form.gross_amount.data
+                ) * 100
+
             db.session.commit()
-            flash("Paycheck updated successfully!")
+            flash("Income updated successfully!")
             return redirect(url_for("main.manage_paychecks"))
         except Exception as e:
             db.session.rollback()
-            flash(f"Error updating paycheck: {str(e)}")
+            flash(f"Error updating income: {str(e)}")
 
-    # Pre-populate form with existing data
-    elif request.method == "GET":
-        form.date.data = paycheck.date
-        form.pay_type.data = paycheck.pay_type
-        form.gross_amount.data = paycheck.gross_amount
-        form.taxable_amount.data = paycheck.taxable_amount
-        form.non_taxable_amount.data = paycheck.non_taxable_amount
-        form.phone_stipend.data = paycheck.phone_stipend
+    # Pre-populate form for editing
+    if request.method == "GET":
+        form.description.data = paycheck.notes if hasattr(paycheck, "notes") else ""
 
     return render_template(
-        "finance/edit_paycheck.html",
-        title="Edit Paycheck",
-        form=form,
-        paycheck=paycheck,
+        "finance/edit_paycheck.html", title="Edit Income", form=form, paycheck=paycheck
     )
 
 
-@main.route("/salary/delete-paycheck/<int:id>", methods=["POST"])
+@main.route("/paycheck/delete/<int:id>", methods=["POST"])
 @login_required
 def delete_paycheck(id):
-    """Delete an individual paycheck"""
-
+    """Delete a specific paycheck"""
     paycheck = Paycheck.query.filter_by(id=id, user_id=current_user.id).first_or_404()
 
     try:
+        # Optional: Delete related salary projection if it exists and no other paychecks use it
+        related_projection = SalaryProjection.query.filter(
+            SalaryProjection.user_id == current_user.id,
+            SalaryProjection.start_date <= paycheck.date,
+            or_(
+                SalaryProjection.end_date >= paycheck.date,
+                SalaryProjection.end_date == None,
+            ),
+        ).first()
+
+        # Check if this projection is used by other paychecks
+        if related_projection:
+            other_paychecks = Paycheck.query.filter(
+                Paycheck.user_id == current_user.id,
+                Paycheck.date >= related_projection.start_date,
+                or_(
+                    Paycheck.date <= related_projection.end_date,
+                    related_projection.end_date == None,
+                ),
+                Paycheck.id != paycheck.id,
+            ).count()
+
+            # If no other paychecks use this projection, delete it
+            if other_paychecks == 0:
+                db.session.delete(related_projection)
+
+        # Delete the paycheck
         db.session.delete(paycheck)
         db.session.commit()
-        flash("Paycheck deleted successfully.")
+        flash("Income deleted successfully.")
     except Exception as e:
         db.session.rollback()
-        flash(f"Error deleting paycheck: {str(e)}")
+        flash(f"Error deleting income: {str(e)}")
 
     return redirect(url_for("main.manage_paychecks"))
 

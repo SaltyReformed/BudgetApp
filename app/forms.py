@@ -16,7 +16,15 @@ class PaycheckForm(FlaskForm):
     date = DateField("Date", validators=[DataRequired()])
     pay_type = SelectField(
         "Pay Type",
-        choices=[("Regular", "Regular"), ("Third", "Third")],
+        choices=[
+            ("Regular", "Regular Salary"),
+            ("Third", "Third Paycheck"),
+            ("Phone Stipend", "Phone Stipend"),
+            ("Bonus", "Bonus"),
+            ("Other Income", "Other Income"),
+            ("Tax Return", "Tax Return"),
+            ("Transfer", "Transfer from Savings"),
+        ],
         validators=[DataRequired()],
     )
     gross_amount = FloatField(
@@ -28,8 +36,51 @@ class PaycheckForm(FlaskForm):
     non_taxable_amount = FloatField(
         "Non-taxable Amount", validators=[DataRequired(), NumberRange(min=0)]
     )
+    net_amount = FloatField(
+        "Net Amount", validators=[DataRequired(), NumberRange(min=0)]
+    )
     phone_stipend = BooleanField("Phone Stipend")
-    submit = SubmitField("Add Paycheck")
+    description = StringField("Description (Optional)", validators=[Optional()])
+    recurring = BooleanField("Recurring Income")
+    frequency_type = SelectField(
+        "Frequency",
+        choices=[
+            ("", "One-time"),
+            ("weekly", "Weekly"),
+            ("biweekly", "Bi-weekly"),
+            ("monthly", "Monthly"),
+            ("quarterly", "Quarterly"),
+            ("annually", "Annually"),
+        ],
+        validators=[Optional()],
+    )
+    frequency_value = IntegerField(
+        "Repeat Every", validators=[Optional(), NumberRange(min=1)], default=1
+    )
+    start_date = DateField("Start Date", validators=[Optional()])
+    end_date = DateField("End Date", validators=[Optional()])
+    submit = SubmitField("Save Paycheck")
+
+    def validate(self, extra_validators=None):
+        """Custom validation to ensure net amount is less than or equal to gross amount"""
+        if not super().validate(extra_validators):
+            return False
+
+        if self.net_amount.data > self.gross_amount.data:
+            self.net_amount.errors.append(
+                "Net amount cannot be greater than gross amount"
+            )
+            return False
+
+        if self.recurring.data:
+            # Validate recurring fields
+            if not self.frequency_type.data:
+                self.frequency_type.errors.append(
+                    "Frequency type is required for recurring income"
+                )
+                return False
+
+        return True
 
 
 class SalaryForecastForm(FlaskForm):

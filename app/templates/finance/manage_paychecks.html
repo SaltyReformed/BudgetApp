@@ -4,32 +4,45 @@
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Manage Paychecks</h1>
-            <div>
-                <a href="{{ url_for('main.generate_paychecks') }}"
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 mr-2">
-                    Generate Paychecks
-                </a>
+            <h1 class="text-2xl font-bold text-gray-900">Manage Income</h1>
+            <div class="flex space-x-3">
                 <a href="{{ url_for('main.add_paycheck') }}"
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
-                    Add Manual Paycheck
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Income
                 </a>
             </div>
         </div>
 
+        <!-- Income Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-sm font-medium text-gray-500 mb-1">Total Income</h3>
+                <p class="text-2xl font-bold text-green-600">${{ "%.2f"|format(total_income) }}</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-sm font-medium text-gray-500 mb-1">Average Monthly Income</h3>
+                <p class="text-2xl font-bold text-blue-600">${{ "%.2f"|format(total_income / 12 if total_income > 0 else
+                    0) }}</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-sm font-medium text-gray-500 mb-1">Number of Income Entries</h3>
+                <p class="text-2xl font-bold text-purple-600">{{ paychecks|length }}</p>
+            </div>
+        </div>
+
+        <!-- Income Table -->
         <div class="bg-white shadow-sm rounded-lg overflow-hidden">
             <div class="px-4 py-5 sm:p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-medium text-gray-900">All Paychecks</h2>
-                    <div class="flex items-center">
-                        <input type="text" id="search-input" placeholder="Search paychecks..."
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block sm:text-sm border-gray-300 rounded-md">
-                    </div>
-                </div>
+                <h2 class="text-lg font-medium text-gray-900 mb-4">All Income Entries</h2>
 
                 {% if paychecks %}
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200" id="paychecks-table">
+                    <table class="min-w-full divide-y divide-gray-200" id="income-table">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col"
@@ -50,6 +63,10 @@
                                 </th>
                                 <th scope="col"
                                     class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tax Rate
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
@@ -58,7 +75,13 @@
                             {% for paycheck in paychecks %}
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ paycheck.date.strftime('%a, %b %d, %Y') }}
+                                    {{ paycheck.date.strftime('%b %d, %Y') }}
+                                    {% if paycheck.phone_stipend %}
+                                    <span
+                                        class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Phone Stipend
+                                    </span>
+                                    {% endif %}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ paycheck.pay_type }}
@@ -69,18 +92,34 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium text-right">
                                     ${{ "%.2f"|format(paycheck.net_amount) }}
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                    {{ "%.2f"|format((paycheck.gross_amount - paycheck.net_amount) /
+                                    paycheck.gross_amount * 100) }}%
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ url_for('main.edit_paycheck', id=paycheck.id) }}"
-                                        class="text-blue-600 hover:text-blue-900 mr-4">
-                                        Edit
-                                    </a>
-                                    <form method="POST" action="{{ url_for('main.delete_paycheck', id=paycheck.id) }}"
-                                        class="inline">
-                                        <button type="submit" class="text-red-600 hover:text-red-900"
-                                            onclick="return confirm('Are you sure you want to delete this paycheck?')">
-                                            Delete
-                                        </button>
-                                    </form>
+                                    <div class="flex justify-end space-x-3">
+                                        <a href="{{ url_for('main.edit_paycheck', id=paycheck.id) }}"
+                                            class="text-blue-600 hover:text-blue-900" title="Edit">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </a>
+                                        <form method="POST"
+                                            action="{{ url_for('main.delete_paycheck', id=paycheck.id) }}"
+                                            class="inline">
+                                            <button type="submit" class="text-red-600 hover:text-red-900"
+                                                onclick="return confirm('Are you sure you want to delete this income entry?')">
+                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -89,7 +128,11 @@
                 </div>
                 {% else %}
                 <div class="text-center py-6">
-                    <p class="text-gray-500">No paychecks found. Generate some paychecks or add them manually.</p>
+                    <p class="text-gray-500">No income entries found. Start by adding your first income.</p>
+                    <a href="{{ url_for('main.add_paycheck') }}"
+                        class="inline-block mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        Add First Income
+                    </a>
                 </div>
                 {% endif %}
             </div>
@@ -97,26 +140,29 @@
     </div>
 </div>
 
-{% if paychecks %}
+{% block scripts %}
+<!-- DataTables for advanced table functionality -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('search-input');
-        const table = document.getElementById('paychecks-table');
-        const rows = table.querySelectorAll('tbody tr');
-
-        searchInput.addEventListener('keyup', function () {
-            const searchText = searchInput.value.toLowerCase();
-
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchText)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+    $(document).ready(function () {
+        $('#income-table').DataTable({
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            order: [[0, 'desc']], // Sort by date descending
+            columnDefs: [
+                { orderable: false, targets: 5 } // Disable sorting on actions column
+            ],
+            language: {
+                searchPlaceholder: "Search income entries...",
+                zeroRecords: "No matching income entries found",
+                info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                infoEmpty: "No entries to show",
+                infoFiltered: "(filtered from _MAX_ total entries)"
+            }
         });
     });
 </script>
-{% endif %}
+{% endblock %}
 {% endblock %}
