@@ -409,17 +409,7 @@ def budget():
     # Convert to JSON for the template
     periods_json = json.dumps(serialized_periods)
     expenses_json = json.dumps(serialized_expenses)
-    # Add this just after finishing the period_data calculation to log the values
-    # For debugging purposes - prints balance info to console
-    print("\n=== PERIOD BALANCE DEBUG INFO ===")
-    for period in periods:
-        period_id = period["id"]
-        period_date = period["date"]
-        start_balance = period_data[period_id]["startingBalance"]
-        net = period_data[period_id]["net"]
-        end_balance = period_data[period_id]["endingBalance"]
-        print(f"Period {period_id} ({period_date}): Starting=${start_balance:.2f}, Net=${net:.2f}, Ending=${end_balance:.2f}")
-    print("================================\n")
+    
 
     return render_template(
         "finance/budget.html",

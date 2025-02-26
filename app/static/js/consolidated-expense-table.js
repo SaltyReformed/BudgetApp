@@ -688,119 +688,166 @@
       );
     };
 
-    // Function to update budget summary
-    const updateBudgetSummary = (totalExpenses, periodTotals) => {
-      // Find the Budget Summary table
-      const summaryTable = document.querySelector(
-        ".max-w-7xl .bg-white.rounded-lg.shadow.p-6.mb-6 table"
-      );
-      if (!summaryTable) {
-        console.error("Budget Summary table not found");
-        return;
+    // Improved Budget Summary Calculation with Detailed Expenses
+const updateBudgetSummary = (totalExpenses, periodTotals) => {
+  // Find the Budget Summary table
+  const summaryTable = document.querySelector(
+    ".max-w-7xl .bg-white.rounded-lg.shadow.p-6.mb-6 table"
+  );
+  if (!summaryTable) {
+    console.error("Budget Summary table not found");
+    return;
+  }
+
+  // Format currency helper
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount);
+  };
+
+  // Helper to extract numeric amount from a cell's text
+  const getCellAmount = (cell) => {
+    if (!cell || !cell.textContent) return 0;
+    return parseFloat(cell.textContent.replace(/[$,]/g, "")) || 0;
+  };
+
+  try {
+    // Find all rows in the summary table
+    const rows = summaryTable.querySelectorAll("tbody tr");
+    if (rows.length < 5) {
+      console.error("Not enough rows in the summary table");
+      return;
+    }
+
+    // Identify key rows
+    const startingBalanceRow = rows[0];
+    const incomeRow = rows[1];
+    const expensesRow = rows[2];
+    const netRow = rows[3];
+    const balanceRow = rows[4];
+
+    // Get the initial starting balance (first period)
+    let runningBalance = getCellAmount(startingBalanceRow.cells[1]);
+
+    // Debugging: Log initial values
+    console.log("Initial Starting Balance:", runningBalance);
+    console.log("Income Amounts:", 
+      Array.from(incomeRow.cells)
+        .map(cell => getCellAmount(cell))
+    );
+
+    // Log detailed expenses from the Detailed Expenses table
+    const detailedExpensesTable = document.querySelector('#detailed-expense-table table');
+    if (!detailedExpensesTable) {
+      console.error("Detailed Expenses table not found");
+      return;
+    }
+
+    const detailedExpenseRows = detailedExpensesTable.querySelectorAll('tbody tr');
+    const periodExpenses = {};
+
+    // Calculate expenses for each period
+    detailedExpenseRows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length > 1) {
+        // Skip the footer row
+        const categoryCell = cells[0];
+        const periodCells = Array.from(cells).slice(1, -1); // Exclude first (category) and last (total) cells
+
+        periodCells.forEach((periodCell, index) => {
+          const amount = parseFloat(periodCell.textContent.replace(/[$,]/g, '')) || 0;
+          periodExpenses[index + 1] = (periodExpenses[index + 1] || 0) + amount;
+        });
       }
+    });
 
-      // Format currency helper
-      const formatCurrency = (amount) => {
-        return new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        }).format(amount);
-      };
+    console.log("Calculated Period Expenses:", periodExpenses);
 
-      try {
-        // Find expenses row in summary table (usually the third row)
-        const expensesRow = summaryTable.querySelector("tbody tr:nth-child(3)");
-        if (!expensesRow) {
-          console.error("Expenses row not found in Budget Summary");
-          return;
-        }
+    // Process each period column (skipping first and last columns)
+    for (let i = 1; i < startingBalanceRow.cells.length - 1; i++) {
+      // Update starting balance cell for current period
+      startingBalanceRow.cells[i].textContent = formatCurrency(runningBalance);
+      startingBalanceRow.cells[i].className = runningBalance >= 0
+        ? "text-right py-2 px-4 text-green-600"
+        : "text-right py-2 px-4 text-red-600";
 
-        // Get all cells in the expenses row
-        const cells = expensesRow.querySelectorAll("td");
+      // Get income and expense for the current period
+      const income = getCellAmount(incomeRow.cells[i]);
+      const expense = periodExpenses[i] || 0;
+      
+      // Update expenses row with calculated expenses
+      expensesRow.cells[i].textContent = formatCurrency(expense);
+      expensesRow.cells[i].className = "text-right py-2 px-4 text-red-600";
+      
+      // Calculate net for the period
+      const periodNet = income - expense;
 
-        // Update the period expense totals
-        let periodIndex = 1; // Start from the second cell (first cell is "Expenses" label)
-        for (const periodId in periodTotals) {
-          if (periodIndex < cells.length) {
-            cells[periodIndex].textContent = formatCurrency(periodTotals[periodId]);
-            cells[periodIndex].classList.add("text-red-600"); // Ensure consistent styling
-            periodIndex++;
-          }
-        }
+      // Update net row
+      netRow.cells[i].textContent = formatCurrency(periodNet);
+      netRow.cells[i].className = periodNet >= 0 
+        ? "text-right py-2 px-4 text-green-600" 
+        : "text-right py-2 px-4 text-red-600";
 
-        // Update the total expenses cell (last cell)
-        const totalCell = cells[cells.length - 1];
-        if (totalCell) {
-          totalCell.textContent = formatCurrency(totalExpenses);
-          totalCell.classList.add("text-red-600", "font-bold");
-        }
+      // Calculate new balance
+      runningBalance += periodNet;
 
-        // Now update Net and Projected End Balance rows
-        const rows = summaryTable.querySelectorAll("tbody tr");
-        if (rows.length < 5) return;
+      // Update balance row
+      balanceRow.cells[i].textContent = formatCurrency(runningBalance);
+      balanceRow.cells[i].className = runningBalance >= 0
+        ? "text-right py-2 px-4 text-green-600"
+        : "text-right py-2 px-4 text-red-600";
+    }
 
-        const startingBalanceRow = rows[0];
-        const incomeRow = rows[1];
-        const netRow = rows[3];
-        const balanceRow = rows[4];
+    // Calculate and update total column
+    const totalIncome = getCellAmount(incomeRow.cells[incomeRow.cells.length - 1]);
+    const totalExpense = Object.values(periodExpenses).reduce((a, b) => a + b, 0);
+    const totalNet = totalIncome - totalExpense;
 
-        // Go through each column and recalculate net and balance
-        let runningBalance = parseFloat(getCellAmount(startingBalanceRow.cells[1]));
+    // Recalculate starting balance for the total column (first period's starting balance)
+    const initialStartingBalance = getCellAmount(startingBalanceRow.cells[1]);
 
-        for (let i = 1; i < incomeRow.cells.length - 1; i++) {
-          const income = parseFloat(getCellAmount(incomeRow.cells[i]));
-          const expense = parseFloat(getCellAmount(cells[i]));
-          const net = income - expense;
+    // Update total column starting balance
+    startingBalanceRow.cells[startingBalanceRow.cells.length - 1].textContent = 
+      formatCurrency(initialStartingBalance);
+    startingBalanceRow.cells[startingBalanceRow.cells.length - 1].className = 
+      initialStartingBalance >= 0
+        ? "text-right py-2 px-4 text-green-600 bg-gray-100"
+        : "text-right py-2 px-4 text-red-600 bg-gray-100";
 
-          // Update net cell
-          netRow.cells[i].textContent = formatCurrency(net);
-          netRow.cells[i].className =
-            net >= 0
-              ? "text-right py-2 px-4 text-green-600"
-              : "text-right py-2 px-4 text-red-600";
+    // Update total expenses
+    expensesRow.cells[expensesRow.cells.length - 1].textContent = formatCurrency(totalExpense);
+    expensesRow.cells[expensesRow.cells.length - 1].className = 
+      "text-right py-2 px-4 font-bold text-red-600 bg-gray-100";
 
-          // Calculate and update balance
-          runningBalance += net;
-          balanceRow.cells[i].textContent = formatCurrency(runningBalance);
-          balanceRow.cells[i].className =
-            runningBalance >= 0
-              ? "text-right py-2 px-4 text-green-600"
-              : "text-right py-2 px-4 text-red-600";
-        }
+    // Update net total
+    netRow.cells[netRow.cells.length - 1].textContent = formatCurrency(totalNet);
+    netRow.cells[netRow.cells.length - 1].className = totalNet >= 0
+      ? "text-right py-2 px-4 text-green-600 bg-gray-100"
+      : "text-right py-2 px-4 text-red-600 bg-gray-100";
 
-        // Update total column
-        const totalIncome = parseFloat(
-          getCellAmount(incomeRow.cells[incomeRow.cells.length - 1])
-        );
-        const totalExpense = parseFloat(
-          getCellAmount(cells[cells.length - 1])
-        );
-        const totalNet = totalIncome - totalExpense;
+    // Calculate final balance
+    const finalBalance = initialStartingBalance + totalNet;
 
-        // Update net total
-        netRow.cells[netRow.cells.length - 1].textContent = formatCurrency(totalNet);
-        netRow.cells[netRow.cells.length - 1].className =
-          totalNet >= 0
-            ? "text-right py-2 px-4 text-green-600 bg-gray-100"
-            : "text-right py-2 px-4 text-red-600 bg-gray-100";
+    // Update final balance
+    balanceRow.cells[balanceRow.cells.length - 1].textContent = formatCurrency(finalBalance);
+    balanceRow.cells[balanceRow.cells.length - 1].className = finalBalance >= 0
+      ? "text-right py-2 px-4 text-green-600 bg-gray-100"
+      : "text-right py-2 px-4 text-red-600 bg-gray-100";
 
-        // Starting balance plus total net equals final balance
-        const startingBalance = parseFloat(
-          getCellAmount(startingBalanceRow.cells[startingBalanceRow.cells.length - 1])
-        );
-        const finalBalance = startingBalance + totalNet;
+    // Detailed logging for verification
+    console.log("Calculation Results:");
+    console.log("Initial Starting Balance:", initialStartingBalance);
+    console.log("Total Income:", totalIncome);
+    console.log("Total Expenses:", totalExpense);
+    console.log("Total Net:", totalNet);
+    console.log("Final Balance:", finalBalance);
 
-        // Update final balance
-        balanceRow.cells[balanceRow.cells.length - 1].textContent =
-          formatCurrency(finalBalance);
-        balanceRow.cells[balanceRow.cells.length - 1].className =
-          finalBalance >= 0
-            ? "text-right py-2 px-4 text-green-600 bg-gray-100"
-            : "text-right py-2 px-4 text-red-600 bg-gray-100";
-      } catch (error) {
-        console.error("Error updating Budget Summary:", error);
-      }
-    };
+  } catch (error) {
+    console.error("Error updating Budget Summary:", error);
+  }
+};
 
     // Helper to extract numeric amount from a cell's text
     const getCellAmount = (cell) => {
