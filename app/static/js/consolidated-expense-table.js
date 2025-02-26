@@ -87,33 +87,33 @@
             const key = `${category}|${description}`;
             const amount = parseFloat(expense.amount);
             grandTotal += amount;
-
+                    
             // Find which period this expense belongs to
             const expenseDate = new Date(expense.date);
             let periodId = null;
-
+                    
             for (const period of props.periods) {
               const startDate = new Date(period.start_date);
               const endDate = new Date(period.end_date);
-
+            
               // Match expense to period based on date range
               if (expenseDate >= startDate && expenseDate <= endDate) {
                 periodId = period.id;
                 break;
               }
             }
-
+          
             // Add to period totals if we found a matching period
             if (periodId !== null && perTotals[periodId] !== undefined) {
               perTotals[periodId] += amount;
             }
-
+          
             // Add to category totals
             if (!catTotals[category]) {
               catTotals[category] = 0;
             }
             catTotals[category] += amount;
-
+          
             // Group by category and description
             if (!byCategory[key]) {
               byCategory[key] = {
@@ -121,25 +121,35 @@
                 description,
                 periods: {},
                 total: 0,
-                id: expense.id, // Store ID for edit functionality
+                paid_total: 0,
+                unpaid_total: 0,
+                id: expense.id,
                 paid: expense.paid,
                 date: expense.date,
-                allExpenses: [], // To store all expense IDs for this category/description
+                allExpenses: [],
               };
             }
-
+          
             byCategory[key].allExpenses.push(expense);
-
+          
             if (periodId) {
               if (!byCategory[key].periods[periodId]) {
                 byCategory[key].periods[periodId] = 0;
               }
               byCategory[key].periods[periodId] += amount;
             }
-
+          
             byCategory[key].total += amount;
+            
+            // Track paid vs unpaid totals
+            if (expense.paid) {
+              byCategory[key].paid_total += amount;
+            } else {
+              byCategory[key].unpaid_total += amount;
+            }
           });
-
+          
+          // After the forEach loop, update the state
           setExpensesByCategory(byCategory);
           setCategoryTotals(catTotals);
           setPeriodTotals(perTotals);
@@ -594,20 +604,68 @@
                       props.periods.map((period) => {
                         const amount = item.periods[period.id] || 0;
 
+                        // Find if any expenses in this period/category are paid
+                        const hasPaidExpenses = item.allExpenses.some(exp => 
+                          exp.paid && 
+                          new Date(exp.date) >= new Date(period.start_date) && 
+                          new Date(exp.date) <= new Date(period.end_date)
+                        );
+                      
                         return React.createElement(
                           "td",
                           {
                             key: `amount-${key}-${period.id}`,
                             className: "text-right py-3 px-4",
                           },
-                          amount > 0 ? formatCurrency(amount) : ""
+                          amount > 0 ? (
+                            React.createElement(
+                              "div",
+                              { className: "flex items-center justify-end" },
+                              hasPaidExpenses && 
+                              React.createElement(
+                                "span",
+                                { 
+                                  className: "mr-1 text-xs px-1 py-0.5 bg-green-100 text-green-800 rounded-full",
+                                  title: "Paid"
+                                },
+                                "✓"
+                              ),
+                              formatCurrency(amount)
+                            )
+                          ) : ""
                         );
                       }),
                       // Row total
                       React.createElement(
                         "td",
                         { className: "text-right py-3 px-4 font-medium" },
-                        formatCurrency(item.total)
+                        React.createElement(
+                          "div",
+                          null,
+                          item.unpaid_total > 0 ? (
+                            // Show unpaid amount in red
+                            React.createElement(
+                              "span",
+                              { className: "font-bold text-red-600" },
+                              formatCurrency(item.unpaid_total)
+                            )
+                          ) : (
+                            // All paid
+                            React.createElement(
+                              "span",
+                              { className: "text-green-600" },
+                              "Paid"
+                            )
+                          ),
+                          // If there are both paid and unpaid amounts, show the total
+                          // item.paid_total > 0 && item.unpaid_total > 0 ? (
+                          //   React.createElement(
+                          //     "div",
+                          //     { className: "text-xs text-gray-500 mt-1" },
+                          //     "(Total: " + formatCurrency(item.total) + ")"
+                          //   )
+                          // ) : null
+                        )
                       ),
                       // Actions
                       React.createElement(

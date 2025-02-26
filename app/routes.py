@@ -331,10 +331,14 @@ def budget():
                 category = expense.category.lower()
                 if category not in period_data[period_id]["expenses"]:
                     period_data[period_id]["expenses"][category] = 0
-                period_data[period_id]["expenses"][category] += float(expense.amount)
 
-                # Add to total expenses for the period
-                period_data[period_id]["total_expenses"] += float(expense.amount)
+                # Only add unpaid expenses to the totals
+                if not expense.paid:
+                    period_data[period_id]["expenses"][category] += float(
+                        expense.amount
+                    )
+                    # Add to total expenses for the period
+                    period_data[period_id]["total_expenses"] += float(expense.amount)
 
                 assigned = True
                 break
